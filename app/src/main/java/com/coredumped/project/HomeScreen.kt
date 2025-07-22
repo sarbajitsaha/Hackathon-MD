@@ -72,7 +72,7 @@ fun LargeButton(
         onClick = onClick,
         modifier = modifier // Use the passed modifier
             .fillMaxSize() // Fill the available space given by the grid cell
-        // .height(150.dp) // You could set a minimum or fixed height if fillMaxSize isn't enough
+            .height(300.dp) // You could set a minimum or fixed height if fillMaxSize isn't enough
         // .widthIn(min = 120.dp) // Ensure a minimum width
         ,
         colors = ButtonDefaults.buttonColors(containerColor = color)

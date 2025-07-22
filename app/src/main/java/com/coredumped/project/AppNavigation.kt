@@ -21,15 +21,19 @@ fun AppNavigation() {
         composable("daily_activity") {
             PlaceholderScreen("Daily Activity Screen")
         }
-        composable("iq") {
-            PlaceholderScreen("IQ Screen")
-        }
         composable("learning") {
             PlaceholderScreen("Learning Screen")
         }
         composable("calm") {
-            PlaceholderScreen("Calm Screen")
+            CalmScreen(navController)
         }
+        composable("iq") {
+            PlaceholderScreen("IQ Screen")
+        }
+        //composable("fluid_simulation") { FluidSimulationScreen() }
+        //composable("calming_audio") { CalmingAudioScreen() }
+        //composable("calming_video") { CalmingVideoScreen() }
+        //composable("bubble_pop") { BubblePopScreen() }
     }
 }
 
