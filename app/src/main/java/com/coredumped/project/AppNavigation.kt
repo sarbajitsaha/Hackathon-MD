@@ -6,10 +6,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.coredumped.project.calm.CalmScreen
+import com.coredumped.project.calm.FluidSimulationScreen
 
 @Composable
 fun AppNavigation() {
@@ -30,7 +31,9 @@ fun AppNavigation() {
         composable("iq") {
             PlaceholderScreen("IQ Screen")
         }
-        //composable("fluid_simulation") { FluidSimulationScreen() }
+        composable("fluid_simulation") {
+            FluidSimulationScreen(navController = navController)
+        }
         //composable("calming_audio") { CalmingAudioScreen() }
         //composable("calming_video") { CalmingVideoScreen() }
         //composable("bubble_pop") { BubblePopScreen() }
