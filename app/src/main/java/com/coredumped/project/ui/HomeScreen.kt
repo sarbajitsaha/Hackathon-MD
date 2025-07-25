@@ -1,4 +1,4 @@
-package com.coredumped.project.calm
+package com.coredumped.project.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -22,15 +20,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import com.coredumped.project.R
 
 @Composable
-fun CalmScreen(navController: NavController) {
+fun HomeScreen(navController: NavController) {
     // Container Box to hold the background and grid
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image that fills the entire screen
         Image(
-            painter = painterResource(id = R.drawable.calm_background),
+            painter = painterResource(id = R.drawable.homescreen),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop // Crop to maintain aspect ratio and fill screen
@@ -48,34 +48,34 @@ fun CalmScreen(navController: NavController) {
         ) {
             item {
                 CategoryItem(
-                    text = "Fluid",
-                    imageResId = R.drawable.fluid,
-                    color = Color.Blue,
-                    onClick = { navController.navigate("fluid_simulation") }
+                    text = "Daily Activity",
+                    imageResId = R.drawable.daily_activity,
+                    color = Color(0xFF4CAF50),
+                    onClick = { navController.navigate("daily_activity") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "Audio",
-                    imageResId = R.drawable.calm_audio,
-                    color = Color.Green,
-                    onClick = { navController.navigate("calming_audio") }
+                    text = "IQ",
+                    imageResId = R.drawable.iq,
+                    color = Color(0xFF2196F3),
+                    onClick = { navController.navigate("iq") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "Video",
-                    imageResId = R.drawable.calm_video,
-                    color = Color.Blue,
-                    onClick = { navController.navigate("calming_video") }
+                    text = "Learning",
+                    imageResId = R.drawable.learning,
+                    color = Color(0xFFFFC107),
+                    onClick = { navController.navigate("learning") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "Bubbles",
-                    imageResId = R.drawable.bubbles,
-                    color = Color.Cyan,
-                    onClick = { navController.navigate("bubble_pop") }
+                    text = "Calm",
+                    imageResId = R.drawable.calm,
+                    color = Color(0xFF9C27B0),
+                    onClick = { navController.navigate("calm") }
                 )
             }
         }
@@ -100,7 +100,7 @@ fun CategoryItem(
                 .clickable(onClick = onClick) // Make the card clickable
                 .size(150.dp), // Fixed size to match image, no extra padding
             shape = RoundedCornerShape(12.dp), // Rounded corners for the card
-            colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.3f)), // Subtle translucent background
+            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.3f)), // Subtle translucent background
             elevation = CardDefaults.cardElevation(1.dp) // Slight elevation for depth
         ) {
             // Image filling the card

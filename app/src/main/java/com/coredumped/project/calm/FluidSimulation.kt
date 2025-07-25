@@ -1,154 +1,106 @@
 package com.coredumped.project.calm
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.ActivityInfo
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.coroutines.isActive
 import kotlin.math.*
 import kotlin.random.Random
+import kotlinx.coroutines.isActive
 
-// Fluid simulation constants
-private const val ITERATIONS = 12 // Solver iterations
-private const val DIFFUSION = 0.0001f // Diffusion rate of the fluid
-private const val VISCOSITY = 0.0000001f // Viscosity of the fluid
-private const val DT = 0.1f // Time step
-private const val FORCE_MULTIPLIER = 500f // Touch force multiplier
-private const val DENSITY_MULTIPLIER = 50f // Touch density multiplier
-private const val DAMPING = 0.99f // Velocity damping factor (higher = less damping)
-private const val DENSITY_DECAY = 0.995f // Density decay factor
-private const val AMBIENT_FLOW = 1.0f // Ambient flow strength to keep fluid moving
-private const val AUTO_ADD_INTERVAL = 60 // Frames between auto-adding density
+data class Particle(
+    var pos: Offset,
+    var vel: Offset,
+    var alpha: Float,
+    var size: Float,
+    val color: Color,
+    val glowColor: Color,
+    var trail: List<Offset> = listOf()
+)
 
-// Available color palettes
-enum class ColorPalette(val colors: Array<Color>) {
-    OCEAN(arrayOf(
-        Color(0xFF072448), // Deep blue
-        Color(0xFF054a91), // Medium blue
-        Color(0xFF3e7cb1), // Light blue
-        Color(0xFF81a4cd), // Pale blue
-        Color(0xFF54d2d2), // Teal
-        Color(0xFFffcb00), // Yellow
-        Color(0xFFf8aa4b), // Orange
-        Color(0xFFff6150)  // Red
-    )),
-
-    RAINBOW(arrayOf(
-        Color(0xFF9400D3), // Violet
-        Color(0xFF4B0082), // Indigo
-        Color(0xFF0000FF), // Blue
-        Color(0xFF00FF00), // Green
-        Color(0xFFFFFF00), // Yellow
-        Color(0xFFFF7F00), // Orange
-        Color(0xFFFF0000)  // Red
-    )),
-
-    FIRE(arrayOf(
-        Color(0xFF240002), // Dark red
-        Color(0xFF4d0005), // Deep red
-        Color(0xFF930007), // Medium red
-        Color(0xFFe3000b), // Bright red
-        Color(0xFFff4c0e), // Orange
-        Color(0xFFff9426), // Light orange
-        Color(0xFFffca18), // Yellow
-        Color(0xFFfffa6c)  // Light yellow
-    )),
-
-    COOL(arrayOf(
-        Color(0xFF0d0b33), // Deep purple
-        Color(0xFF22186e), // Purple
-        Color(0xFF364bcc), // Blue
-        Color(0xFF0597d1), // Light blue
-        Color(0xFF28e7eb), // Cyan
-        Color(0xFF8ef1f2), // Light cyan
-        Color(0xFFd3f9fa)  // White-cyan
-    )),
-
-    MONO(arrayOf(
-        Color(0xFF000000), // Black
-        Color(0xFF222222),
-        Color(0xFF444444),
-        Color(0xFF666666),
-        Color(0xFF888888),
-        Color(0xFFaaaaaa),
-        Color(0xFFcccccc),
-        Color(0xFFffffff)  // White
-    ))
-}
+data class Line(
+    val points: MutableList<Offset>,
+    val color: Color,
+    val glowColor: Color,
+    val thickness: Float = Random.nextFloat() * 8f + 8f,
+    var disintegrating: Boolean = true
+)
 
 @Composable
 fun FluidSimulationScreen(navController: NavController) {
+    // Force landscape mode
+    val context = LocalContext.current
+    SideEffect {
+        context.findActivity()?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+    }
+
     var canvasSize by remember { mutableStateOf(Size.Zero) }
-    var touchPosition by remember { mutableStateOf<Offset?>(null) }
-    var previousTouchPosition by remember { mutableStateOf<Offset?>(null) }
-    var touchVelocity by remember { mutableStateOf(Offset.Zero) }
+    val currentPoints = remember { mutableStateListOf<Offset>() }
+    var currentColor by remember { mutableStateOf(Color.White) }
+    var currentGlowColor by remember { mutableStateOf(Color.White) }
+    val lines = remember { mutableStateListOf<Line>() }
+    val particles = remember { mutableStateListOf<Particle>() }
+    var showHint by remember { mutableStateOf(true) }
     var frameCount by remember { mutableStateOf(0) }
 
-    // Color palette selection
-    var currentPalette by remember { mutableStateOf(ColorPalette.OCEAN) }
+    // Performance monitoring (optional)
+    var lastFrameTime by remember { mutableStateOf(0L) }
+    var frameTimeAvg by remember { mutableStateOf(0f) }
 
-    // Grid size - higher for smoother appearance (but watch performance on older devices)
-    val gridSize = remember { 80 }
+    // Animation for glowing back button
+    val infiniteTransition = rememberInfiniteTransition(label = "backButtonPulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulseAnimation"
+    )
 
-    // Create the fluid simulator
-    val fluidSim = remember { FluidSimulator(gridSize) }
-
-    // Update palette when it changes
-    LaunchedEffect(currentPalette) {
-        fluidSim.setPalette(currentPalette.colors)
-    }
-
-    // Reset simulator when canvas size changes
-    LaunchedEffect(canvasSize) {
-        if (canvasSize.width > 0 && canvasSize.height > 0) {
-            fluidSim.reset()
-
-            // Pre-warm the simulation with smoother initial state
-
-            // Add some gentle ambient flow first
-            for (i in 0 until 20) {
-                val x = Random.nextInt(gridSize / 4, 3 * gridSize / 4)
-                val y = Random.nextInt(gridSize / 4, 3 * gridSize / 4)
-                fluidSim.addForce(
-                    x, y,
-                    Random.nextFloat() * 5f - 2.5f,
-                    Random.nextFloat() * 5f - 2.5f
-                )
-            }
-
-            // Add smooth density blobs
-            for (i in 0 until 6) {
-                // Place fewer, more spread out density points
-                val x = gridSize / 2 + (Random.nextFloat() * 0.6f - 0.3f).toInt() * gridSize
-                val y = gridSize / 2 + (Random.nextFloat() * 0.6f - 0.3f).toInt() * gridSize
-
-                // Add density with wider spread and lower amount
-                fluidSim.addSmoothDensity(x, y, 30f, 6)
-            }
-
-            // Run a few simulation steps to smooth things out before display
-            repeat(15) {
-                fluidSim.step()
-            }
-        }
-    }
+    // Animation for hint icon
+    val hintAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "hintAlphaAnimation"
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         Canvas(
@@ -158,419 +110,730 @@ fun FluidSimulationScreen(navController: NavController) {
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { offset ->
-                            touchPosition = offset
-                            previousTouchPosition = offset
+                            showHint = false
+                            currentPoints.clear()
+                            currentPoints.add(offset)
+                            // Generate vibrant color with matching glow
+                            val colorPair = generateVibrantColorWithGlow()
+                            currentColor = colorPair.first
+                            currentGlowColor = colorPair.second
                         },
                         onDrag = { change, _ ->
-                            touchPosition = change.position
-                            previousTouchPosition?.let { prev ->
-                                touchVelocity = change.position - prev
+                            val lastPoint = currentPoints.lastOrNull()
+                            if (lastPoint == null || (change.position - lastPoint).getDistance() > 2f) {
+                                currentPoints.add(change.position)
+
+                                // Create particles while drawing for immediate feedback
+                                if (Random.nextFloat() < 0.3f) { // Increased particle creation rate
+                                    val pos = change.position
+                                    repeat(Random.nextInt(1, 3)) { // Fewer particles while drawing for performance
+                                        val angle = Random.nextDouble() * 2 * Math.PI
+                                        val speed = Random.nextFloat() * 1.5f + 0.5f
+                                        val vel = Offset(
+                                            (cos(angle) * speed).toFloat(),
+                                            (sin(angle) * speed).toFloat()
+                                        )
+
+                                        particles.add(
+                                            Particle(
+                                                pos = pos + Offset(Random.nextFloat() * 4 - 2, Random.nextFloat() * 4 - 2),
+                                                vel = vel,
+                                                alpha = 0.8f + Random.nextFloat() * 0.2f,
+                                                size = Random.nextFloat() * 3f + 3f,
+                                                color = currentColor,
+                                                glowColor = currentGlowColor,
+                                                trail = listOf()
+                                            )
+                                        )
+                                    }
+                                }
                             }
-                            previousTouchPosition = change.position
                         },
                         onDragEnd = {
-                            touchPosition = null
-                            previousTouchPosition = null
-                            touchVelocity = Offset.Zero
+                            if (currentPoints.size > 1) {
+                                lines.add(
+                                    Line(
+                                        currentPoints.toMutableList(),
+                                        currentColor,
+                                        currentGlowColor,
+                                        thickness = Random.nextFloat() * 8f + 8f,
+                                        disintegrating = true
+                                    )
+                                )
+
+                                // Create initial burst of particles
+                                createGlowingParticleBurst(currentPoints.last(), currentColor, currentGlowColor, particles)
+                            }
+                            currentPoints.clear()
                         },
                         onDragCancel = {
-                            touchPosition = null
-                            previousTouchPosition = null
-                            touchVelocity = Offset.Zero
+                            currentPoints.clear()
                         }
                     )
                 }
         ) {
             canvasSize = size
 
-            // Increment frame counter
-            frameCount++
+            // Draw existing lines with enhanced glow effect
+            for (line in lines) {
+                if (line.points.isNotEmpty()) {
+                    val path = createSmoothPath(line.points)
 
-            // Apply touch forces and update simulation
-            touchPosition?.let { touch ->
-                val gridX = (touch.x / size.width * gridSize).toInt().coerceIn(1, gridSize - 2)
-                val gridY = (touch.y / size.height * gridSize).toInt().coerceIn(1, gridSize - 2)
+                    // Enhanced multi-layered glow effect
+                    // Layer 1 - Outer glow (large, subtle)
+                    drawPath(
+                        path = path,
+                        color = line.glowColor.copy(alpha = 0.2f),
+                        style = Stroke(
+                            width = line.thickness + 18f,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
 
-                // Add force based on touch velocity
-                fluidSim.addForce(
-                    gridX, gridY,
-                    touchVelocity.x * FORCE_MULTIPLIER / size.width,
-                    touchVelocity.y * FORCE_MULTIPLIER / size.height
+                    // Layer 2 - Mid glow (medium, more visible)
+                    drawPath(
+                        path = path,
+                        color = line.glowColor.copy(alpha = 0.4f),
+                        style = Stroke(
+                            width = line.thickness + 12f,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+
+                    // Layer 3 - Inner glow (small, intense)
+                    drawPath(
+                        path = path,
+                        color = line.glowColor.copy(alpha = 0.6f),
+                        style = Stroke(
+                            width = line.thickness + 6f,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+
+                    // Main line (solid)
+                    drawPath(
+                        path = path,
+                        color = line.color,
+                        style = Stroke(
+                            width = line.thickness,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round
+                        )
+                    )
+                }
+            }
+
+            // Draw current line being drawn with enhanced glow effect
+            if (currentPoints.isNotEmpty()) {
+                val path = createSmoothPath(currentPoints)
+                val thickness = Random.nextFloat() * 8f + 8f
+
+                // Enhanced multi-layered glow effect (same as for completed lines)
+                // Layer 1 - Outer glow
+                drawPath(
+                    path = path,
+                    color = currentGlowColor.copy(alpha = 0.2f),
+                    style = Stroke(
+                        width = thickness + 18f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
                 )
 
-                // Add density (color) at touch point
-                fluidSim.addDensity(gridX, gridY, DENSITY_MULTIPLIER)
-            }
+                // Layer 2 - Mid glow
+                drawPath(
+                    path = path,
+                    color = currentGlowColor.copy(alpha = 0.4f),
+                    style = Stroke(
+                        width = thickness + 12f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
+                )
 
-            // Always add ambient forces to keep fluid moving
-            val time = frameCount * 0.01f
+                // Layer 3 - Inner glow
+                drawPath(
+                    path = path,
+                    color = currentGlowColor.copy(alpha = 0.6f),
+                    style = Stroke(
+                        width = thickness + 6f,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
+                )
 
-            // Add a continuous circular flow
-            val centerX = gridSize / 2
-            val centerY = gridSize / 2
-            val radius = gridSize / 4
-
-            // Circular flow
-            val angle = time * 0.2f
-            val flowX = centerX + (radius * cos(angle)).toInt()
-            val flowY = centerY + (radius * sin(angle)).toInt()
-
-            fluidSim.addForce(
-                flowX, flowY,
-                cos(angle + PI.toFloat() / 2) * AMBIENT_FLOW,
-                sin(angle + PI.toFloat() / 2) * AMBIENT_FLOW
-            )
-
-            // Add random forces to create more interesting flow
-            for (i in 0 until 3) {
-                val x = Random.nextInt(1, gridSize - 1)
-                val y = Random.nextInt(1, gridSize - 1)
-                fluidSim.addForce(
-                    x, y,
-                    (Random.nextFloat() - 0.5f) * AMBIENT_FLOW * 2f,
-                    (Random.nextFloat() - 0.5f) * AMBIENT_FLOW * 2f
+                // Main line
+                drawPath(
+                    path = path,
+                    color = currentColor,
+                    style = Stroke(
+                        width = thickness,
+                        cap = StrokeCap.Round,
+                        join = StrokeJoin.Round
+                    )
                 )
             }
 
-            // Periodically add new density to keep the simulation visible
-            if (frameCount % AUTO_ADD_INTERVAL == 0) {
-                val x = Random.nextInt(gridSize / 4, 3 * gridSize / 4)
-                val y = Random.nextInt(gridSize / 4, 3 * gridSize / 4)
-                fluidSim.addDensity(x, y, 25f) // Smaller amount for smaller particles
+            // Optimized particle rendering - adapt detail level based on particle count
+            val particleDrawingMode = when {
+                particles.size > 5000 -> 2 // Ultra simplified
+                particles.size > 2000 -> 1 // Simplified
+                else -> 0 // Full detail
             }
 
-            fluidSim.step()
-            fluidSim.render(this, size)
-        }
+            // Draw particles with optimized glow effects
+            for (particle in particles) {
+                when (particleDrawingMode) {
+                    0 -> {
+                        // Full detail mode
+                        // Draw trails with glow
+                        val trailToDraw = particle.trail.takeLast(min(4, particle.trail.size))
+                        trailToDraw.forEachIndexed { index, trailPos ->
+                            val trailProgress = index.toFloat() / max(1, trailToDraw.size - 1)
+                            val trailAlpha = particle.alpha * 0.6f * (1 - trailProgress)
+                            val trailSize = particle.size * 0.7f * (1 - trailProgress)
 
-        LaunchedEffect(Unit) {
-            while (isActive) {
-                withFrameNanos {}
-            }
-        }
+                            // Draw simplified trail glow
+                            drawCircle(
+                                color = particle.glowColor.copy(alpha = trailAlpha * 0.4f),
+                                center = trailPos,
+                                radius = trailSize * 1.8f
+                            )
 
-        // Back button
-        FloatingActionButton(
-            onClick = { navController.popBackStack() },
-            modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
-            containerColor = Color.Black.copy(alpha = 0.5f),
-            contentColor = Color.White
-        ) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-        }
-
-        // Palette switcher button
-        FloatingActionButton(
-            onClick = {
-                // Cycle through available color palettes
-                currentPalette = when(currentPalette) {
-                    ColorPalette.OCEAN -> ColorPalette.RAINBOW
-                    ColorPalette.RAINBOW -> ColorPalette.FIRE
-                    ColorPalette.FIRE -> ColorPalette.COOL
-                    ColorPalette.COOL -> ColorPalette.MONO
-                    ColorPalette.MONO -> ColorPalette.OCEAN
-                }
-            },
-            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
-            containerColor = Color.Black.copy(alpha = 0.5f),
-            contentColor = Color.White
-        ) {
-            Icon(Icons.Filled.Palette, contentDescription = "Change Color Palette")
-        }
-    }
-}
-
-// Fluid simulation class implementing a grid-based approach
-class FluidSimulator(private val gridSize: Int) {
-    // Simulation arrays
-    private var s = Array(gridSize) { FloatArray(gridSize) { 0f } } // Density
-    private var density = Array(gridSize) { FloatArray(gridSize) { 0f } } // New density
-
-    private var vx = Array(gridSize) { FloatArray(gridSize) { 0f } } // Velocity X
-    private var vy = Array(gridSize) { FloatArray(gridSize) { 0f } } // Velocity Y
-
-    private var vx0 = Array(gridSize) { FloatArray(gridSize) { 0f } } // Previous velocity X
-    private var vy0 = Array(gridSize) { FloatArray(gridSize) { 0f } } // Previous velocity Y
-
-    // Default color palette
-    private var colorPalette = arrayOf(
-        Color(0xFF072448), // Deep blue
-        Color(0xFF054a91), // Medium blue
-        Color(0xFF3e7cb1), // Light blue
-        Color(0xFF81a4cd), // Pale blue
-        Color(0xFF54d2d2), // Teal
-        Color(0xFFffcb00), // Yellow
-        Color(0xFFf8aa4b), // Orange
-        Color(0xFFff6150)  // Red
-    )
-
-    // Set color palette
-    fun setPalette(palette: Array<Color>) {
-        colorPalette = palette
-    }
-
-    // Add density with wider spread for smoother initialization
-    fun addSmoothDensity(x: Int, y: Int, amount: Float, radius: Int) {
-        val safeX = x.coerceIn(radius, gridSize - radius - 1)
-        val safeY = y.coerceIn(radius, gridSize - radius - 1)
-
-        // Add density in a wide area with smooth gaussian falloff
-        for (i in -radius..radius) {
-            for (j in -radius..radius) {
-                val nx = safeX + i
-                val ny = safeY + j
-                if (nx in 1 until gridSize - 1 && ny in 1 until gridSize - 1) {
-                    val distance = sqrt(i*i + j*j.toFloat())
-                    val factor = exp(-distance * distance / (radius * 1.5f)) // Smoother, wider gaussian
-                    s[nx][ny] += amount * factor
-                }
-            }
-        }
-    }
-
-    // Reset simulation
-    fun reset() {
-        for (i in 0 until gridSize) {
-            for (j in 0 until gridSize) {
-                s[i][j] = 0f
-                density[i][j] = 0f
-                vx[i][j] = 0f
-                vy[i][j] = 0f
-                vx0[i][j] = 0f
-                vy0[i][j] = 0f
-            }
-        }
-    }
-
-    // Add density at a point
-    fun addDensity(x: Int, y: Int, amount: Float) {
-        val safeX = x.coerceIn(1, gridSize - 2)
-        val safeY = y.coerceIn(1, gridSize - 2)
-
-        // Add density in a small area (with gaussian-like falloff)
-        for (i in -3..3) {
-            for (j in -3..3) {
-                val nx = safeX + i
-                val ny = safeY + j
-                if (nx in 1 until gridSize - 1 && ny in 1 until gridSize - 1) {
-                    val distance = sqrt(i*i + j*j.toFloat())
-                    val factor = exp(-distance * distance / 8) // Gaussian falloff
-                    s[nx][ny] += amount * factor
-                }
-            }
-        }
-    }
-
-    // Add velocity at a point
-    fun addForce(x: Int, y: Int, amountX: Float, amountY: Float) {
-        val safeX = x.coerceIn(1, gridSize - 2)
-        val safeY = y.coerceIn(1, gridSize - 2)
-
-        // Add velocity in a small area (with gaussian-like falloff)
-        for (i in -3..3) {
-            for (j in -3..3) {
-                val nx = safeX + i
-                val ny = safeY + j
-                if (nx in 1 until gridSize - 1 && ny in 1 until gridSize - 1) {
-                    val distance = sqrt(i*i + j*j.toFloat())
-                    val factor = exp(-distance * distance / 8) // Gaussian falloff
-                    vx[nx][ny] += amountX * factor
-                    vy[nx][ny] += amountY * factor
-                }
-            }
-        }
-    }
-
-    // Main simulation step
-    fun step() {
-        diffuse(1, vx0, vx, VISCOSITY)
-        diffuse(2, vy0, vy, VISCOSITY)
-
-        project(vx0, vy0, vx, vy)
-
-        advect(1, vx, vx0, vx0, vy0)
-        advect(2, vy, vy0, vx0, vy0)
-
-        project(vx, vy, vx0, vy0)
-
-        diffuse(0, density, s, DIFFUSION)
-        advect(0, s, density, vx, vy)
-
-        // Apply damping to velocity field and decay to density
-        for (i in 0 until gridSize) {
-            for (j in 0 until gridSize) {
-                vx[i][j] *= DAMPING
-                vy[i][j] *= DAMPING
-                s[i][j] *= DENSITY_DECAY
-            }
-        }
-    }
-
-    // Diffuse the fluid - handles how quantities spread over time
-    private fun diffuse(b: Int, x: Array<FloatArray>, x0: Array<FloatArray>, diff: Float) {
-        val a = DT * diff * (gridSize - 2) * (gridSize - 2)
-        linearSolve(b, x, x0, a, 1 + 4 * a)
-    }
-
-    // Solves linear system for diffusion and pressure
-    private fun linearSolve(b: Int, x: Array<FloatArray>, x0: Array<FloatArray>, a: Float, c: Float) {
-        val cRecip = 1.0f / c
-        for (k in 0 until ITERATIONS) {
-            for (i in 1 until gridSize - 1) {
-                for (j in 1 until gridSize - 1) {
-                    x[i][j] = (x0[i][j] + a * (x[i+1][j] + x[i-1][j] + x[i][j+1] + x[i][j-1])) * cRecip
-                }
-            }
-            setBoundary(b, x)
-        }
-    }
-
-    // Project step - makes the velocity field mass-conserving
-    private fun project(velocX: Array<FloatArray>, velocY: Array<FloatArray>, p: Array<FloatArray>, div: Array<FloatArray>) {
-        for (i in 1 until gridSize - 1) {
-            for (j in 1 until gridSize - 1) {
-                div[i][j] = -0.5f * (
-                        velocX[i+1][j] - velocX[i-1][j] +
-                                velocY[i][j+1] - velocY[i][j-1]
-                        ) / gridSize
-                p[i][j] = 0f
-            }
-        }
-        setBoundary(0, div)
-        setBoundary(0, p)
-
-        linearSolve(0, p, div, 1f, 4f)
-
-        for (i in 1 until gridSize - 1) {
-            for (j in 1 until gridSize - 1) {
-                velocX[i][j] -= 0.5f * (p[i+1][j] - p[i-1][j]) * gridSize
-                velocY[i][j] -= 0.5f * (p[i][j+1] - p[i][j-1]) * gridSize
-            }
-        }
-
-        setBoundary(1, velocX)
-        setBoundary(2, velocY)
-    }
-
-    // Advection - moves quantities along the velocity field
-    private fun advect(b: Int, d: Array<FloatArray>, d0: Array<FloatArray>, velocX: Array<FloatArray>, velocY: Array<FloatArray>) {
-        var i0: Int
-        var i1: Int
-        var j0: Int
-        var j1: Int
-
-        val dtx = DT * (gridSize - 2)
-        val dty = DT * (gridSize - 2)
-
-        var s0: Float
-        var s1: Float
-        var t0: Float
-        var t1: Float
-
-        var x: Float
-        var y: Float
-
-        for (i in 1 until gridSize - 1) {
-            for (j in 1 until gridSize - 1) {
-                val tmp1 = dtx * velocX[i][j]
-                val tmp2 = dty * velocY[i][j]
-
-                x = i - tmp1
-                y = j - tmp2
-
-                x = max(0.5f, min(gridSize - 1.5f, x))
-                i0 = x.toInt()
-                i1 = i0 + 1
-
-                y = max(0.5f, min(gridSize - 1.5f, y))
-                j0 = y.toInt()
-                j1 = j0 + 1
-
-                s1 = x - i0
-                s0 = 1 - s1
-                t1 = y - j0
-                t0 = 1 - t1
-
-                d[i][j] = s0 * (t0 * d0[i0][j0] + t1 * d0[i0][j1]) +
-                        s1 * (t0 * d0[i1][j0] + t1 * d0[i1][j1])
-            }
-        }
-
-        setBoundary(b, d)
-    }
-
-    // Set boundary conditions
-    private fun setBoundary(b: Int, x: Array<FloatArray>) {
-        // First set the vertical walls
-        for (i in 1 until gridSize - 1) {
-            x[0][i] = if (b == 1) -x[1][i] else x[1][i]
-            x[gridSize - 1][i] = if (b == 1) -x[gridSize - 2][i] else x[gridSize - 2][i]
-        }
-
-        // Then the horizontal walls
-        for (i in 1 until gridSize - 1) {
-            x[i][0] = if (b == 2) -x[i][1] else x[i][1]
-            x[i][gridSize - 1] = if (b == 2) -x[i][gridSize - 2] else x[i][gridSize - 2]
-        }
-
-        // Finally the corners
-        x[0][0] = 0.5f * (x[1][0] + x[0][1])
-        x[0][gridSize - 1] = 0.5f * (x[1][gridSize - 1] + x[0][gridSize - 2])
-        x[gridSize - 1][0] = 0.5f * (x[gridSize - 2][0] + x[gridSize - 1][1])
-        x[gridSize - 1][gridSize - 1] = 0.5f * (x[gridSize - 2][gridSize - 1] + x[gridSize - 1][gridSize - 2])
-    }
-
-    // Render the fluid simulation
-    fun render(drawScope: DrawScope, canvasSize: Size) {
-        with(drawScope) {
-            val cellWidth = canvasSize.width / gridSize
-            val cellHeight = canvasSize.height / gridSize
-
-            for (i in 0 until gridSize) {
-                for (j in 0 until gridSize) {
-                    val density = s[i][j]
-                    if (density > 0.001f) { // Lower threshold for visibility
-                        // Map density to color using a better distribution
-                        val normalizedDensity = min(density / 100f, 1f)
-                        val colorIndex = (normalizedDensity * (colorPalette.size - 1)).toInt()
-                        val color = when {
-                            colorIndex < 0 -> colorPalette[0]
-                            colorIndex >= colorPalette.size -> colorPalette.last()
-                            else -> {
-                                // Interpolate between colors for smoother transitions
-                                val fraction = (normalizedDensity * (colorPalette.size - 1)) - colorIndex
-                                if (colorIndex < colorPalette.size - 1 && fraction > 0) {
-                                    lerp(colorPalette[colorIndex], colorPalette[colorIndex + 1], fraction)
-                                } else {
-                                    colorPalette[colorIndex]
-                                }
-                            }
+                            // Main trail point
+                            drawCircle(
+                                color = particle.color.copy(alpha = trailAlpha),
+                                center = trailPos,
+                                radius = trailSize
+                            )
                         }
 
-                        // Calculate velocity magnitude for additional visual effect
-                        val velocityMag = sqrt(vx[i][j] * vx[i][j] + vy[i][j] * vy[i][j])
+                        // Enhanced particle glow - multiple layers for bloom effect
+                        // Outer glow layer (large, subtle)
+                        drawCircle(
+                            color = particle.glowColor.copy(alpha = particle.alpha * 0.2f),
+                            center = particle.pos,
+                            radius = particle.size * 2.5f
+                        )
 
-                        // Lower alpha for smoother appearance
-                        val alpha = min(0.75f, normalizedDensity * 0.8f + velocityMag / 40f)
+                        // Middle glow layer (medium, stronger)
+                        drawCircle(
+                            color = particle.glowColor.copy(alpha = particle.alpha * 0.4f),
+                            center = particle.pos,
+                            radius = particle.size * 1.7f
+                        )
 
-                        drawRect(
-                            color = color.copy(alpha = alpha),
-                            topLeft = Offset(i * cellWidth, j * cellHeight),
-                            size = Size(cellWidth, cellHeight)
+                        // Inner glow layer (small, intense)
+                        drawCircle(
+                            color = particle.glowColor.copy(alpha = particle.alpha * 0.7f),
+                            center = particle.pos,
+                            radius = particle.size * 1.3f
+                        )
+
+                        // Core particle (solid)
+                        drawCircle(
+                            color = particle.color.copy(alpha = particle.alpha),
+                            center = particle.pos,
+                            radius = particle.size
+                        )
+                    }
+                    1 -> {
+                        // Simplified mode - fewer glow layers
+                        // Draw only last trail point
+                        if (particle.trail.isNotEmpty()) {
+                            val lastTrail = particle.trail.last()
+                            drawCircle(
+                                color = particle.color.copy(alpha = particle.alpha * 0.4f),
+                                center = lastTrail,
+                                radius = particle.size * 0.8f
+                            )
+                        }
+
+                        // Simplified glow (just two layers)
+                        drawCircle(
+                            color = particle.glowColor.copy(alpha = particle.alpha * 0.3f),
+                            center = particle.pos,
+                            radius = particle.size * 2.0f
+                        )
+
+                        // Inner glow + core in one
+                        drawCircle(
+                            color = particle.color.copy(alpha = particle.alpha),
+                            center = particle.pos,
+                            radius = particle.size * 1.1f
+                        )
+                    }
+                    else -> {
+                        // Ultra simplified - just core particle with minimal glow
+                        drawCircle(
+                            color = particle.glowColor.copy(alpha = particle.alpha * 0.3f),
+                            center = particle.pos,
+                            radius = particle.size * 1.5f
+                        )
+
+                        drawCircle(
+                            color = particle.color.copy(alpha = particle.alpha),
+                            center = particle.pos,
+                            radius = particle.size
                         )
                     }
                 }
             }
         }
-    }
 
-    // Helper function to interpolate between colors
-    private fun lerp(c1: Color, c2: Color, t: Float): Color {
-        return Color(
-            red = c1.red + (c2.red - c1.red) * t,
-            green = c1.green + (c2.green - c1.green) * t,
-            blue = c1.blue + (c2.blue - c1.blue) * t,
-            alpha = c1.alpha + (c2.alpha - c1.alpha) * t
+        // Optimized animation loop for updates
+        LaunchedEffect(Unit) {
+            // Preallocate these collections
+            val linesToRemove = ArrayList<Line>()
+            val updatedParticles = ArrayList<Particle>(2000)
+            val pointsToRemove = ArrayList<Offset>(10)
+
+            while (isActive) {
+                withFrameNanos { frameTime ->
+                    // Track frame time for performance monitoring
+                    if (lastFrameTime != 0L) {
+                        val deltaMs = (frameTime - lastFrameTime) / 1_000_000
+                        frameTimeAvg = frameTimeAvg * 0.9f + deltaMs * 0.1f
+                    }
+                    lastFrameTime = frameTime
+
+                    // Clear collections for reuse
+                    linesToRemove.clear()
+                    updatedParticles.clear()
+
+                    val bounds = Rect(-100f, -100f, canvasSize.width + 100f, canvasSize.height + 100f)
+
+                    // Process lines in batches (max 10 lines per frame)
+                    var processedLines = 0
+                    val maxLinesToProcess = min(10, lines.size)
+
+                    // Update lines and disintegrate
+                    for (i in 0 until lines.size) {
+                        val line = lines[i]
+                        if (line.disintegrating && line.points.isNotEmpty()) {
+                            // Calculate disintegration rate - more points for longer lines
+                            val disintegrationRate = max(2, min(8, line.points.size / 10))
+
+                            // Clear the points collection for reuse
+                            pointsToRemove.clear()
+
+                            if (line.points.size <= disintegrationRate) {
+                                // Remove all remaining points at once
+                                pointsToRemove.addAll(line.points)
+                                line.points.clear()
+                            } else {
+                                // Remove only some points
+                                repeat(disintegrationRate) {
+                                    if (line.points.isEmpty()) return@repeat
+
+                                    // Select points in sequence for smoother disintegration
+                                    val pointIndex = when (it % 3) {
+                                        0 -> 0 // Front of line
+                                        1 -> line.points.size - 1 // End of line
+                                        else -> line.points.size / 2 // Middle of line
+                                    }
+
+                                    if (pointIndex >= line.points.size) return@repeat
+                                    pointsToRemove.add(line.points.removeAt(pointIndex))
+                                }
+                            }
+
+                            // Create particles from removed points
+                            createParticlesFromPoints(pointsToRemove, line.color, line.glowColor,
+                                line.thickness, particles)
+                        }
+
+                        if (line.points.isEmpty()) {
+                            linesToRemove.add(line)
+                        }
+
+                        // Count processed lines
+                        processedLines++
+                        if (processedLines >= maxLinesToProcess) break
+                    }
+
+                    lines.removeAll(linesToRemove)
+
+                    // Pre-compute these constants once outside the loop
+                    val gravity = Offset(0.02f, 0.08f)
+                    val wind = Offset(0.03f, -0.02f)
+                    val netForce = gravity + wind
+                    val alphaDecayFactor = 0.99f  // Slower decay for smoother transitions
+                    val sizeDecay = 0.995f
+                    val drag = 0.98f
+
+                    // Limit particles if there are too many
+                    val maxParticles = 10000
+                    if (particles.size > maxParticles) {
+                        // Remove oldest particles to stay under the limit
+                        val toRemove = particles.size - maxParticles
+                        repeat(toRemove) {
+                            if (particles.isNotEmpty()) {
+                                particles.removeAt(0)
+                            }
+                        }
+                    }
+
+                    // Process particles in batches - all particles but limit updates per frame
+                    val maxParticleUpdates = min(particles.size, 2000).coerceAtLeast(1) // Ensure at least 1, never 0
+                    val particleStep = if (particles.isEmpty()) 1 else max(1, particles.size / maxParticleUpdates)
+
+                    // Add randomness offset based on frame to avoid synchronized updates
+                    val randomOffset = if (particles.isEmpty()) 0 else frameCount % particleStep
+
+                    // Update particles efficiently
+                    for (i in randomOffset until particles.size step particleStep) {
+                        val particle = particles[i]
+
+                        // Update velocity with forces
+                        particle.vel = (particle.vel + netForce) * drag
+
+                        // Add small random movement occasionally
+                        if (frameCount % 3 == 0 && Random.nextFloat() < 0.3f) {
+                            particle.vel += Offset(
+                                Random.nextFloat() * 0.06f - 0.03f,
+                                Random.nextFloat() * 0.06f - 0.03f
+                            )
+                        }
+
+                        // Update trail more efficiently
+                        val newTrail = if (particle.trail.size >= 6) {
+                            val newList = ArrayList<Offset>(6)
+                            // Skip the oldest position and add all others
+                            for (j in 1 until particle.trail.size) {
+                                newList.add(particle.trail[j])
+                            }
+                            // Add current position
+                            newList.add(particle.pos)
+                            newList
+                        } else {
+                            // Just add current position to trail
+                            particle.trail + particle.pos
+                        }
+
+                        // Update position
+                        val newPos = particle.pos + particle.vel
+
+                        // Update properties with faster calculations
+                        val newAlpha = particle.alpha * alphaDecayFactor
+                        val newSize = particle.size * sizeDecay
+
+                        // Only keep if still visible and in bounds
+                        if (newAlpha > 0.01f && bounds.contains(newPos)) {
+                            updatedParticles.add(
+                                Particle(
+                                    pos = newPos,
+                                    vel = particle.vel,
+                                    alpha = newAlpha,
+                                    size = newSize,
+                                    color = particle.color,
+                                    glowColor = particle.glowColor,
+                                    trail = newTrail
+                                )
+                            )
+                        }
+                    }
+
+                    // Occasionally add ambient particles for more richness
+                    if (frameCount % 20 == 0 && particles.size < maxParticles - 100 && Random.nextFloat() < 0.1f) {
+                        addAmbientParticles(canvasSize, particles)
+                    }
+
+                    // Update non-processed particles - they continue with their current velocity
+                    for (i in 0 until particles.size step particleStep) {
+                        if (i == randomOffset) continue // Skip the ones we've already processed
+
+                        val particle = particles[i]
+                        val newPos = particle.pos + particle.vel
+
+                        // Only keep if in bounds
+                        if (bounds.contains(newPos)) {
+                            updatedParticles.add(particle.copy(pos = newPos))
+                        }
+                    }
+
+                    // Replace particles with updated ones
+                    particles.clear()
+                    particles.addAll(updatedParticles)
+
+                    // Increment frame counter
+                    frameCount++
+                }
+            }
+        }
+
+        // Touch hint with animation
+        if (showHint) {
+            Icon(
+                imageVector = Icons.Default.TouchApp,
+                contentDescription = "Touch to start",
+                tint = Color.White.copy(alpha = hintAlpha),
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(100.dp)
+                    .scale(1f + (hintAlpha - 0.4f) * 0.1f)
+            )
+        }
+
+        // Enhanced glowing back button
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.TopStart)
+        ) {
+            // Extra outer glow
+            FloatingActionButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier
+                    .scale(pulseScale * 1.4f)
+                    .alpha(0.2f)
+                    .blur(12.dp),
+                containerColor = Color(0xFF5D9FD6),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+
+            // Outer glow
+            FloatingActionButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier
+                    .scale(pulseScale * 1.2f)
+                    .alpha(0.4f)
+                    .blur(8.dp),
+                containerColor = Color(0xFF3D85C6),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
+
+            // Main button
+            FloatingActionButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.scale(pulseScale),
+                containerColor = Color(0xFF2B5F8E),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+        }
+    }
+}
+
+// Create particles from a list of points more efficiently
+private fun createParticlesFromPoints(
+    points: List<Offset>,
+    baseColor: Color,
+    glowColor: Color,
+    thickness: Float,
+    particles: MutableList<Particle>
+) {
+    // Process points in batches to avoid creating too many particles at once
+    val maxParticlesToCreate = 150
+    if (particles.size > 3000) return // Skip if already too many particles
+
+    val pointsToDraw = min(points.size, 20)
+    val step = max(1, points.size / pointsToDraw)
+    var particlesCreated = 0
+
+    for (i in 0 until points.size step step) {
+        if (particlesCreated >= maxParticlesToCreate) break
+
+        val point = points[i % points.size]
+        val particleCount = Random.nextInt(2, 5)
+
+        repeat(particleCount) {
+            if (particlesCreated >= maxParticlesToCreate) return@repeat
+
+            val angle = Random.nextDouble() * 2 * Math.PI
+            val speed = Random.nextFloat() * 2.5f + 1.5f
+
+            val initialVel = Offset(
+                (cos(angle) * speed).toFloat(),
+                (sin(angle) * speed).toFloat()
+            )
+
+            // Create varied glowing colors
+            val colorVariation = 0.12f
+
+            // Varied main color
+            val variedColor = Color(
+                red = (baseColor.red + Random.nextFloat() * colorVariation * 2 - colorVariation).coerceIn(0f, 1f),
+                green = (baseColor.green + Random.nextFloat() * colorVariation * 2 - colorVariation).coerceIn(0f, 1f),
+                blue = (baseColor.blue + Random.nextFloat() * colorVariation * 2 - colorVariation).coerceIn(0f, 1f)
+            )
+
+            // Varied glow color - make it slightly brighter
+            val variedGlowColor = Color(
+                red = (glowColor.red + Random.nextFloat() * colorVariation).coerceIn(0f, 1f),
+                green = (glowColor.green + Random.nextFloat() * colorVariation).coerceIn(0f, 1f),
+                blue = (glowColor.blue + Random.nextFloat() * colorVariation).coerceIn(0f, 1f)
+            )
+
+            particles.add(
+                Particle(
+                    pos = point + Offset(
+                        Random.nextFloat() * 4 - 2,
+                        Random.nextFloat() * 4 - 2
+                    ),
+                    vel = initialVel,
+                    alpha = 0.9f + Random.nextFloat() * 0.1f,
+                    size = thickness * 0.3f + Random.nextFloat() * 2.5f,
+                    color = variedColor,
+                    glowColor = variedGlowColor,
+                    trail = listOf(point)
+                )
+            )
+
+            particlesCreated++
+        }
+    }
+}
+
+// Create a burst of glowing particles
+private fun createGlowingParticleBurst(position: Offset, baseColor: Color, glowColor: Color, particles: MutableList<Particle>) {
+    val burstSize = if (particles.size < 3000) 30 else 15 // Reduced count if already many particles
+
+    repeat(burstSize) {
+        val angle = Random.nextDouble() * 2 * Math.PI
+        val speed = Random.nextFloat() * 4f + 3f
+
+        val velocity = Offset(
+            (cos(angle) * speed).toFloat(),
+            (sin(angle) * speed).toFloat()
+        )
+
+        // Add color variation
+        val colorVariation = 0.12f
+        val variedColor = Color(
+            red = (baseColor.red + Random.nextFloat() * colorVariation * 2 - colorVariation).coerceIn(0f, 1f),
+            green = (baseColor.green + Random.nextFloat() * colorVariation * 2 - colorVariation).coerceIn(0f, 1f),
+            blue = (baseColor.blue + Random.nextFloat() * colorVariation * 2 - colorVariation).coerceIn(0f, 1f)
+        )
+
+        // Varied glow color - make it slightly brighter
+        val variedGlowColor = Color(
+            red = (glowColor.red + Random.nextFloat() * colorVariation).coerceIn(0f, 1f),
+            green = (glowColor.green + Random.nextFloat() * colorVariation).coerceIn(0f, 1f),
+            blue = (glowColor.blue + Random.nextFloat() * colorVariation).coerceIn(0f, 1f)
+        )
+
+        particles.add(
+            Particle(
+                pos = position + Offset(Random.nextFloat() * 6 - 3, Random.nextFloat() * 6 - 3),
+                vel = velocity,
+                alpha = 1f,
+                size = Random.nextFloat() * 5f + 5f,
+                color = variedColor,
+                glowColor = variedGlowColor,
+                trail = listOf(position)
+            )
         )
     }
+}
+
+// Add ambient particles occasionally for more visual richness
+private fun addAmbientParticles(canvasSize: Size, particles: MutableList<Particle>) {
+    val colorPair = generateVibrantColorWithGlow()
+    repeat(Random.nextInt(10, 30)) {
+        val x = Random.nextFloat() * canvasSize.width
+        val y = Random.nextFloat() * canvasSize.height
+
+        val angle = Random.nextDouble() * 2 * Math.PI
+        val speed = Random.nextFloat() * 1.0f + 0.5f
+
+        particles.add(
+            Particle(
+                pos = Offset(x, y),
+                vel = Offset(
+                    (cos(angle) * speed).toFloat(),
+                    (sin(angle) * speed).toFloat()
+                ),
+                alpha = 0.7f + Random.nextFloat() * 0.3f,
+                size = Random.nextFloat() * 3f + 2f,
+                color = colorPair.first,
+                glowColor = colorPair.second,
+                trail = listOf()
+            )
+        )
+    }
+}
+
+// Generate vibrant color with matching glow color
+private fun generateVibrantColorWithGlow(): Pair<Color, Color> {
+    // Create a neon-like color palette
+    val colorOptions = listOf(
+        // Color, Glow
+        Color(0xFFFF1177) to Color(0xFFFF71B7), // Pink
+        Color(0xFF33CCFF) to Color(0xFF99EEFF), // Cyan
+        Color(0xFFFFCC00) to Color(0xFFFFEE99), // Yellow
+        Color(0xFF33FF33) to Color(0xFF99FF99), // Green
+        Color(0xFFFF3333) to Color(0xFFFF9999), // Red
+        Color(0xFF3333FF) to Color(0xFF9999FF), // Blue
+        Color(0xFFFF33FF) to Color(0xFFFF99FF), // Magenta
+        Color(0xFF33FFFF) to Color(0xFF99FFFF), // Aqua
+        Color(0xFFFF66CC) to Color(0xFFFFB8E1)  // Light Pink
+    )
+
+    // Randomly select a color from our vibrant options
+    return if (Random.nextFloat() < 0.7f) {
+        // 70% chance to use predefined vibrant colors
+        colorOptions.random()
+    } else {
+        // 30% chance to generate random vibrant color
+        val primaryChannel = Random.nextInt(3) // 0=red, 1=green, 2=blue
+
+        val red = if (primaryChannel == 0)
+            Random.nextFloat() * 0.3f + 0.7f // 0.7-1.0 (brighter)
+        else
+            Random.nextFloat() * 0.4f // 0.0-0.4 (darker)
+
+        val green = if (primaryChannel == 1)
+            Random.nextFloat() * 0.3f + 0.7f // 0.7-1.0 (brighter)
+        else
+            Random.nextFloat() * 0.4f // 0.0-0.4 (darker)
+
+        val blue = if (primaryChannel == 2)
+            Random.nextFloat() * 0.3f + 0.7f // 0.7-1.0 (brighter)
+        else
+            Random.nextFloat() * 0.4f // 0.0-0.4 (darker)
+
+        val mainColor = Color(red, green, blue)
+
+        // Create a brighter glow color based on the main color
+        val glowColor = Color(
+            red = (red + 0.2f).coerceAtMost(1f),
+            green = (green + 0.2f).coerceAtMost(1f),
+            blue = (blue + 0.2f).coerceAtMost(1f)
+        )
+
+        mainColor to glowColor
+    }
+}
+
+// Helper function to create a smoother path from points
+private fun createSmoothPath(points: List<Offset>): Path {
+    if (points.size < 2) return Path().apply { moveTo(points.firstOrNull()?.x ?: 0f, points.firstOrNull()?.y ?: 0f) }
+
+    return Path().apply {
+        moveTo(points[0].x, points[0].y)
+
+        for (i in 1 until points.size) {
+            lineTo(points[i].x, points[i].y)
+        }
+    }
+}
+
+// Extension function to get distance between two offsets
+private fun Offset.getDistance(): Float {
+    return sqrt(x * x + y * y)
+}
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

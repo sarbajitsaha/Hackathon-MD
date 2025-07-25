@@ -1,4 +1,4 @@
-package com.coredumped.project
+package com.coredumped.project.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,11 +22,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import com.coredumped.project.R
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun CalmScreen(navController: NavController) {
     // Container Box to hold the background and grid
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image that fills the entire screen
@@ -47,40 +48,42 @@ fun HomeScreen(navController: NavController) {
         ) {
             item {
                 CategoryItem(
-                    text = "Daily Activity",
-                    imageResId = R.drawable.daily_activity,
-                    color = Color(0xFF4CAF50),
-                    onClick = { navController.navigate("daily_activity") }
+                    text = "Fluid",
+                    imageResId = R.drawable.fluid,
+                    color = Color.Blue,
+                    onClick = { navController.navigate("fluid_simulation") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "IQ",
-                    imageResId = R.drawable.iq,
-                    color = Color(0xFF2196F3),
-                    onClick = { navController.navigate("iq") }
+                    text = "Audio",
+                    imageResId = R.drawable.calm_audio,
+                    color = Color.Green,
+                    onClick = { navController.navigate("calming_audio") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "Learning",
-                    imageResId = R.drawable.learning,
-                    color = Color(0xFFFFC107),
-                    onClick = { navController.navigate("learning") }
+                    text = "Video",
+                    imageResId = R.drawable.calm_video,
+                    color = Color.Blue,
+                    onClick = { navController.navigate("calming_video") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "Calm",
-                    imageResId = R.drawable.calm,
-                    color = Color(0xFF9C27B0),
-                    onClick = { navController.navigate("calm") }
+                    text = "Bubbles",
+                    imageResId = R.drawable.bubbles,
+                    color = Color.Cyan,
+                    onClick = { navController.navigate("pop_bubble") }
                 )
             }
         }
     }
 }
 
+/*
+Commenting this out for now, we should just use the homescreen one here
 @Composable
 fun CategoryItem(
     text: String, // Keeping param for consistency, not used in display
@@ -99,7 +102,7 @@ fun CategoryItem(
                 .clickable(onClick = onClick) // Make the card clickable
                 .size(150.dp), // Fixed size to match image, no extra padding
             shape = RoundedCornerShape(12.dp), // Rounded corners for the card
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.3f)), // Subtle translucent background
+            colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.3f)), // Subtle translucent background
             elevation = CardDefaults.cardElevation(1.dp) // Slight elevation for depth
         ) {
             // Image filling the card
@@ -114,3 +117,4 @@ fun CategoryItem(
         }
     }
 }
+ */

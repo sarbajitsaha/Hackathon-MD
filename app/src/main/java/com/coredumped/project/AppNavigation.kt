@@ -9,8 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.coredumped.project.calm.CalmScreen
+import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.calm.FluidSimulationScreen
+import com.coredumped.project.calm.PopBubbleScreen
+import com.coredumped.project.ui.HomeScreen
 
 @Composable
 fun AppNavigation() {
@@ -36,7 +38,7 @@ fun AppNavigation() {
         }
         //composable("calming_audio") { CalmingAudioScreen() }
         //composable("calming_video") { CalmingVideoScreen() }
-        //composable("bubble_pop") { BubblePopScreen() }
+        composable("pop_bubble") { PopBubbleScreen(navController = navController) }
     }
 }
 
