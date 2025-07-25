@@ -3,26 +3,42 @@ package com.coredumped.project.calm
 import android.media.MediaPlayer
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.TouchApp
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +57,20 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
+// Define a list of playful bubble colors
+val bubbleColors = listOf(
+    Color(0xFF5AC8FA), // Light Blue
+    Color(0xFFFF2D55), // Pink
+    Color(0xFF5856D6), // Purple
+    Color(0xFFFF9500), // Orange
+    Color(0xFF34C759), // Green
+    Color(0xFFFF3B30), // Red
+    Color(0xFFFFCC00), // Yellow
+    Color(0xFF00C7BE), // Teal
+    Color(0xFFAF52DE), // Lavender
+    Color(0xFFFF6B8A)  // Coral
+)
+
 @Composable
 fun PopBubbleScreen(navController: NavController) {
     val context = LocalContext.current
@@ -53,6 +83,7 @@ fun PopBubbleScreen(navController: NavController) {
     val popRate = remember { mutableStateOf(0f) }
     val updateTrigger = remember { mutableStateOf(0) }
     val showTutorial = remember { mutableStateOf(true) }
+    val tutorialShown = remember { mutableStateOf(false) }
 
     // Game loop for updating bubbles and particles
     LaunchedEffect(Unit) {
@@ -100,11 +131,20 @@ fun PopBubbleScreen(navController: NavController) {
                 attempts++
                 val radius = Random.nextFloat() * 50 + 100 // 100-150
                 val x = Random.nextFloat() * (screenWidth - 2 * radius) + radius
-                val speed = Random.nextFloat() * 5 + 2 // 2-7
-                val candidate = Bubble(x, y, radius, speed)
+                // Increased bubble speed range from 2-7 to 4-10
+                val speed = Random.nextFloat() * 6 + 4 // 4-10
+                // Select a random color from our list
+                val color = bubbleColors.random()
+                val candidate = Bubble(x, y, radius, speed, color = color)
                 if (!willCollideWithAny(candidate, bubbles)) {
                     bubbles.add(candidate)
                     spawned = true
+
+                    // Start the tutorial after the first bubble is spawned
+                    if (!tutorialShown.value && bubbles.size == 1) {
+                        delay(500) // Give a moment for the bubble to rise a bit
+                        tutorialShown.value = true
+                    }
                 }
             }
             // If no good position after 10 tries, skip this spawn to avoid forcing overlaps
@@ -112,7 +152,6 @@ fun PopBubbleScreen(navController: NavController) {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-
         Image(
             painter = painterResource(id = R.drawable.pop_bubble_background),
             contentDescription = "Background",
@@ -134,14 +173,14 @@ fun PopBubbleScreen(navController: NavController) {
                                         bubble.isPopping = true
                                         bubble.scale.animateTo(0f, animationSpec = tween(300))
                                     }
-                                    // Spawn pop particles
+                                    // Spawn pop particles with the same color as the bubble
                                     repeat(Random.nextInt(8, 12)) {
                                         val angle = Random.nextFloat() * 2 * PI.toFloat()
                                         val particleSpeed = Random.nextFloat() * 10 + 5
                                         val vx = cos(angle) * particleSpeed
                                         val vy = sin(angle) * particleSpeed
                                         val particleRadius = Random.nextFloat() * 10 + 5
-                                        particles.add(BubbleParticle(bubble.x, bubble.y, vx, vy, particleRadius))
+                                        particles.add(BubbleParticle(bubble.x, bubble.y, vx, vy, particleRadius, color = bubble.color))
                                     }
                                     // Restart sound if already playing
                                     if (popSound.isPlaying) {
@@ -150,6 +189,12 @@ fun PopBubbleScreen(navController: NavController) {
                                     }
                                     popSound.start()
                                     lastPopTime.value = System.currentTimeMillis()
+
+                                    // Hide tutorial after user pops a bubble
+                                    if (showTutorial.value) {
+                                        showTutorial.value = false
+                                    }
+
                                     return@forEach
                                 }
                             }
@@ -162,9 +207,9 @@ fun PopBubbleScreen(navController: NavController) {
                 val alpha = if (bubble.isPopping) bubble.scale.value else 1f
                 val scaledRadius = bubble.radius * bubble.scale.value
                 val center = Offset(bubble.x, bubble.y)
-                // Base semi-transparent bubble
+                // Base semi-transparent bubble with the bubble's color
                 drawCircle(
-                    color = Color.Blue.copy(alpha = alpha * 0.3f),
+                    color = bubble.color.copy(alpha = alpha * 0.3f),
                     radius = scaledRadius,
                     center = center
                 )
@@ -176,17 +221,52 @@ fun PopBubbleScreen(navController: NavController) {
                 )
             }
             particles.forEach { particle ->
-                // Draw particles with similar style but smaller
+                // Draw particles with the particle's color
                 drawCircle(
-                    color = Color.Blue.copy(alpha = particle.alpha * 0.3f),
+                    color = particle.color.copy(alpha = particle.alpha * 0.3f),
                     radius = particle.radius,
                     center = Offset(particle.x, particle.y)
                 )
             }
         }
 
-        if (showTutorial.value) {
-            TutorialFinger(bubbles = bubbles, onComplete = { showTutorial.value = false }, coroutineScope = coroutineScope, popSound = popSound, particles = particles)
+        // Colorful back button in the top left corner
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .size(48.dp)
+                .shadow(4.dp, CircleShape)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFFFF9500),  // Orange
+                            Color(0xFFFF2D55),  // Pink
+                            Color(0xFF5856D6)   // Purple
+                        )
+                    )
+                )
+                .clickable { navController.popBackStack() }
+                .align(Alignment.TopStart),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        // Show tutorial finger when tutorial is active and we have at least one bubble
+        if (showTutorial.value && bubbles.isNotEmpty() && tutorialShown.value) {
+            TutorialFinger(
+                bubbles = bubbles,
+                onComplete = { showTutorial.value = false },
+                coroutineScope = coroutineScope,
+                popSound = popSound,
+                particles = particles
+            )
         }
     }
 }
@@ -203,15 +283,31 @@ fun TutorialFinger(
 
     val firstBubble = bubbles.first()
     val density = LocalDensity.current
-    val fingerSize = 50.dp
+    // Increased finger size for better visibility
+    val fingerSize = 64.dp
     val fingerSizePx = with(density) { fingerSize.toPx() }
 
     // Start finger off-screen to the right
-    val fingerX = remember { Animatable(bubbles.first().x + 200f) } // Start to the right of the bubble
+    val fingerX = remember { Animatable(bubbles.first().x + 200f) }
     val fingerY = remember { Animatable(bubbles.first().y) }
     val fingerScale = remember { Animatable(1f) }
 
+    // Add a pulsing effect to draw attention
+    val infiniteTransition = rememberInfiniteTransition(label = "fingerPulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(700),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "fingerPulse"
+    )
+
     LaunchedEffect(Unit) {
+        // Delay to allow bubble to become visible
+        delay(300)
+
         // Animate finger moving left to the bubble position
         launch {
             fingerX.animateTo(firstBubble.x, animationSpec = tween(1000)) // Move over 1 second
@@ -222,8 +318,8 @@ fun TutorialFinger(
 
         delay(1000) // Wait for move to complete
 
-        // Simulate tap: scale down and up
-        fingerScale.animateTo(0.8f, animationSpec = tween(200))
+        // Simulate tap: scale down and up more dramatically
+        fingerScale.animateTo(0.7f, animationSpec = tween(200))
         fingerScale.animateTo(1f, animationSpec = tween(200))
 
         // Trigger pop on the bubble
@@ -231,15 +327,17 @@ fun TutorialFinger(
             firstBubble.isPopping = true
             firstBubble.scale.animateTo(0f, animationSpec = tween(300))
         }
-        // Spawn pop particles
+
+        // Spawn pop particles with the same color as the bubble
         repeat(Random.nextInt(8, 12)) {
             val angle = Random.nextFloat() * 2 * PI.toFloat()
             val particleSpeed = Random.nextFloat() * 10 + 5
             val vx = cos(angle) * particleSpeed
             val vy = sin(angle) * particleSpeed
             val particleRadius = Random.nextFloat() * 10 + 5
-            particles.add(BubbleParticle(firstBubble.x, firstBubble.y, vx, vy, particleRadius))
+            particles.add(BubbleParticle(firstBubble.x, firstBubble.y, vx, vy, particleRadius, color = firstBubble.color))
         }
+
         // Play sound
         if (popSound.isPlaying) {
             popSound.pause()
@@ -247,23 +345,43 @@ fun TutorialFinger(
         }
         popSound.start()
 
-        delay(500) // Short delay after pop
+        delay(800) // Longer delay after pop to make sure user sees what happened
 
-        // Animate finger away (e.g., fade or move off)
+        // Animate finger away
         fingerX.animateTo(fingerX.value + 300f, animationSpec = tween(500)) // Move right off-screen
 
+        delay(200) // Short delay before completing tutorial
         onComplete()
     }
 
-    Image(
-        imageVector = Icons.Default.TouchApp,
-        contentDescription = "Tutorial Finger",
+    // Enhanced finger with shadow and more visible styling
+    Box(
         modifier = Modifier
-            .offset { Offset(fingerX.value, fingerY.value).toIntOffset() }
+            .offset { Offset(fingerX.value - fingerSizePx/2, fingerY.value - fingerSizePx/2).toIntOffset() }
             .size(fingerSize)
-            .scale(fingerScale.value),
-        contentScale = ContentScale.Fit
-    )
+            .graphicsLayer {
+                scaleX = fingerScale.value * pulseScale
+                scaleY = fingerScale.value * pulseScale
+            }
+    ) {
+        // Add a glow/shadow behind the finger
+        Icon(
+            imageVector = Icons.Default.TouchApp,
+            contentDescription = null,
+            tint = Color.Black.copy(alpha = 0.3f),
+            modifier = Modifier
+                .size(fingerSize)
+                .offset(2.dp, 2.dp)
+        )
+
+        // Main finger icon
+        Icon(
+            imageVector = Icons.Default.TouchApp,
+            contentDescription = "Tap to pop bubble",
+            tint = Color.White,
+            modifier = Modifier.size(fingerSize)
+        )
+    }
 }
 
 // Helper extension for Offset to IntOffset
@@ -274,6 +392,7 @@ data class Bubble(
     var y: Float,
     var radius: Float,
     var speed: Float,
+    val color: Color = bubbleColors.random(), // Default to a random color
     val scale: Animatable<Float, AnimationVector1D> = Animatable(1f),
     var isPopping: Boolean = false
 )
@@ -284,6 +403,7 @@ data class BubbleParticle(
     var vx: Float,
     var vy: Float,
     var radius: Float,
+    val color: Color = bubbleColors.random(), // Default to a random color
     var alpha: Float = 1f
 )
 

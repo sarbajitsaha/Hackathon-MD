@@ -7,13 +7,16 @@ import android.content.pm.ActivityInfo
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.TouchApp
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -22,7 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -578,47 +583,32 @@ fun FluidSimulationScreen(navController: NavController) {
             )
         }
 
-        // Enhanced glowing back button
+        // Colorful back button in the top left corner
         Box(
             modifier = Modifier
                 .padding(16.dp)
-                .align(Alignment.TopStart)
+                .size(48.dp)
+                .shadow(4.dp, CircleShape)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFFFF9500),  // Orange
+                            Color(0xFFFF2D55),  // Pink
+                            Color(0xFF5856D6)   // Purple
+                        )
+                    )
+                )
+                .clickable { navController.popBackStack() }
+                .align(Alignment.TopStart),
+            contentAlignment = Alignment.Center
         ) {
-            // Extra outer glow
-            FloatingActionButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .scale(pulseScale * 1.4f)
-                    .alpha(0.2f)
-                    .blur(12.dp),
-                containerColor = Color(0xFF5D9FD6),
-                contentColor = Color.White
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-            }
-
-            // Outer glow
-            FloatingActionButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .scale(pulseScale * 1.2f)
-                    .alpha(0.4f)
-                    .blur(8.dp),
-                containerColor = Color(0xFF3D85C6),
-                contentColor = Color.White
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-            }
-
-            // Main button
-            FloatingActionButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.scale(pulseScale),
-                containerColor = Color(0xFF2B5F8E),
-                contentColor = Color.White
-            ) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-            }
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

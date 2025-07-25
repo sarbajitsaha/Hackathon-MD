@@ -1,5 +1,7 @@
 package com.coredumped.project.ui
 
+import android.app.Activity
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,19 +11,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.R
 
 @Composable
@@ -42,9 +51,9 @@ fun HomeScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize() // Fill the available space
                 .padding(8.dp), // Outer padding around the grid
-            verticalArrangement = Arrangement.spacedBy(12.dp), // Vertical spacing between items
-            horizontalArrangement = Arrangement.spacedBy(12.dp), // Horizontal spacing between items
-            contentPadding = PaddingValues(4.dp) // Padding inside the grid content
+            verticalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterVertically), // Vertical spacing between items
+            horizontalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterHorizontally), // Horizontal spacing between items
+            contentPadding = PaddingValues(0.dp) // Padding inside the grid content
         ) {
             item {
                 CategoryItem(
@@ -79,7 +88,39 @@ fun HomeScreen(navController: NavController) {
                 )
             }
         }
+
+        val context = LocalContext.current
+        FloatingActionButton(
+            onClick = {
+                // Exit the app by finishing the activity
+                context.findActivity()?.finish()
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(16.dp)
+                .size(56.dp), // Large, touch-friendly size
+            containerColor = Color(0xFFFF0000), // Bright red background
+            contentColor = Color.White // White icon for contrast
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Exit App"
+            )
+        }
     }
+}
+
+
+// Utility function to get Activity from Context (non-composable)
+fun Context.findActivity(): Activity? {
+    var currentContext = this
+    while (currentContext is android.content.ContextWrapper) {
+        if (currentContext is Activity) {
+            return currentContext
+        }
+        currentContext = currentContext.baseContext
+    }
+    return null
 }
 
 @Composable
