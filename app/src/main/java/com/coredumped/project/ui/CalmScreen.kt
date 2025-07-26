@@ -44,34 +44,6 @@ fun CalmScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
-        // Colorful back button in the top left corner
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .size(48.dp)
-                .shadow(4.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFFF9500),  // Orange
-                            Color(0xFFFF2D55),  // Pink
-                            Color(0xFF5856D6)   // Purple
-                        )
-                    )
-                )
-                .clickable { navController.popBackStack() }
-                .align(Alignment.TopStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
@@ -113,6 +85,34 @@ fun CalmScreen(navController: NavController) {
                     onClick = { navController.navigate("pop_bubble") }
                 )
             }
+        }
+
+        // Colorful back button in the top left corner
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .size(48.dp)
+                .shadow(4.dp, CircleShape)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFFFF9500),  // Orange
+                            Color(0xFFFF2D55),  // Pink
+                            Color(0xFF5856D6)   // Purple
+                        )
+                    )
+                )
+                .clickable { navController.popBackStack() }
+                .align(Alignment.TopStart),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

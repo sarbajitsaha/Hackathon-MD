@@ -57,18 +57,17 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
-// Define a list of playful bubble colors
 val bubbleColors = listOf(
-    Color(0xFF5AC8FA), // Light Blue
-    Color(0xFFFF2D55), // Pink
-    Color(0xFF5856D6), // Purple
-    Color(0xFFFF9500), // Orange
-    Color(0xFF34C759), // Green
-    Color(0xFFFF3B30), // Red
-    Color(0xFFFFCC00), // Yellow
-    Color(0xFF00C7BE), // Teal
-    Color(0xFFAF52DE), // Lavender
-    Color(0xFFFF6B8A)  // Coral
+    Color(0xFF48A0C8), // Darker Light Blue
+    Color(0xFFCC2444), // Darker Pink
+    Color(0xFF4645AB), // Darker Purple
+    Color(0xFFCC7700), // Darker Orange
+    Color(0xFF2A9F47), // Darker Green
+    Color(0xFFCC2F26), // Darker Red
+    Color(0xFFCCA300), // Darker Yellow
+    Color(0xFF009F98), // Darker Teal
+    Color(0xFF8C42B2), // Darker Lavender
+    Color(0xFFCC566E)  // Darker Coral
 )
 
 @Composable
@@ -91,9 +90,7 @@ fun PopBubbleScreen(navController: NavController) {
             delay(16) // ~60 FPS
             val currentTime = System.currentTimeMillis()
             bubbles.forEach { bubble ->
-                if (bubble.isPopping) {
-                    // Continue pop animation
-                } else {
+                if (bubble.isTutorial.not() && !bubble.isPopping) {
                     bubble.y -= bubble.speed
                 }
             }
@@ -281,10 +278,15 @@ fun TutorialFinger(
 ) {
     if (bubbles.isEmpty()) return
 
-    val firstBubble = bubbles.first()
+    val tutorialBubble = remember { bubbles.first() }
+
+    val targetX = tutorialBubble.x
+    val targetY = tutorialBubble.y
+    tutorialBubble.isTutorial = true
+
     val density = LocalDensity.current
     // Increased finger size for better visibility
-    val fingerSize = 64.dp
+    val fingerSize = 80.dp
     val fingerSizePx = with(density) { fingerSize.toPx() }
 
     // Start finger off-screen to the right
@@ -308,12 +310,11 @@ fun TutorialFinger(
         // Delay to allow bubble to become visible
         delay(300)
 
-        // Animate finger moving left to the bubble position
         launch {
-            fingerX.animateTo(firstBubble.x, animationSpec = tween(1000)) // Move over 1 second
+            fingerX.animateTo(targetX, animationSpec = tween(1000))
         }
         launch {
-            fingerY.animateTo(firstBubble.y, animationSpec = tween(1000))
+            fingerY.animateTo(targetY, animationSpec = tween(1000))
         }
 
         delay(1000) // Wait for move to complete
@@ -324,8 +325,8 @@ fun TutorialFinger(
 
         // Trigger pop on the bubble
         coroutineScope.launch {
-            firstBubble.isPopping = true
-            firstBubble.scale.animateTo(0f, animationSpec = tween(300))
+            tutorialBubble.isPopping = true
+            tutorialBubble.scale.animateTo(0f, animationSpec = tween(300))
         }
 
         // Spawn pop particles with the same color as the bubble
@@ -335,7 +336,7 @@ fun TutorialFinger(
             val vx = cos(angle) * particleSpeed
             val vy = sin(angle) * particleSpeed
             val particleRadius = Random.nextFloat() * 10 + 5
-            particles.add(BubbleParticle(firstBubble.x, firstBubble.y, vx, vy, particleRadius, color = firstBubble.color))
+            particles.add(BubbleParticle(tutorialBubble.x, tutorialBubble.y, vx, vy, particleRadius, color = tutorialBubble.color))
         }
 
         // Play sound
@@ -394,7 +395,8 @@ data class Bubble(
     var speed: Float,
     val color: Color = bubbleColors.random(), // Default to a random color
     val scale: Animatable<Float, AnimationVector1D> = Animatable(1f),
-    var isPopping: Boolean = false
+    var isPopping: Boolean = false,
+    var isTutorial: Boolean = false
 )
 
 data class BubbleParticle(
