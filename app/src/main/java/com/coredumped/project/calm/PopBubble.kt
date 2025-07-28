@@ -231,7 +231,7 @@ fun PopBubbleScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .padding(16.dp)
-                .size(48.dp)
+                .size(64.dp)
                 .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
                 .background(
@@ -251,7 +251,7 @@ fun PopBubbleScreen(navController: NavController) {
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Back",
                 tint = Color.White,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(48.dp)
             )
         }
 

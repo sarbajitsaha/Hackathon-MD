@@ -2,7 +2,9 @@ package com.coredumped.project.ui
 
 import android.app.Activity
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -90,21 +96,32 @@ fun HomeScreen(navController: NavController) {
         }
 
         val context = LocalContext.current
-        FloatingActionButton(
-            onClick = {
-                // Exit the app by finishing the activity
-                context.findActivity()?.finish()
-            },
+        Box(
             modifier = Modifier
-                .align(Alignment.TopEnd)
                 .padding(16.dp)
-                .size(56.dp), // Large, touch-friendly size
-            containerColor = Color(0xFFFF0000), // Bright red background
-            contentColor = Color.White // White icon for contrast
+                .size(64.dp)
+                .shadow(4.dp, CircleShape)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFFFF9500),  // Orange
+                            Color(0xFFFF2D55),  // Pink
+                            Color(0xFF5856D6)   // Purple
+                        )
+                    )
+                )
+                .clickable {
+                    context.findActivity()?.finish()
+                }
+                .align(Alignment.TopStart),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Exit App"
+                contentDescription = "Close",
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
             )
         }
     }

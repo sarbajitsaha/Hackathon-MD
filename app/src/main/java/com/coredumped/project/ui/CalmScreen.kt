@@ -49,9 +49,9 @@ fun CalmScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(4.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterVertically), // Vertical spacing between items
+            horizontalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterHorizontally), // Horizontal spacing between items
+            contentPadding = PaddingValues(0.dp) // Padding inside the grid content
         ) {
             item {
                 CategoryItem(
@@ -91,7 +91,7 @@ fun CalmScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .padding(16.dp)
-                .size(48.dp)
+                .size(64.dp)
                 .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
                 .background(
@@ -111,7 +111,7 @@ fun CalmScreen(navController: NavController) {
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Back",
                 tint = Color.White,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(32.dp)
             )
         }
     }
