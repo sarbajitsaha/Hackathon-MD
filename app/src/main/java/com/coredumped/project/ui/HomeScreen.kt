@@ -40,7 +40,7 @@ fun HomeScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image that fills the entire screen
         Image(
-            painter = painterResource(id = R.drawable.homescreen1),
+            painter = painterResource(id = R.drawable.homescreen),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop // Crop to maintain aspect ratio and fill screen
@@ -67,7 +67,7 @@ fun HomeScreen(navController: NavController) {
             item {
                 CategoryItem(
                     text = "Learning",
-                    imageResId = R.drawable.learning1,
+                    imageResId = R.drawable.learning,
                     color = Color(0xFFFFC107),
                     onClick = { navController.navigate("learning") }
                 )
@@ -75,7 +75,7 @@ fun HomeScreen(navController: NavController) {
             item {
                 CategoryItem(
                     text = "IQ",
-                    imageResId = R.drawable.iq1,
+                    imageResId = R.drawable.iq,
                     color = Color(0xFF2196F3),
                     onClick = { navController.navigate("iq") }
                 )
@@ -83,7 +83,7 @@ fun HomeScreen(navController: NavController) {
             item {
                 CategoryItem(
                     text = "Calm",
-                    imageResId = R.drawable.calm1,
+                    imageResId = R.drawable.calm,
                     color = Color(0xFF9C27B0),
                     onClick = { navController.navigate("calm") }
                 )

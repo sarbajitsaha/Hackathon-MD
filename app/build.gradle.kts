@@ -53,7 +53,10 @@ dependencies {
     implementation(libs.androidx.material.icons.core)
     implementation(libs.material.icons.extended)
 
-    implementation(libs.androidx.navigation.compose)  // For navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)  // For navigation
     debugImplementation(libs.ui.tooling)  // Debugging
 
     testImplementation(libs.junit)

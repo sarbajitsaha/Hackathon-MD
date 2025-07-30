@@ -38,7 +38,7 @@ import com.coredumped.project.R
 fun CalmScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.homescreen1),
+            painter = painterResource(id = R.drawable.homescreen),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

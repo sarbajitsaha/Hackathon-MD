@@ -23,10 +23,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.ui.DailyActivityScreen
+import com.coredumped.project.activity.BrushScreen
+import com.coredumped.project.activity.HandWashScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
 import com.coredumped.project.ui.HomeScreen
+
 
 @Composable
 fun AppNavigation() {
@@ -52,6 +55,18 @@ fun AppNavigation() {
             scale = animatorScale
         ) {
             DailyActivityScreen(navController)
+        }
+        animatedComposable(
+            route = "brush",
+            scale = animatorScale
+        ) {
+            BrushScreen(navController = navController)
+        }
+        animatedComposable(
+            route = "handwash",
+            scale = animatorScale
+        ) {
+            HandWashScreen(navController = navController)
         }
         animatedComposable(
             route = "learning",

@@ -32,7 +32,7 @@ import com.coredumped.project.R
 fun DailyActivityScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.homescreen1),
+            painter = painterResource(id = R.drawable.homescreen),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -52,7 +52,7 @@ fun DailyActivityScreen(navController: NavController) {
                     text = "Brush",
                     imageResId = R.drawable.brush,
                     color = Color.Blue,
-                    onClick = {  /* Disabled until route is implemented */  }
+                    onClick = {  navController.navigate("brush")  }
                 )
             }
             item {
@@ -60,7 +60,7 @@ fun DailyActivityScreen(navController: NavController) {
                     text = "HandWash",
                     imageResId = R.drawable.handwash,
                     color = Color.Green,
-                    onClick = { /* Disabled until route is implemented */ }
+                    onClick = { navController.navigate("handwash") }
                 )
             }
             item {
