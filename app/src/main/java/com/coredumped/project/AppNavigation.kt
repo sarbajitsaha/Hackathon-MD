@@ -22,6 +22,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.coredumped.project.ui.DailyActivityScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
@@ -50,7 +51,7 @@ fun AppNavigation() {
             route = "daily_activity",
             scale = animatorScale
         ) {
-            PlaceholderScreen("Daily Activity Screen")
+            DailyActivityScreen(navController)
         }
         animatedComposable(
             route = "learning",

@@ -2,7 +2,6 @@ package com.coredumped.project.ui
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,12 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.R
 
 @Composable
@@ -45,7 +40,7 @@ fun HomeScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image that fills the entire screen
         Image(
-            painter = painterResource(id = R.drawable.homescreen),
+            painter = painterResource(id = R.drawable.homescreen1),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop // Crop to maintain aspect ratio and fill screen
@@ -53,42 +48,42 @@ fun HomeScreen(navController: NavController) {
 
         // Grid layout for category items
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2), // Fixed 2-column layout
+            columns = GridCells.Fixed(4), // Fixed 2-column layout
             modifier = Modifier
                 .fillMaxSize() // Fill the available space
                 .padding(8.dp), // Outer padding around the grid
             verticalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterVertically), // Vertical spacing between items
-            horizontalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterHorizontally), // Horizontal spacing between items
+            horizontalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.CenterHorizontally), // Horizontal spacing between items
             contentPadding = PaddingValues(0.dp) // Padding inside the grid content
         ) {
             item {
                 CategoryItem(
                     text = "Daily Activity",
-                    imageResId = R.drawable.daily_activity,
+                    imageResId = R.drawable.brush,
                     color = Color(0xFF4CAF50),
                     onClick = { navController.navigate("daily_activity") }
                 )
             }
             item {
                 CategoryItem(
-                    text = "IQ",
-                    imageResId = R.drawable.iq,
-                    color = Color(0xFF2196F3),
-                    onClick = { navController.navigate("iq") }
-                )
-            }
-            item {
-                CategoryItem(
                     text = "Learning",
-                    imageResId = R.drawable.learning,
+                    imageResId = R.drawable.learning1,
                     color = Color(0xFFFFC107),
                     onClick = { navController.navigate("learning") }
                 )
             }
             item {
                 CategoryItem(
+                    text = "IQ",
+                    imageResId = R.drawable.iq1,
+                    color = Color(0xFF2196F3),
+                    onClick = { navController.navigate("iq") }
+                )
+            }
+            item {
+                CategoryItem(
                     text = "Calm",
-                    imageResId = R.drawable.calm,
+                    imageResId = R.drawable.calm1,
                     color = Color(0xFF9C27B0),
                     onClick = { navController.navigate("calm") }
                 )

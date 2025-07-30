@@ -38,14 +38,14 @@ import com.coredumped.project.R
 fun CalmScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.homescreen),
+            painter = painterResource(id = R.drawable.homescreen1),
             contentDescription = "Background Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+            columns = GridCells.Fixed(4),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp),
