@@ -29,12 +29,10 @@ The POC includes a basic dashboard with buttons for "Daily Activity", "IQ", "Lea
 - **Platform**: Android
 - **Language**: Kotlin.
 - **UI Framework**: Jetpack Compose (lightweight, declarative UI).
-- **Database**: Room (SQLite for local storage of schedules, flashcards, progress).
 - **Navigation**: Navigation Compose.
 - **Media**: MediaPlayer for audio playback.
 - **Localization**: Android's built-in resources (strings.xml for English/Bengali).
 - **Build Tools**: Android Studio, Gradle with R8/ProGuard for APK shrinking.
-- **Assets**: AI-generated images/animations (e.g., via Craiyon, Bing Image Creator) for flashcards and icons.
 
 The app is optimized for low-end devices (1GB+ RAM) and small APK size through compressed assets (WebP images, short MP3 audio).
 
@@ -49,16 +47,6 @@ The app is optimized for low-end devices (1GB+ RAM) and small APK size through c
 3. Customize: In Learning or Daily Activity, use the "+" button to add from gallery or record audio.
 4. Track Progress: After quizzes, view charts in the IQ section.
 
-For parents: No login required; all data is local and private.
 
 ### Screenshots
 
-
-## Development Guide
-
-### Project Structure
-- `MainActivity.kt`: Entry point with Compose setup.
-- `HomeScreen.kt`: Starting screen with 4 buttons
-- `data/`: Room DB entities and DAOs.
-- `assets/`: Pre-loaded images, audio.
-- `res/values/`: Localization files (strings.xml, strings_bn.xml).
