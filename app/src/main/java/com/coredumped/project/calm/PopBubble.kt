@@ -136,7 +136,7 @@ fun PopBubbleScreen(navController: NavController) {
                 popRate.value = 0f
             }
             // Adjust spawn delay
-            spawnDelay.value = (1000f - (popRate.value * 100f)).toLong().coerceIn(200L, 1000L)
+            spawnDelay.value = (1000f - (popRate.value * 100f)).toLong().coerceIn(100L, 500L)
             // Trigger recomposition
             updateTrigger.value++
         }
