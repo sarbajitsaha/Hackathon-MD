@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -28,6 +28,7 @@ import androidx.compose.foundation.text.KeyboardOptions // For configuring keybo
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button // Material 3 Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator // For loading indicator
@@ -37,10 +38,12 @@ import androidx.compose.material3.MaterialTheme // For accessing theme colors an
 import androidx.compose.material3.OutlinedTextField // Material 3 Outlined Text Field
 import androidx.compose.material3.Scaffold // For standard screen structure (app bar, content area)
 import androidx.compose.material3.Text // Material 3 Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar // Material 3 Top App Bar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults // For TopAppBar default colors
 import androidx.compose.ui.platform.LocalFocusManager // To control keyboard focus
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction // For specifying keyboard action (e.g., Done)
 import androidx.compose.ui.text.input.KeyboardType // For specifying keyboard input type (e.g., NumberPassword)
 import androidx.compose.ui.text.style.TextAlign // For text alignment
@@ -112,20 +115,24 @@ fun SimpleMathsScreen(navController: NavController) {
 
     var currentProblemState by remember { mutableStateOf<SimpleMathsGame.Problem?>(null) }
     var score by remember { mutableIntStateOf(game.getScore()) }
-    // Removed: var feedbackMessage by remember { mutableStateOf("") }
     var isAnswerSubmitted by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf<String?>(null) }
 
+    // New state variables for results dialog
+    var totalProblemsAttempted by remember { mutableIntStateOf(0) }
+    var showResultsDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         currentProblemState = game.generateProblem()
+        // Do not increment totalProblemsAttempted here, only on submission
         Log.d(TAG, "MCQ Screen initialized. First problem: ${currentProblemState?.question}")
     }
 
     fun handleNextProblem() {
         currentProblemState = game.generateProblem()
-        // Removed: feedbackMessage = ""
         isAnswerSubmitted = false
         selectedOption = null
+        // Do not increment totalProblemsAttempted here for "Next", only on actual submission
         Log.d(TAG, "Next problem requested: ${currentProblemState?.question}")
     }
 
@@ -135,9 +142,20 @@ fun SimpleMathsScreen(navController: NavController) {
         selectedOption = option
         val isCorrect = game.checkAnswer(option)
         score = game.getScore()
-        // Removed: Feedback message setting
         isAnswerSubmitted = true
-        Log.d(TAG, "Option '$option' submitted. Correct: $isCorrect. Score: $score")
+        totalProblemsAttempted++ // Increment when an answer is submitted
+        Log.d(TAG, "Option '$option' submitted. Correct: $isCorrect. Score: $score. Total Attempted: $totalProblemsAttempted")
+    }
+
+    if (showResultsDialog) {
+        ResultsDialog(
+            score = score,
+            totalAttempted = totalProblemsAttempted,
+            onDismiss = {
+                showResultsDialog = false
+                navController.popBackStack() // Navigate back after dismissing dialog
+            }
+        )
     }
 
     Row(
@@ -145,7 +163,7 @@ fun SimpleMathsScreen(navController: NavController) {
             .fillMaxSize()
             .imePadding()
     ) {
-        // Content Area
+        // Content Area (Column on the left)
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -158,7 +176,7 @@ fun SimpleMathsScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Maths", style = MaterialTheme.typography.titleLarge)
+                Text(text = "Simple Maths", style = MaterialTheme.typography.titleLarge)
                 Text(text = "Score: $score", style = MaterialTheme.typography.titleMedium)
             }
 
@@ -196,64 +214,25 @@ fun SimpleMathsScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            OptionButton(
-                                text = problem.options[0],
-                                problem = problem,
-                                selectedOption = selectedOption,
-                                isAnswerSubmitted = isAnswerSubmitted,
-                                onClick = { handleSubmitOption(problem.options[0]) },
-                                modifier = Modifier.weight(1f)
-                            )
+                            OptionButton(problem.options[0], problem, selectedOption, isAnswerSubmitted, { handleSubmitOption(problem.options[0]) }, Modifier.weight(1f))
                             Spacer(modifier = Modifier.width(10.dp))
-                            OptionButton(
-                                text = problem.options[1],
-                                problem = problem,
-                                selectedOption = selectedOption,
-                                isAnswerSubmitted = isAnswerSubmitted,
-                                onClick = { handleSubmitOption(problem.options[1]) },
-                                modifier = Modifier.weight(1f)
-                            )
+                            OptionButton(problem.options[1], problem, selectedOption, isAnswerSubmitted, { handleSubmitOption(problem.options[1]) }, Modifier.weight(1f))
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            OptionButton(
-                                text = problem.options[2],
-                                problem = problem,
-                                selectedOption = selectedOption,
-                                isAnswerSubmitted = isAnswerSubmitted,
-                                onClick = { handleSubmitOption(problem.options[2]) },
-                                modifier = Modifier.weight(1f)
-                            )
+                            OptionButton(problem.options[2], problem, selectedOption, isAnswerSubmitted, { handleSubmitOption(problem.options[2]) }, Modifier.weight(1f))
                             Spacer(modifier = Modifier.width(10.dp))
-                            OptionButton(
-                                text = problem.options[3],
-                                problem = problem,
-                                selectedOption = selectedOption,
-                                isAnswerSubmitted = isAnswerSubmitted,
-                                onClick = { handleSubmitOption(problem.options[3]) },
-                                modifier = Modifier.weight(1f)
-                            )
+                            OptionButton(problem.options[3], problem, selectedOption, isAnswerSubmitted, { handleSubmitOption(problem.options[3]) }, Modifier.weight(1f))
                         }
                     }
                 } else {
                     problem.options.forEach { option ->
-                        OptionButton(
-                            text = option,
-                            problem = problem,
-                            selectedOption = selectedOption,
-                            isAnswerSubmitted = isAnswerSubmitted,
-                            onClick = { handleSubmitOption(option) }
-                        )
+                        OptionButton(option, problem, selectedOption, isAnswerSubmitted, { handleSubmitOption(option) })
                     }
                 }
-
-                // This spacer takes up the remaining space after the grid and before the bottom edge
                 Spacer(modifier = Modifier.weight(1f))
-
-                // Removed: Feedback Text Composable
-                // Spacer(modifier = Modifier.height(8.dp)) // Can add a small fixed spacer if needed
             }
         }
 
@@ -270,12 +249,8 @@ fun SimpleMathsScreen(navController: NavController) {
                     if (isAnswerSubmitted) {
                         handleNextProblem()
                     } else {
-                        // This button is primarily for "Next Problem" after submission.
-                        // If an option is selected but not "submitted" (which is via option click),
-                        // clicking this could be a no-op or trigger submission.
-                        // For simplicity, it's best if submission is only via option click.
                         if (currentProblemState != null && selectedOption != null && !isAnswerSubmitted) {
-                            handleSubmitOption(selectedOption!!) // Allow submitting via this button too
+                            handleSubmitOption(selectedOption!!)
                         }
                     }
                 },
@@ -287,12 +262,10 @@ fun SimpleMathsScreen(navController: NavController) {
                         color = if (isAnswerSubmitted) MaterialTheme.colorScheme.secondaryContainer
                         else MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (selectedOption != null) 1f else 0.5f)
                     ),
-                // Enable if an answer is submitted (for "Next") OR if an option is selected (for "Submit")
                 enabled = isAnswerSubmitted || (currentProblemState != null && selectedOption != null)
             ) {
                 Icon(
                     imageVector = Icons.Filled.ChevronRight,
-                    // Dynamically change content description based on state
                     contentDescription = if (isAnswerSubmitted) "Next Problem" else "Submit Answer",
                     modifier = Modifier.size(32.dp),
                     tint = if (isAnswerSubmitted) MaterialTheme.colorScheme.onSecondaryContainer
@@ -300,8 +273,12 @@ fun SimpleMathsScreen(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
+            // This is the button you wanted to change
             IconButton(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    // Show the results dialog instead of navigating back directly
+                    showResultsDialog = true
+                },
                 modifier = Modifier
                     .size(56.dp)
                     .shadow(4.dp, CircleShape)
@@ -313,8 +290,8 @@ fun SimpleMathsScreen(navController: NavController) {
                     )
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    imageVector = Icons.Default.DoneAll, // Changed back to DoneAll as requested
+                    contentDescription = "Show Results",   // Updated content description
                     tint = Color.White,
                     modifier = Modifier.size(28.dp)
                 )
@@ -323,7 +300,6 @@ fun SimpleMathsScreen(navController: NavController) {
     }
 }
 
-/**
 @Composable
 fun OptionButton(
     text: String,
@@ -336,41 +312,24 @@ fun OptionButton(
     val isCorrect = text == problem.correctAnswer
     val isSelected = text == selectedOption
 
-    Log.d(TAG, "OptionButton ('$text'): isSelected=$isSelected, isCorrect=$isCorrect, isAnswerSubmitted=$isAnswerSubmitted, currentCorrectAnswer='${problem.correctAnswer}', currentSelectedProp='$selectedOption'")
+    // Log.d(TAG, "OptionButton ('$text'): isSelected=$isSelected, isCorrect=$isCorrect, isAnswerSubmitted=$isAnswerSubmitted, currentCorrectAnswer='${problem.correctAnswer}', currentSelectedProp='$selectedOption'")
 
     Button(
         onClick = onClick,
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .aspectRatio(2.5f / 1f) // Adjust for visual preference
+            .aspectRatio(2.5f / 1f)
             .padding(vertical = 4.dp),
-        enabled = !isAnswerSubmitted,
         colors = ButtonDefaults.buttonColors(
             containerColor = when {
-                isAnswerSubmitted && isSelected && isCorrect -> {
-                    Log.d(TAG, "OptionButton ('$text') COLOR: Green (Correct & Selected)")
-                    Color(0xFF4CAF50) // Green for correct selected
-                }
-                isAnswerSubmitted && isSelected && !isCorrect -> {
-                    Log.d(TAG, "OptionButton ('$text') COLOR: Red (Incorrect & Selected)")
-                    Color(0xFFF44336) // Red for incorrect selected
-                }
-                isAnswerSubmitted && !isSelected && isCorrect -> {
-                    Log.d(TAG, "OptionButton ('$text') COLOR: Light Green (Actual Correct, Not Selected)")
-                    Color(0xFFA5D6A7) // Lighter green for unselected correct answer
-                }
-                isAnswerSubmitted && !isSelected && !isCorrect -> {
-                    Log.d(TAG, "OptionButton ('$text') COLOR: Dimmed (Incorrect, Not Selected)")
-                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                }
-                else -> { // Before answer is submitted
-                    Log.d(TAG, "OptionButton ('$text') COLOR: Default (Pre-submission)")
-                    MaterialTheme.colorScheme.surfaceVariant
-                }
+                isAnswerSubmitted && isSelected && isCorrect -> Color(0xFF4CAF50)
+                isAnswerSubmitted && isSelected && !isCorrect -> Color(0xFFF44336)
+                isAnswerSubmitted && !isSelected && isCorrect -> Color(0xFFA5D6A7)
+                isAnswerSubmitted && !isSelected && !isCorrect -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                else -> MaterialTheme.colorScheme.surfaceVariant
             },
             contentColor = when {
-                isAnswerSubmitted && isSelected && isCorrect -> Color.White
-                isAnswerSubmitted && isSelected && !isCorrect -> Color.White
+                isAnswerSubmitted && isSelected && (isCorrect || !isCorrect) -> Color.White // Simplified for selected states
                 isAnswerSubmitted && !isSelected && isCorrect -> MaterialTheme.colorScheme.onSurfaceVariant // Or a dark green
                 else -> MaterialTheme.colorScheme.onSurfaceVariant
             }
@@ -380,46 +339,49 @@ fun OptionButton(
         Text(text = text, fontSize = 16.sp, textAlign = TextAlign.Center)
     }
 }
-*/
+
 @Composable
-fun OptionButton(
-    text: String,
-    problem: SimpleMathsGame.Problem,
-    selectedOption: String?,
-    isAnswerSubmitted: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+fun ResultsDialog(
+    score: Int,
+    totalAttempted: Int,
+    onDismiss: () -> Unit
 ) {
-    val isCorrect = text == problem.correctAnswer
-    val isSelected = text == selectedOption
-
-    Log.d(TAG, "OptionButton ('$text'): isSelected=$isSelected, isCorrect=$isCorrect, isAnswerSubmitted=$isAnswerSubmitted, currentCorrectAnswer='${problem.correctAnswer}', currentSelectedProp='$selectedOption'")
-
-    // Determine the color directly for testing
-    val testColor = when {
-        isAnswerSubmitted && isSelected && isCorrect -> Color.Green
-        isAnswerSubmitted && isSelected && !isCorrect -> Color.Red
-        isAnswerSubmitted && !isSelected && isCorrect -> Color.Blue // Distinct color
-        isAnswerSubmitted && !isSelected && !isCorrect -> Color.Black // Distinct color
-        else -> Color.Yellow // Default
-    }
-    Log.d(TAG, "OptionButton ('$text') TEST_COLOR: $testColor")
-
-
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .height(IntrinsicSize.Min)
-            .aspectRatio(2.5f / 1f)
-            .padding(vertical = 4.dp),
-        enabled = !isAnswerSubmitted,
-        colors = ButtonDefaults.buttonColors( // Keep this structure
-            containerColor = testColor, // Apply the determined testColor directly
-//            contentColor = if (testColor == Color.Green || testColor == Color.Red) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
-            // You might need to adjust contentColor logic if using many test colors
-        ),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
-    ) {
-        Text(text = text, fontSize = 16.sp, textAlign = TextAlign.Center)
-    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Game Over!",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "You got",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "$score / $totalAttempted",
+                    style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "correct answers.",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("OK")
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.onSurface,
+        textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    )
 }
