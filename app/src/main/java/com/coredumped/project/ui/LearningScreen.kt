@@ -57,7 +57,7 @@ fun LearningScreen(navController: NavController) {
 
     val categories = listOf(
         CategoryDataLearning(
-            text = "Flashcards",
+            text = "FlashCards",
             imageResId = R.drawable.flashcard,
             color = Color.Blue,
             route = "flashcards"
@@ -205,8 +205,8 @@ fun CategoryItemLearning(
 // Helper unchanged
 private fun getLabelRes(text: String): Int {
     return when (text) {
-        "Brush" -> R.string.activity_brush
-        "HandWash" -> R.string.activity_handwash
+        "FlashCards" -> R.string.flashcards
+        "Simple Maths" -> R.string.simple_maths
         "Girl" -> R.string.activity_girl
         "Boy" -> R.string.activity_boy
         else -> R.string.test // Fallback

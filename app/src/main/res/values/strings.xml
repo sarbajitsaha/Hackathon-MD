@@ -13,6 +13,12 @@
     <string name="calm_video">Calming Video</string>
     <string name="calm_bubbles">Pop Bubbles</string>
     <string name="test">Test</string>
+    <string name="flashcards">Flash Cards</string>
+    <string name="flashcards_fruits">Fruits and Vegetables</string>
+    <string name="flashcards_animals">Animals and Birds</string>
+    <string name="flashcards_vehicles">Vehicles</string>
+    <string name="flashcards_stationery">Stationery</string>
+    <string name="simple_maths">Simple Maths</string>
 
         <!-- Calm Audio Screen Category Headers -->
         <string name="category_nature_sounds">Nature Sounds</string>
