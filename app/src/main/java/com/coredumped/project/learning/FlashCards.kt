@@ -42,7 +42,7 @@ import com.coredumped.project.R
 import kotlin.math.min as mathMin
 
 // Data class for category information
-data class CategoryItemFlashcards(
+data class CategoryItemFlashCards(
     val text: String,
     val imageResId: Int,
     val color: Color,
@@ -50,33 +50,33 @@ data class CategoryItemFlashcards(
 )
 
 @Composable
-fun FlashcardsScreen(navController: NavController) {
+fun FlashCardsScreen(navController: NavController) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
 
     val categories = listOf(
-        CategoryItemFlashcards(
+        CategoryItemFlashCards(
             text = "Fruits",
             imageResId = R.drawable.mango,
             color = Color.Blue,
             route = "" // Empty route means disabled
         ),
-        CategoryItemFlashcards(
+        CategoryItemFlashCards(
             text = "Animals",
             imageResId = R.drawable.tiger,
             color = Color.Green,
             route = "" // Empty route means disabled
         ),
-        CategoryItemFlashcards(
+        CategoryItemFlashCards(
             text = "Vehicles",
             imageResId = R.drawable.bus,
             color = Color.Blue,
             route = "" // Empty route means disabled
         ),
-        CategoryItemFlashcards(
-            text = "Object",
-            imageResId = R.drawable.book,
+        CategoryItemFlashCards(
+            text = "Stationery",
+            imageResId = R.drawable.stationery,
             color = Color.Cyan,
             route = "" // Empty route means disabled
         )
@@ -99,7 +99,7 @@ fun FlashcardsScreen(navController: NavController) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             categories.forEach { category ->
-                CategoryItemLearning(
+                CategoryItemFlashCards(
                     text = category.text,
                     imageResId = category.imageResId,
                     color = category.color,
@@ -146,7 +146,7 @@ fun FlashcardsScreen(navController: NavController) {
 }
 
 @Composable
-fun CategoryItemFlashcards(
+fun CategoryItemFlashCards(
     text: String,
     imageResId: Int,
     color: Color,
@@ -205,10 +205,10 @@ fun CategoryItemFlashcards(
 // Helper unchanged
 private fun getLabelRes(text: String): Int {
     return when (text) {
-        "Brush" -> R.string.activity_brush
-        "HandWash" -> R.string.activity_handwash
-        "Girl" -> R.string.activity_girl
-        "Boy" -> R.string.activity_boy
+        "Fruits" -> R.string.flashcards_fruits
+        "Animals" -> R.string.flashcards_animals
+        "Vehicles" -> R.string.flashcards_vehicles
+        "Stationery" -> R.string.flashcards_stationery
         else -> R.string.test // Fallback
     }
 }
