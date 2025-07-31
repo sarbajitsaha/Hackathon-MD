@@ -5,125 +5,166 @@ import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.coredumped.project.R
+import kotlin.math.min as mathMin
 
 @Composable
 fun HomeScreen(navController: NavController) {
-    // Container Box to hold the background and grid
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    val categories = listOf(
+        CategoryData(
+            text = "Daily Activity",
+            imageResId = R.drawable.brush,
+            color = Color(0xFF4CAF50),
+            route = "daily_activity"
+        ),
+        CategoryData(
+            text = "Learning",
+            imageResId = R.drawable.learning,
+            color = Color(0xFFFFC107),
+            route = "learning"
+        ),
+        CategoryData(
+            text = "IQ",
+            imageResId = R.drawable.iq,
+            color = Color(0xFF2196F3),
+            route = "iq"
+        ),
+        CategoryData(
+            text = "Calm",
+            imageResId = R.drawable.calm,
+            color = Color(0xFF9C27B0),
+            route = "calm"
+        )
+    )
+
     Box(modifier = Modifier.fillMaxSize()) {
-        // Background image that fills the entire screen
+        // Background image
         Image(
             painter = painterResource(id = R.drawable.homescreen),
-            contentDescription = "Background Image",
+            contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop // Crop to maintain aspect ratio and fill screen
+            contentScale = ContentScale.Crop
         )
 
-        // Grid layout for category items
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(4), // Fixed 2-column layout
+        // Single Row layout for horizontal arrangement
+        Row(
             modifier = Modifier
-                .fillMaxSize() // Fill the available space
-                .padding(8.dp), // Outer padding around the grid
-            verticalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterVertically), // Vertical spacing between items
-            horizontalArrangement = Arrangement.spacedBy(10.dp, alignment = Alignment.CenterHorizontally), // Horizontal spacing between items
-            contentPadding = PaddingValues(0.dp) // Padding inside the grid content
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            item {
+            categories.forEach { category ->
                 CategoryItem(
-                    text = "Daily Activity",
-                    imageResId = R.drawable.brush,
-                    color = Color(0xFF4CAF50),
-                    onClick = { navController.navigate("daily_activity") }
-                )
-            }
-            item {
-                CategoryItem(
-                    text = "Learning",
-                    imageResId = R.drawable.learning,
-                    color = Color(0xFFFFC107),
-                    onClick = { navController.navigate("learning") }
-                )
-            }
-            item {
-                CategoryItem(
-                    text = "IQ",
-                    imageResId = R.drawable.iq,
-                    color = Color(0xFF2196F3),
-                    onClick = { navController.navigate("iq") }
-                )
-            }
-            item {
-                CategoryItem(
-                    text = "Calm",
-                    imageResId = R.drawable.calm,
-                    color = Color(0xFF9C27B0),
-                    onClick = { navController.navigate("calm") }
+                    text = category.text,
+                    imageResId = category.imageResId,
+                    color = category.color,
+                    onClick = { navController.navigate(category.route) },
+                    itemCount = categories.size
                 )
             }
         }
 
+        // Close button
         val context = LocalContext.current
+        val buttonSize = mathMin(64f, screenWidth * 0.12f).dp
+        val iconSize = mathMin(32f, screenWidth * 0.06f).dp
+
         Box(
             modifier = Modifier
                 .padding(16.dp)
-                .size(64.dp)
+                .size(buttonSize)
                 .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFFFF9500),  // Orange
-                            Color(0xFFFF2D55),  // Pink
-                            Color(0xFF5856D6)   // Purple
+                            Color(0xFFFF9500),
+                            Color(0xFFFF2D55),
+                            Color(0xFF5856D6)
                         )
                     )
                 )
-                .clickable {
-                    context.findActivity()?.finish()
-                }
+                .clickable { context.findActivity()?.finish() }
                 .align(Alignment.TopStart),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Close",
+                contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(iconSize)
+            )
+        }
+
+        // Settings button
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .size(buttonSize)
+                .shadow(4.dp, CircleShape)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFFFF9500),
+                            Color(0xFFFF2D55),
+                            Color(0xFF5856D6)
+                        )
+                    )
+                )
+                .clickable { navController.navigate("settings") }
+                .align(Alignment.TopEnd),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(iconSize)
             )
         }
     }
 }
 
+// Data class for category information
+data class CategoryData(
+    val text: String,
+    val imageResId: Int,
+    val color: Color,
+    val route: String
+)
 
-// Utility function to get Activity from Context (non-composable)
+// Utility function unchanged
 fun Context.findActivity(): Activity? {
     var currentContext = this
     while (currentContext is android.content.ContextWrapper) {
@@ -137,34 +178,68 @@ fun Context.findActivity(): Activity? {
 
 @Composable
 fun CategoryItem(
-    text: String, // Keeping param for consistency, not used in display
+    text: String,
     imageResId: Int,
     color: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    itemCount: Int = 4 // Default to 4 items
 ) {
-    // Box to center the card within the grid cell
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center // Center the card horizontally and vertically
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    // Calculate available width per item (accounting for padding)
+    val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
+
+    // Calculate responsive font size based on available width
+    val fontSize = mathMin(18f, availableWidthPerItem * 0.15f).sp
+
+    Column(
+        modifier = Modifier
+            .width((availableWidthPerItem).dp)
+            .padding(4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White.copy(alpha = 0.3f))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        // Card to hold the image with a translucent background
-        Card(
+        // Image takes maximum possible space
+        Image(
+            painter = painterResource(id = imageResId),
+            contentDescription = null,
             modifier = Modifier
-                .clickable(onClick = onClick) // Make the card clickable
-                .size(150.dp), // Fixed size to match image, no extra padding
-            shape = RoundedCornerShape(12.dp), // Rounded corners for the card
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.3f)), // Subtle translucent background
-            elevation = CardDefaults.cardElevation(1.dp) // Slight elevation for depth
-        ) {
-            // Image filling the card
-            Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = text,
-                modifier = Modifier
-                    .fillMaxSize() // Fill the card entirely
-                    .clip(RoundedCornerShape(8.dp)), // Rounded corners for the image
-                contentScale = ContentScale.Crop // Crop to fill while maintaining aspect ratio
-            )
-        }
+                .fillMaxWidth(0.9f)
+                .aspectRatio(1f) // Keep image square
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Text with adaptive size and overflow handling
+        Text(
+            text = stringResource(id = getLabelRes(text)),
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
+        )
+    }
+}
+
+// Helper function unchanged
+private fun getLabelRes(text: String): Int {
+    return when (text) {
+        "Daily Activity" -> R.string.category_daily_activity
+        "Learning" -> R.string.category_learning
+        "IQ" -> R.string.category_iq
+        "Calm" -> R.string.category_calm
+        else -> R.string.test // Fallback
     }
 }

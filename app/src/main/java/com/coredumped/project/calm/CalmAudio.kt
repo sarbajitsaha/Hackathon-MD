@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -47,7 +48,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -72,66 +76,70 @@ fun CalmAudioScreen(navController: NavController) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background image (use a calm, soothing image; placeholder ID assumed)
         Image(
-            painter = painterResource(id = R.drawable.homescreen), // Replace with your calm background resource
-            contentDescription = "Calm Background",
+            painter = painterResource(id = R.drawable.homescreen),
+            contentDescription = stringResource(R.string.calm_background_desc),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
         // Grid layout for categories and sound items
         LazyVerticalGrid(
-            columns = GridCells.Fixed(4), // 4 columns for landscape mode, spacious for big icons
+            columns = GridCells.Fixed(4), // 4 columns for landscape mode
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp), // Increased padding for better spacing in landscape
-            verticalArrangement = Arrangement.spacedBy(16.dp), // Larger vertical spacing for touch-friendly layout
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(0.dp)
+                .padding(16.dp), // Reduced padding to improve performance
+            verticalArrangement = Arrangement.spacedBy(12.dp), // Slightly reduced spacing
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 80.dp) // Extra padding at bottom for media controls
         ) {
             // Nature Sounds Header
-            item(span = { GridItemSpan(4) }) {
-                CategoryHeader(text = "Nature Sounds")
+            item(span = { GridItemSpan(4) }, key = "nature_header") {
+                CategoryHeader(text = stringResource(R.string.category_nature_sounds))
             }
 
-            // 4 Nature Sound Items (big icons, placeholders)
-            items(4) { index ->
+            // 4 Nature Sound Items
+            val natureSounds = listOf(
+                SoundData(R.drawable.calm_rain, R.string.sound_rain, "nature_rain"),
+                SoundData(R.drawable.calm_waves, R.string.sound_waves, "nature_waves"),
+                SoundData(R.drawable.calm_forest, R.string.sound_forest, "nature_forest"),
+                SoundData(R.drawable.calm, R.string.sound_wind, "nature_wind")
+            )
+
+            items(natureSounds, key = { it.key }) { soundData ->
                 SoundItem(
-                    imageResId = when (index) {
-                        0 -> R.drawable.calm_rain // Placeholder: rain icon
-                        1 -> R.drawable.calm_waves // Placeholder: ocean waves icon
-                        2 -> R.drawable.calm // Placeholder: forest birds icon
-                        else -> R.drawable.calm // Placeholder: wind chimes icon
-                    },
+                    imageResId = soundData.imageResId,
+                    textResId = soundData.textResId,
                     onClick = { imageResId ->
                         playSound(context, imageResId) { newPlayer, soundName ->
-                            // Stop and release current player if exists
                             currentPlayer?.stop()
                             currentPlayer?.release()
-                            // Set new player and start
                             currentPlayer = newPlayer
                             currentSoundName = soundName
                             currentPlayer?.start()
                             isPlaying = true
-                            currentPlayer?.isLooping = true // Enable looping
+                            currentPlayer?.isLooping = true
                         }
                     }
                 )
             }
 
             // Mindfulness Sounds Header
-            item(span = { GridItemSpan(4) }) {
-                CategoryHeader(text = "Mindfulness Sounds")
+            item(span = { GridItemSpan(4) }, key = "mindfulness_header") {
+                CategoryHeader(text = stringResource(R.string.category_mindfulness_sounds))
             }
 
-            // 4 Mindfulness Sound Items (big icons, placeholders)
-            items(4) { index ->
+            // 4 Mindfulness Sound Items
+            val mindfulnessSounds = listOf(
+                SoundData(R.drawable.calm, R.string.sound_breathing, "mind_breathing"),
+                SoundData(R.drawable.calm, R.string.sound_cloud, "mind_cloud"),
+                SoundData(R.drawable.calm, R.string.sound_relaxation, "mind_relax"),
+                SoundData(R.drawable.calm, R.string.sound_whisper, "mind_whisper")
+            )
+
+            items(mindfulnessSounds, key = { it.key }) { soundData ->
                 SoundItem(
-                    imageResId = when (index) {
-                        0 -> R.drawable.calm // Placeholder: breathing exercise icon
-                        1 -> R.drawable.calm // Placeholder: cloud floating icon
-                        2 -> R.drawable.calm // Placeholder: body relaxation icon
-                        else -> R.drawable.calm // Placeholder: soft whisper icon
-                    },
+                    imageResId = soundData.imageResId,
+                    textResId = soundData.textResId,
                     onClick = { imageResId ->
                         playSound(context, imageResId) { newPlayer, soundName ->
                             currentPlayer?.stop()
@@ -140,26 +148,29 @@ fun CalmAudioScreen(navController: NavController) {
                             currentSoundName = soundName
                             currentPlayer?.start()
                             isPlaying = true
-                            currentPlayer?.isLooping = true // Enable looping
+                            currentPlayer?.isLooping = true
                         }
                     }
                 )
             }
 
             // Music Sounds Header
-            item(span = { GridItemSpan(4) }) {
-                CategoryHeader(text = "Music Sounds")
+            item(span = { GridItemSpan(4) }, key = "music_header") {
+                CategoryHeader(text = stringResource(R.string.category_music_sounds))
             }
 
-            // 4 Music Sound Items (big icons, placeholders)
-            items(4) { index ->
+            // 4 Music Sound Items
+            val musicSounds = listOf(
+                SoundData(R.drawable.calm, R.string.sound_piano, "music_piano"),
+                SoundData(R.drawable.calm, R.string.sound_harp, "music_harp"),
+                SoundData(R.drawable.calm, R.string.sound_flute, "music_flute"),
+                SoundData(R.drawable.calm, R.string.sound_ambient, "music_ambient")
+            )
+
+            items(musicSounds, key = { it.key }) { soundData ->
                 SoundItem(
-                    imageResId = when (index) {
-                        0 -> R.drawable.calm // Placeholder: piano icon
-                        1 -> R.drawable.calm // Placeholder: harp icon
-                        2 -> R.drawable.calm // Placeholder: flute icon
-                        else -> R.drawable.calm // Placeholder: ambient melody icon
-                    },
+                    imageResId = soundData.imageResId,
+                    textResId = soundData.textResId,
                     onClick = { imageResId ->
                         playSound(context, imageResId) { newPlayer, soundName ->
                             currentPlayer?.stop()
@@ -168,7 +179,7 @@ fun CalmAudioScreen(navController: NavController) {
                             currentSoundName = soundName
                             currentPlayer?.start()
                             isPlaying = true
-                            currentPlayer?.isLooping = true // Enable looping
+                            currentPlayer?.isLooping = true
                         }
                     }
                 )
@@ -197,7 +208,7 @@ fun CalmAudioScreen(navController: NavController) {
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.back_button),
                 tint = Color.White,
                 modifier = Modifier.size(48.dp)
             )
@@ -236,7 +247,9 @@ fun CalmAudioScreen(navController: NavController) {
                     }) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (isPlaying) "Pause" else "Play",
+                            contentDescription = if (isPlaying)
+                                stringResource(R.string.pause_button)
+                            else stringResource(R.string.play_button),
                             tint = Color.White,
                             modifier = Modifier.size(48.dp) // Larger icon
                         )
@@ -250,7 +263,7 @@ fun CalmAudioScreen(navController: NavController) {
                     }) {
                         Icon(
                             imageVector = Icons.Default.Stop,
-                            contentDescription = "Stop",
+                            contentDescription = stringResource(R.string.stop_button),
                             tint = Color.White,
                             modifier = Modifier.size(48.dp) // Larger icon
                         )
@@ -261,18 +274,35 @@ fun CalmAudioScreen(navController: NavController) {
     }
 }
 
+data class SoundData(
+    val imageResId: Int,
+    val textResId: Int,
+    val key: String // Added for better recycling performance
+)
+
 @Composable
 fun CategoryHeader(text: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .height(60.dp) // Fixed height for better performance
             .padding(vertical = 8.dp),
         contentAlignment = Alignment.Center
     ) {
+        // Translucent background for better text readability
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.7f) // Not full width to look better
+                .height(44.dp)
+                .clip(RoundedCornerShape(22.dp))
+                .background(Color.White.copy(alpha = 0.65f)) // Translucent white background
+        )
+
         Text(
             text = text,
-            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp), // Large, readable font
-            color = Color.White, // High contrast on background
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 28.sp), // Slightly smaller for better performance
+            color = Color.Black, // Dark text on light translucent background
             textAlign = TextAlign.Center
         )
     }
@@ -281,30 +311,53 @@ fun CategoryHeader(text: String) {
 @Composable
 fun SoundItem(
     imageResId: Int,
-    onClick: (Int) -> Unit // Now passes imageResId to parent for playback
+    textResId: Int,
+    onClick: (Int) -> Unit
 ) {
-    // Box to center the card
+    // Using Box instead of Column for better performance
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.TopCenter
     ) {
-        // Card for the sound icon (larger for big icons)
-        Card(
-            modifier = Modifier
-                .clickable { onClick(imageResId) } // Pass imageResId to handle playback
-                .size(150.dp), // Fixed size to match image, no extra padding
-            shape = RoundedCornerShape(12.dp), // Rounded corners for the card
-            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.3f)), // Subtle translucent background
-            elevation = CardDefaults.cardElevation(1.dp) // Slight elevation for depth
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Image(
-                painter = painterResource(id = imageResId),
-                contentDescription = "Sound Icon",
+            // Card for the sound icon
+            Card(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
+                    .size(110.dp) // Slightly smaller for better performance
+                    .clickable { onClick(imageResId) },
+                shape = RoundedCornerShape(10.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.3f)),
+                elevation = CardDefaults.cardElevation(1.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = imageResId),
+                    contentDescription = stringResource(id = textResId),
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+            // Text with translucent background
+            Box(
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.White.copy(alpha = 0.7f)) // Translucent background
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = stringResource(id = textResId),
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -323,7 +376,7 @@ private fun playSound(
         player.setOnCompletionListener {
             it.release() // Auto-release on completion (though looping prevents this)
         }
-        onPlayerReady(player, soundName.capitalize())
+        onPlayerReady(player, soundName.replace("_", " ").capitalize())
     } else {
         // Handle missing MP3 (e.g., log error or show toast)
     }

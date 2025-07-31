@@ -1,42 +1,54 @@
 package com.coredumped.project
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.provider.Settings
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.coredumped.project.ui.DailyActivityScreen
 import com.coredumped.project.activity.BrushScreen
 import com.coredumped.project.activity.HandWashScreen
-import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
 import com.coredumped.project.ui.LearningScreen
 import com.coredumped.project.learning.SimpleMathsScreen
+import com.coredumped.project.ui.CalmAudioScreen
+import com.coredumped.project.ui.CalmScreen
+import com.coredumped.project.ui.DailyActivityScreen
 import com.coredumped.project.ui.HomeScreen
-
+import com.coredumped.project.ui.SettingsScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
+
     val animatorScale = remember {
         Settings.Global.getFloat(
             context.contentResolver,
@@ -45,7 +57,16 @@ fun AppNavigation() {
         )
     }
 
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(navController = navController, startDestination = "splash") {
+        composable("splash") {
+            SplashScreen(navController = navController, prefs = prefs)
+        }
+        animatedComposable(
+            route = "settings",
+            scale = animatorScale
+        ) {
+            SettingsScreen(navController)
+        }
         animatedComposable(
             route = "home",
             scale = animatorScale
@@ -106,6 +127,12 @@ fun AppNavigation() {
         ) {
             PopBubbleScreen(navController = navController)
         }
+        animatedComposable(
+            route = "calm_audio",
+            scale = animatorScale
+        ) {
+            CalmAudioScreen(navController = navController)
+        }
     }
 }
 
@@ -118,54 +145,54 @@ fun NavGraphBuilder.animatedComposable(
         route = route,
         enterTransition = {
             if (scale == 0f) {
-                null // Skip animations if animator scale is 0
+                null
             } else {
                 slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth }, // Start from right
+                    initialOffsetX = { fullWidth -> fullWidth },
                     animationSpec = tween(
-                        durationMillis = (300 / scale).toInt().coerceAtLeast(100),
+                        durationMillis = (300 * scale).toInt().coerceAtLeast(100),
                         easing = LinearOutSlowInEasing
                     )
-                ) + fadeIn(animationSpec = tween((150 / scale).toInt().coerceAtLeast(50)))
+                ) + fadeIn(animationSpec = tween((150 * scale).toInt().coerceAtLeast(50)))
             }
         },
         exitTransition = {
             if (scale == 0f) {
-                null // Skip animations
+                null
             } else {
                 slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> -fullWidth }, // Exit to left
+                    targetOffsetX = { fullWidth -> -fullWidth },
                     animationSpec = tween(
-                        durationMillis = (300 / scale).toInt().coerceAtLeast(100),
+                        durationMillis = (300 * scale).toInt().coerceAtLeast(100),
                         easing = LinearOutSlowInEasing
                     )
-                ) + fadeOut(animationSpec = tween((150 / scale).toInt().coerceAtLeast(50)))
+                ) + fadeOut(animationSpec = tween((150 * scale).toInt().coerceAtLeast(50)))
             }
         },
         popEnterTransition = {
             if (scale == 0f) {
-                null // Skip animations
+                null
             } else {
                 slideInHorizontally(
-                    initialOffsetX = { fullWidth -> -fullWidth }, // Start from left
+                    initialOffsetX = { fullWidth -> -fullWidth },
                     animationSpec = tween(
-                        durationMillis = (300 / scale).toInt().coerceAtLeast(100),
+                        durationMillis = (300 * scale).toInt().coerceAtLeast(100),
                         easing = LinearOutSlowInEasing
                     )
-                ) + fadeIn(animationSpec = tween((150 / scale).toInt().coerceAtLeast(50)))
+                ) + fadeIn(animationSpec = tween((150 * scale).toInt().coerceAtLeast(50)))
             }
         },
         popExitTransition = {
             if (scale == 0f) {
-                null // Skip animations
+                null
             } else {
                 slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> fullWidth }, // Exit to right
+                    targetOffsetX = { fullWidth -> fullWidth },
                     animationSpec = tween(
-                        durationMillis = (300 / scale).toInt().coerceAtLeast(100),
+                        durationMillis = (300 * scale).toInt().coerceAtLeast(100),
                         easing = LinearOutSlowInEasing
                     )
-                ) + fadeOut(animationSpec = tween((150 / scale).toInt().coerceAtLeast(50)))
+                ) + fadeOut(animationSpec = tween((150 * scale).toInt().coerceAtLeast(50)))
             }
         }
     ) { backStackEntry ->
@@ -180,5 +207,34 @@ fun PlaceholderScreen(title: String) {
         contentAlignment = Alignment.Center
     ) {
         Text(text = "$title - Coming Soon!")
+    }
+}
+
+@Composable
+fun SplashScreen(navController: NavController, prefs: SharedPreferences) {
+    LaunchedEffect(Unit) {
+        val isLanguageSet = prefs.contains("preferred_language")
+        val destination = if (isLanguageSet) "home" else "settings"
+
+        navController.navigate(destination) {
+            popUpTo("splash") {
+                inclusive = true
+            }
+        }
+    }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.homescreen),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.size(50.dp)
+        )
     }
 }

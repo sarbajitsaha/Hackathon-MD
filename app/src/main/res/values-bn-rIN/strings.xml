@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Project</string>
+    <string name="category_daily_activity">রোজের কাজকর্ম</string>
+    <string name="category_learning">শেখা</string>
+    <string name="category_iq">আইকিউ</string>
+    <string name="category_calm">শান্ত</string>
+    <string name="activity_brush">দাঁত মাজা</string>
+    <string name="activity_handwash">হাত ধোয়া</string>
+    <string name="activity_girl">মেয়ে</string>
+    <string name="activity_boy">ছেলে</string>
+    <string name="calm_fluid">ঢেউ খেলা</string>
+    <string name="calm_audio">শান্তকর অডিও</string>
+    <string name="calm_video">শান্তকর ভিডিও</string>
+    <string name="calm_bubbles">বুদবুদ খেলা</string>
+    <string name="test">পরীক্ষা</string>
+</resources>

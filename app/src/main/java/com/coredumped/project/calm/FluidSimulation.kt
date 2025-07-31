@@ -47,7 +47,24 @@ data class Particle(
     val color: Color
 )
 
-private const val MAX_PARTICLES = 1000 // Reduced from 7000 to improve performance
+private const val H = 35f // A larger interaction radius for a smoother look
+private const val H2 = H * H
+private const val CELL_SIZE = H // Match cell size to interaction radius
+
+// Forces (These are the most important changes)
+private const val REP_STRENGTH = 1.5f   // Repulsion needs to be stronger than attraction
+private const val ATT_STRENGTH = 0.15f  // Gentle attraction for cohesion
+private const val VISC_STRENGTH = 1.0f  // MUCH higher viscosity for a fluid, syrupy feel
+private const val FORCE_SCALE = 0.01f   // NEW: Drastically scales down forces for stability
+
+// Environment
+private const val GRAVITY = 1.5f         // Slightly stronger gravity to feel weight
+private const val BOUNCE_DAMP = 0.5f     // Lose more energy on bounce (less bouncy)
+private const val FRICTION = 0.99f       // A little less friction to allow more flow
+
+private const val MAX_PARTICLES = 1500 // Can test increasing to 1500 if perf allows
+
+private const val IDEAL_DIST = H * 0.7f // Ideal separation for forces
 
 @Composable
 fun FluidSimulationScreen(navController: NavController) {
@@ -104,8 +121,8 @@ fun FluidSimulationScreen(navController: NavController) {
                         },
                         onDrag = { change, _ ->
                             dragPosition = change.position
-                            // Limit particle generation rate to reduce lag
-                            if (Random.nextFloat() > 0.2f) { // Only add particles 80% of the time
+                            // Generate particles more consistently for density
+                            if (Random.nextFloat() > 0.05f) { // Add ~95% of the time
                                 val addTime = measureTimeMillis {
                                     addParticle(change.position, particles)
                                 }
@@ -246,7 +263,7 @@ fun FluidSimulationScreen(navController: NavController) {
             }
         }
 
-        // Particle physics update loop with optimizations for finger lift case
+        // Particle physics update loop with optimizations
         LaunchedEffect(Unit) {
             Log.d(TAG, "Starting physics update loop")
             val toRemove = ArrayList<Particle>()
@@ -259,30 +276,95 @@ fun FluidSimulationScreen(navController: NavController) {
                     toRemove.clear()
                     updateCount++
 
-                    // Process all particles
+                    // Build spatial grid for efficient neighbor queries
+                    val grid: MutableMap<Pair<Int, Int>, MutableList<Particle>> = mutableMapOf()
+                    particles.forEach { p ->
+                        val gx = (p.pos.x / CELL_SIZE).toInt()
+                        val gy = (p.pos.y / CELL_SIZE).toInt()
+                        grid.getOrPut(gx to gy) { mutableListOf() }.add(p)
+                    }
+
+                    // Process all particles: compute forces, update vel/pos, handle boundaries
                     val physicsTime = measureTimeMillis {
                         particles.forEach { p ->
-                            // Update position based on velocity
-                            p.pos += p.vel
+                            var forceX = 0f
+                            var forceY = 0f
 
-                            // Apply gentle friction but keep particles moving
-                            p.vel *= 0.995f
+                            // Compute interactions with neighbors
+                            val gx = (p.pos.x / CELL_SIZE).toInt()
+                            val gy = (p.pos.y / CELL_SIZE).toInt()
+                            for (dx in -1..1) {
+                                for (dy in -1..1) {
+                                    val key = (gx + dx) to (gy + dy)
+                                    grid[key]?.forEach { other ->
+                                        if (other !== p) {
+                                            val dx = p.pos.x - other.pos.x
+                                            val dy = p.pos.y - other.pos.y
+                                            val dist2 = dx * dx + dy * dy
+                                            if (dist2 < H2 && dist2 > 0.001f) {
+                                                val dist = sqrt(dist2)
+                                                val dirX = dx / dist
+                                                val dirY = dy / dist
 
-                            // Add continuous motion for better visual effect - reduced frequency
-                            if (Random.nextFloat() > 0.7f) { // Only 30% of frames get random motion to reduce CPU load
-                                p.vel += Offset(
-                                    Random.nextFloat() * 0.15f - 0.075f,
-                                    Random.nextFloat() * 0.15f - 0.12f  // Slightly biased upward
-                                )
+                                                // Repulsion if too close, attraction if too far
+                                                if (dist < IDEAL_DIST) {
+                                                    val mag = (IDEAL_DIST - dist) * REP_STRENGTH
+                                                    forceX += dirX * mag
+                                                    forceY += dirY * mag
+                                                } else {
+                                                    val mag = (dist - IDEAL_DIST) * ATT_STRENGTH
+                                                    forceX -= dirX * mag
+                                                    forceY -= dirY * mag
+                                                }
+
+                                                // Simple viscosity (smooth velocity differences)
+                                                val velDx = other.vel.x - p.vel.x
+                                                val velDy = other.vel.y - p.vel.y
+                                                val viscMag = VISC_STRENGTH / dist
+                                                forceX += velDx * viscMag
+                                                forceY += velDy * viscMag
+                                            }
+                                        }
+                                    }
+                                }
                             }
 
-                            // Apply a slower fade
-                            p.alpha *= 0.996f
+                            // Add gravity
+                            forceY += GRAVITY
+
+                            // Update velocity from force (assume mass=1, dt=1 for simplicity)
+                            p.vel = Offset(
+                                p.vel.x + forceX * FORCE_SCALE,
+                                p.vel.y + forceY * FORCE_SCALE
+                            )
+
+                            // Apply friction
+                            p.vel = p.vel * FRICTION
+
+                            // Update position
+                            p.pos += p.vel
+
+                            // Boundary bounce (contain particles, damp velocity)
+                            if (p.pos.x < p.size) {
+                                p.pos = Offset(p.size, p.pos.y)
+                                p.vel = Offset(-p.vel.x * BOUNCE_DAMP, p.vel.y)
+                            } else if (p.pos.x > canvasSize.width - p.size) {
+                                p.pos = Offset(canvasSize.width - p.size, p.pos.y)
+                                p.vel = Offset(-p.vel.x * BOUNCE_DAMP, p.vel.y)
+                            }
+                            if (p.pos.y < p.size) {
+                                p.pos = Offset(p.pos.x, p.size)
+                                p.vel = Offset(p.vel.x, -p.vel.y * BOUNCE_DAMP)
+                            } else if (p.pos.y > canvasSize.height - p.size) {
+                                p.pos = Offset(p.pos.x, canvasSize.height - p.size)
+                                p.vel = Offset(p.vel.x, -p.vel.y * BOUNCE_DAMP)
+                            }
+
+                            // Slow fade
+                            p.alpha *= 0.999f
 
                             // Collect particles to remove
-                            if (p.alpha < 0.02f ||
-                                p.pos.x < -50 || p.pos.x > canvasSize.width + 50 ||
-                                p.pos.y < -50 || p.pos.y > canvasSize.height + 50) {
+                            if (p.alpha < 0.01f) {
                                 toRemove.add(p)
                             }
                         }
@@ -391,7 +473,7 @@ private fun addParticle(offset: Offset, particles: MutableList<Particle>) {
             pos = offset,
             vel = vel,
             alpha = 1f,
-            size = Random.nextFloat() * 10f + 20f,
+            size = Random.nextFloat() * 3f + 3f, // Smaller particles for denser fluid feel
             color = color
         )
     )
@@ -399,7 +481,7 @@ private fun addParticle(offset: Offset, particles: MutableList<Particle>) {
 
 // Adds several particles for a burst effect.
 private fun addBurst(offset: Offset, particles: MutableList<Particle>) {
-    val burstCount = Random.nextInt(8, 15)
+    val burstCount = Random.nextInt(15, 25) // Slightly more for density
     Log.d(TAG, "Adding burst of $burstCount particles")
     repeat(burstCount) {
         addParticle(offset, particles)
