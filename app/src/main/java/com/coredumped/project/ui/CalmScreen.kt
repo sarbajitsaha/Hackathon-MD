@@ -1,5 +1,6 @@
 package com.coredumped.project.ui
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,11 +8,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -28,17 +33,28 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.coredumped.project.R
+import kotlin.math.min as mathMin
+
+val TAG = "CalmScreen"
 
 @Composable
 fun CalmScreen(navController: NavController) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
+
+    // Calculate responsive grid cells based on screen width
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.homescreen),
@@ -47,53 +63,59 @@ fun CalmScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(4),
+        val items = listOf(
+            CategoryDataCalm(
+                text = "Fluid",
+                imageResId = R.drawable.fluid,
+                color = Color.Blue,
+                route = "fluid_simulation"
+            ),
+            CategoryDataCalm(
+                text = "Audio",
+                imageResId = R.drawable.calm_audio,
+                color = Color.Green,
+                route = "calm_audio"
+            ),
+            CategoryDataCalm(
+                text = "Video",
+                imageResId = R.drawable.calm_video,
+                color = Color.Blue,
+                route = "" // Empty route means disabled
+            ),
+            CategoryDataCalm(
+                text = "Bubbles",
+                imageResId = R.drawable.bubbles,
+                color = Color.Cyan,
+                route = "pop_bubble"
+            )
+        )
+
+        // Single Row layout for horizontal arrangement
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterVertically),
-            horizontalArrangement = Arrangement.spacedBy(20.dp, alignment = Alignment.CenterHorizontally),
-            contentPadding = PaddingValues(0.dp)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            item {
+            items.forEach { category ->
                 CategoryItemCalm(
-                    text = "Fluid",
-                    imageResId = R.drawable.fluid,
-                    color = Color.Blue,
-                    onClick = { navController.navigate("fluid_simulation") }
-                )
-            }
-            item {
-                CategoryItemCalm(
-                    text = "Audio",
-                    imageResId = R.drawable.calm_audio,
-                    color = Color.Green,
-                    onClick = { navController.navigate("calm_audio") }
-                )
-            }
-            item {
-                CategoryItemCalm(
-                    text = "Video",
-                    imageResId = R.drawable.calm_video,
-                    color = Color.Blue,
-                    onClick = { /* Disabled until route is implemented */ }
-                )
-            }
-            item {
-                CategoryItemCalm(
-                    text = "Bubbles",
-                    imageResId = R.drawable.bubbles,
-                    color = Color.Cyan,
-                    onClick = { navController.navigate("pop_bubble") }
+                    text = category.text,
+                    imageResId = category.imageResId,
+                    color = category.color,
+                    onClick = { navController.navigate(category.route) },
+                    itemCount = items.size
                 )
             }
         }
 
+        // Back button with responsive size
+        val backButtonSize = mathMin(64f, screenWidth * 0.12f).dp
+
         Box(
             modifier = Modifier
                 .padding(16.dp)
-                .size(64.dp)
+                .size(backButtonSize)
                 .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
                 .background(
@@ -113,22 +135,41 @@ fun CalmScreen(navController: NavController) {
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Back",
                 tint = Color.White,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(mathMin(32f, screenWidth * 0.06f).dp)
             )
         }
     }
 }
 
+// Data class for category information
+data class CategoryDataCalm(
+    val text: String,
+    val imageResId: Int,
+    val color: Color,
+    val route: String
+)
+
 @Composable
 fun CategoryItemCalm(
     text: String,
     imageResId: Int,
-    color: Color, // Unused; retained for consistency
-    onClick: () -> Unit
+    color: Color,
+    onClick: () -> Unit,
+    itemCount: Int = 4 // Default to 4 items
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    // Calculate available width per item (accounting for padding)
+    val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
+
+    // Calculate responsive font size based on available width
+    val fontSize = mathMin(18f, availableWidthPerItem * 0.15f).sp
+
     Column(
         modifier = Modifier
-            .size(190.dp)
+            .width((availableWidthPerItem).dp)
+            .padding(4.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White.copy(alpha = 0.3f))
             .clickable(onClick = onClick)
@@ -136,27 +177,37 @@ fun CategoryItemCalm(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Image takes maximum possible space
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = null,
             modifier = Modifier
-                .size(140.dp)
+                .fillMaxWidth(0.9f)
+                .aspectRatio(1f) // Keep image square
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
-        Spacer(modifier = Modifier.height(10.dp))
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Text with adaptive size and overflow handling
         Text(
             text = stringResource(id = getLabelResCalm(text)),
-            style = TextStyle(
-                fontWeight = FontWeight.Bold,
-                fontSize = 22.sp,
-                color = Color.Black
-            )
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
         )
     }
 }
 
 private fun getLabelResCalm(text: String): Int {
+    Log.d(TAG, "$text getLabelCalm")
     return when (text) {
         "Fluid" -> R.string.calm_fluid
         "Audio" -> R.string.calm_audio

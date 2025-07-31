@@ -13,4 +13,35 @@
     <string name="calm_video">Calming Video</string>
     <string name="calm_bubbles">Pop Bubbles</string>
     <string name="test">Test</string>
+
+        <!-- Calm Audio Screen Category Headers -->
+        <string name="category_nature_sounds">Nature Sounds</string>
+        <string name="category_mindfulness_sounds">Mindfulness Sounds</string>
+        <string name="category_music_sounds">Music Sounds</string>
+
+        <!-- Nature Sound Items -->
+        <string name="sound_rain">Rain</string>
+        <string name="sound_waves">Ocean Waves</string>
+        <string name="sound_forest">Forest Birds</string>
+        <string name="sound_wind">Wind Chimes</string>
+
+        <!-- Mindfulness Sound Items -->
+        <string name="sound_breathing">Breathing Exercise</string>
+        <string name="sound_cloud">Cloud Floating</string>
+        <string name="sound_relaxation">Body Relaxation</string>
+        <string name="sound_whisper">Soft Whisper</string>
+
+        <!-- Music Sound Items -->
+        <string name="sound_piano">Piano</string>
+        <string name="sound_harp">Harp</string>
+        <string name="sound_flute">Flute</string>
+        <string name="sound_ambient">Ambient Melody</string>
+
+        <!-- UI Elements -->
+        <string name="back_button">Back</string>
+        <string name="pause_button">Pause</string>
+        <string name="play_button">Play</string>
+        <string name="stop_button">Stop</string>
+        <string name="calm_background_desc">Calm Background</string>
+
 </resources>
