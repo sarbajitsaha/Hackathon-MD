@@ -43,6 +43,7 @@ import com.coredumped.project.ui.DailyActivityScreen
 import com.coredumped.project.ui.FlashCardsScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
+import com.coredumped.project.ui.IQTestScreen
 
 @Composable
 fun AppNavigation() {
@@ -120,7 +121,7 @@ fun AppNavigation() {
             route = "iq",
             scale = animatorScale
         ) {
-            PlaceholderScreen("IQ Screen")
+            IQTestScreen(navController)
         }
         animatedComposable(
             route = "fluid_simulation",
