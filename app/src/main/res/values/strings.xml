@@ -23,7 +23,7 @@
         <string name="sound_rain">Rain</string>
         <string name="sound_waves">Ocean Waves</string>
         <string name="sound_forest">Forest Birds</string>
-        <string name="sound_wind">Wind Chimes</string>
+        <string name="sound_birds">Wind Chimes</string>
 
         <!-- Mindfulness Sound Items -->
         <string name="sound_breathing">Breathing Exercise</string>

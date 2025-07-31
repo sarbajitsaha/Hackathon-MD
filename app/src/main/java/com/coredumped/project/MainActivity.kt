@@ -25,6 +25,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge() // Handles edge-to-edge display, including setDecorFitsSystemWindows(false)
 
         // Set up immersive mode

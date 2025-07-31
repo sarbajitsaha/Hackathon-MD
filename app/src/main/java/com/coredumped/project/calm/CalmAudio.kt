@@ -102,7 +102,7 @@ fun CalmAudioScreen(navController: NavController) {
                 SoundData(R.drawable.calm_rain, R.string.sound_rain, "nature_rain"),
                 SoundData(R.drawable.calm_waves, R.string.sound_waves, "nature_waves"),
                 SoundData(R.drawable.calm_forest, R.string.sound_forest, "nature_forest"),
-                SoundData(R.drawable.calm, R.string.sound_wind, "nature_wind")
+                SoundData(R.drawable.calm, R.string.sound_birds, "nature_birds")
             )
 
             items(natureSounds, key = { it.key }) { soundData ->
@@ -123,6 +123,7 @@ fun CalmAudioScreen(navController: NavController) {
                 )
             }
 
+            /*
             // Mindfulness Sounds Header
             item(span = { GridItemSpan(4) }, key = "mindfulness_header") {
                 CategoryHeader(text = stringResource(R.string.category_mindfulness_sounds))
@@ -153,6 +154,7 @@ fun CalmAudioScreen(navController: NavController) {
                     }
                 )
             }
+             */
 
             // Music Sounds Header
             item(span = { GridItemSpan(4) }, key = "music_header") {

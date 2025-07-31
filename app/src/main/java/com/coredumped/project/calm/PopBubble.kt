@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -52,27 +53,43 @@ import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
 val bubbleColors = listOf(
-    Color(0xFF48A0C8), // Darker Light Blue
-    Color(0xFFCC2444), // Darker Pink
-    Color(0xFF4645AB), // Darker Purple
-    Color(0xFFCC7700), // Darker Orange
-    Color(0xFF2A9F47), // Darker Green
-    Color(0xFFCC2F26), // Darker Red
-    Color(0xFFCCA300), // Darker Yellow
-    Color(0xFF009F98), // Darker Teal
-    Color(0xFF8C42B2), // Darker Lavender
-    Color(0xFFCC566E)  // Darker Coral
+    Color(0xFF1C4359), // Darker Blue
+    Color(0xFF6B1123), // Darker Red
+    Color(0xFF202050), // Darker Purple
+    Color(0xFF6B3E00), // Darker Orange
+    Color(0xFF124A20), // Darker Green
+    Color(0xFF6B1714), // Darker Red-Orange
+    Color(0xFF6B5500), // Darker Yellow
+    Color(0xFF004A47), // Darker Teal
+    Color(0xFF421E53), // Darker Lavender
+    Color(0xFF6B303A)  // Darker Coral
 )
 
 @Composable
 fun PopBubbleScreen(navController: NavController) {
     val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val density = LocalDensity.current
+
+    // Calculate screen dimensions in pixels
+    val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
+    val screenHeight = with(density) { configuration.screenHeightDp.dp.toPx() }
+
+    // Calculate reference dimension for scaling (smaller of width/height)
+    val minDimension = min(screenWidth, screenHeight)
+
+    // Define bubble size range as percentage of screen size
+    // Using 8-15% of min dimension for bubble radius
+    val minBubbleRadius = minDimension * 0.06f
+    val maxBubbleRadius = minDimension * 0.1f
+
     val popSound = remember { MediaPlayer.create(context, R.raw.bubble_pop) }
     val bubbles = remember { mutableStateListOf<Bubble>() }
     val particles = remember { mutableStateListOf<BubbleParticle>() }
@@ -83,6 +100,16 @@ fun PopBubbleScreen(navController: NavController) {
     val updateTrigger = remember { mutableStateOf(0) }
     val showTutorial = remember { mutableStateOf(true) }
     val tutorialShown = remember { mutableStateOf(false) }
+
+    // Remember screen dimensions for bubble spawning
+    val screenDimensions = remember {
+        ScreenDimensions(
+            width = screenWidth,
+            height = screenHeight,
+            minRadius = minBubbleRadius,
+            maxRadius = maxBubbleRadius
+        )
+    }
 
     // Game loop for updating bubbles and particles
     LaunchedEffect(Unit) {
@@ -119,18 +146,21 @@ fun PopBubbleScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         while (true) {
             delay(spawnDelay.value)
-            val screenWidth = context.resources.displayMetrics.widthPixels.toFloat()
-            val screenHeight = context.resources.displayMetrics.heightPixels.toFloat()
-            val y = screenHeight + 50f // Start off bottom; adjusted min radius
+            val y = screenDimensions.height + 50f // Start off bottom
             var attempts = 0
             var spawned = false
             while (attempts < 10 && !spawned) {
                 attempts++
-                val radius = Random.nextFloat() * 50 + 100 // 100-150
-                val x = Random.nextFloat() * (screenWidth - 2 * radius) + radius
-                // Increased bubble speed range from 2-7 to 4-10
-                val speed = Random.nextFloat() * 6 + 4 // 4-10
-                // Select a random color from our list
+                // Dynamic bubble size based on screen dimensions
+                val radius = Random.nextFloat() * (screenDimensions.maxRadius - screenDimensions.minRadius) + screenDimensions.minRadius
+                val x = Random.nextFloat() * (screenDimensions.width - 2 * radius) + radius
+
+                // Scale speed based on screen height (0.4-1.0% of screen height per frame)
+                val minSpeed = screenDimensions.height * 0.004f
+                val maxSpeed = screenDimensions.height * 0.01f
+                val speed = Random.nextFloat() * (maxSpeed - minSpeed) + minSpeed
+
+                // Select a random color from our darker colors
                 val color = bubbleColors.random()
                 val candidate = Bubble(x, y, radius, speed, color = color)
                 if (!willCollideWithAny(candidate, bubbles)) {
@@ -170,13 +200,18 @@ fun PopBubbleScreen(navController: NavController) {
                                         bubble.isPopping = true
                                         bubble.scale.animateTo(0f, animationSpec = tween(300))
                                     }
+
+                                    // Dynamic particle size based on bubble size
+                                    val minParticleRadius = bubble.radius * 0.05f
+                                    val maxParticleRadius = bubble.radius * 0.1f
+
                                     // Spawn pop particles with the same color as the bubble
                                     repeat(Random.nextInt(8, 12)) {
                                         val angle = Random.nextFloat() * 2 * PI.toFloat()
                                         val particleSpeed = Random.nextFloat() * 10 + 5
                                         val vx = cos(angle) * particleSpeed
                                         val vy = sin(angle) * particleSpeed
-                                        val particleRadius = Random.nextFloat() * 10 + 5
+                                        val particleRadius = Random.nextFloat() * (maxParticleRadius - minParticleRadius) + minParticleRadius
                                         particles.add(BubbleParticle(bubble.x, bubble.y, vx, vy, particleRadius, color = bubble.color))
                                     }
                                     // Restart sound if already playing
@@ -262,11 +297,20 @@ fun PopBubbleScreen(navController: NavController) {
                 onComplete = { showTutorial.value = false },
                 coroutineScope = coroutineScope,
                 popSound = popSound,
-                particles = particles
+                particles = particles,
+                screenDimensions = screenDimensions
             )
         }
     }
 }
+
+// Helper class to hold screen dimensions and bubble size information
+data class ScreenDimensions(
+    val width: Float,
+    val height: Float,
+    val minRadius: Float,
+    val maxRadius: Float
+)
 
 @Composable
 fun TutorialFinger(
@@ -274,7 +318,8 @@ fun TutorialFinger(
     onComplete: () -> Unit,
     coroutineScope: kotlinx.coroutines.CoroutineScope,
     popSound: MediaPlayer,
-    particles: MutableList<BubbleParticle>
+    particles: MutableList<BubbleParticle>,
+    screenDimensions: ScreenDimensions
 ) {
     if (bubbles.isEmpty()) return
 
@@ -285,8 +330,8 @@ fun TutorialFinger(
     tutorialBubble.isTutorial = true
 
     val density = LocalDensity.current
-    // Increased finger size for better visibility
-    val fingerSize = 80.dp
+    // Scale finger size based on bubble size
+    val fingerSize = (tutorialBubble.radius * 0.8f).dp
     val fingerSizePx = with(density) { fingerSize.toPx() }
 
     // Start finger off-screen to the right
@@ -329,13 +374,17 @@ fun TutorialFinger(
             tutorialBubble.scale.animateTo(0f, animationSpec = tween(300))
         }
 
+        // Dynamic particle size based on bubble size
+        val minParticleRadius = tutorialBubble.radius * 0.05f
+        val maxParticleRadius = tutorialBubble.radius * 0.1f
+
         // Spawn pop particles with the same color as the bubble
         repeat(Random.nextInt(8, 12)) {
             val angle = Random.nextFloat() * 2 * PI.toFloat()
             val particleSpeed = Random.nextFloat() * 10 + 5
             val vx = cos(angle) * particleSpeed
             val vy = sin(angle) * particleSpeed
-            val particleRadius = Random.nextFloat() * 10 + 5
+            val particleRadius = Random.nextFloat() * (maxParticleRadius - minParticleRadius) + minParticleRadius
             particles.add(BubbleParticle(tutorialBubble.x, tutorialBubble.y, vx, vy, particleRadius, color = tutorialBubble.color))
         }
 
