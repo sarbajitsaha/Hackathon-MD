@@ -20,6 +20,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.HomeScreen
+import com.coredumped.project.ui.LearningScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,4 +95,22 @@ fun CalmScreenPreview() {
     // Mock NavController for preview
     val mockNavController = rememberNavController()
     CalmScreen(navController = mockNavController)
+}
+
+@Preview(
+    showSystemUi = true,
+    device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape",
+    showBackground = true, locale = "en", name = "LearningScreen English"
+)
+
+@Preview(
+    showSystemUi = true,
+    device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape",
+    showBackground = true, locale = "bn", name = "LearningScreen Bengali"
+)
+@Composable
+fun LearningScreenPreview() {
+    // Mock NavController for preview
+    val mockNavController = rememberNavController()
+    LearningScreen(navController = mockNavController)
 }

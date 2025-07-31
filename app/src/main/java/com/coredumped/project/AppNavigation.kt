@@ -28,6 +28,8 @@ import com.coredumped.project.activity.HandWashScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
+import com.coredumped.project.ui.LearningScreen
+import com.coredumped.project.learning.SimpleMathsScreen
 import com.coredumped.project.ui.HomeScreen
 
 
@@ -72,7 +74,13 @@ fun AppNavigation() {
             route = "learning",
             scale = animatorScale
         ) {
-            PlaceholderScreen("Learning Screen")
+            LearningScreen(navController)
+        }
+        animatedComposable(
+            route = "simple_maths",
+            scale = animatorScale
+        ) {
+            SimpleMathsScreen(navController)
         }
         animatedComposable(
             route = "calm",
