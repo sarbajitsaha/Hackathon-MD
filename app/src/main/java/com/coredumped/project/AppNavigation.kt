@@ -39,7 +39,6 @@ import com.coredumped.project.activity.SocializeScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
 import com.coredumped.project.ui.LearningScreen
-import com.coredumped.project.learning.SimpleMathsScreen
 import com.coredumped.project.ui.CalmAudioScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.DailyActivityScreen
@@ -48,6 +47,7 @@ import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
 import com.coredumped.project.iq.IQTestScreen
+import com.coredumped.project.iq.SimpleMathsScreen
 
 @Composable
 fun AppNavigation() {
