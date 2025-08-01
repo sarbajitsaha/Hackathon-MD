@@ -49,6 +49,7 @@ import com.coredumped.project.learning.FlashCardsStationaryScreen
 import com.coredumped.project.learning.FlashCardsVehiclesScreen
 import com.coredumped.project.learning.FlashCardsDaysScreen
 import com.coredumped.project.learning.FlashCardsNumbersScreen
+import com.coredumped.project.learning.FlashCardsShapesScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
@@ -128,18 +129,6 @@ fun AppNavigation() {
             scale = animatorScale
         ) {
             FlashCardsAlphabetsScreen(navController)
-        }
-        animatedComposable(
-            route = "flashcards_days",
-            scale = animatorScale
-        ) {
-            FlashCardsDaysScreen(navController)
-        }
-        animatedComposable(
-            route = "flashcards_numbers",
-            scale = animatorScale
-        ) {
-            FlashCardsNumbersScreen(navController)
         }
         animatedComposable(
             route = "flashcards_fruits",
