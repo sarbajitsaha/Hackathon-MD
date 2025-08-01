@@ -7,8 +7,8 @@
     <string name="category_calm">শান্ত</string>
     <string name="activity_brush">দাঁত মাজা</string>
     <string name="activity_handwash">হাত ধোয়া</string>
-    <string name="activity_idcard">আইডি কার্ড পরা</string>
-    <string name="activity_socialize">সামাজিক আচরণ</string>
+    <string name="activity_idcard">আইডি কার্ড</string>
+    <string name="activity_socialize">আচরণ</string>
     <string name="activity_girl">মেয়ে</string>
     <string name="activity_boy">ছেলে</string>
     <string name="calm_fluid">ঢেউ খেলা</string>
