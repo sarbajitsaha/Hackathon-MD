@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.coredumped.project.R
+import kotlin.time.times
 import kotlin.math.min as mathMin
 
 private const val TAG = "CalmScreen"
@@ -49,9 +51,9 @@ private const val TAG = "CalmScreen"
 fun CalmScreen(navController: NavController) {
     Log.d(TAG, "Rendering CalmScreen")
 
-    val windowInfo = LocalWindowInfo.current
-    val density = LocalDensity.current.density
-    val screenWidth = (windowInfo.containerSize.width / density).toInt()
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -131,7 +133,7 @@ fun CalmScreen(navController: NavController) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
                 tint = Color.White,
                 modifier = Modifier.size(mathMin(32f, screenWidth * 0.06f).dp)
@@ -153,9 +155,10 @@ fun CategoryItemCalm(
     onClick: () -> Unit,
     itemCount: Int = 4
 ) {
-    val windowInfo = LocalWindowInfo.current
-    val density = LocalDensity.current.density
-    val screenWidth = (windowInfo.containerSize.width / density).toInt()
+
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
 
     val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
     val fontSize = mathMin(18f, availableWidthPerItem * 0.15f).sp

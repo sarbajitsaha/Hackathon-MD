@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Project</string>
+    <string name="app_name">Twinkle</string>
     <string name="category_daily_activity">Daily Activity</string>
 
     <string name="category_iq">IQ</string>
@@ -32,7 +32,6 @@
 
         <!-- Calm Audio Screen Category Headers -->
         <string name="category_nature_sounds">Nature Sounds</string>
-        <string name="category_mindfulness_sounds">Mindfulness Sounds</string>
         <string name="category_music_sounds">Music Sounds</string>
 
         <!-- Nature Sound Items -->
@@ -40,18 +39,7 @@
         <string name="sound_waves">Ocean Waves</string>
         <string name="sound_forest">Forest Birds</string>
         <string name="sound_birds">Bird Chirping</string>
-
-        <!-- Mindfulness Sound Items -->
-        <string name="sound_breathing">Breathing Exercise</string>
-        <string name="sound_cloud">Cloud Floating</string>
-        <string name="sound_relaxation">Body Relaxation</string>
-        <string name="sound_whisper">Soft Whisper</string>
-
-        <!-- Music Sound Items -->
-        <string name="sound_piano">Piano</string>
-        <string name="sound_harp">Harp</string>
         <string name="sound_flute">Flute</string>
-        <string name="sound_ambient">Ambient Melody</string>
 
         <!-- UI Elements -->
         <string name="back_button">Back</string>

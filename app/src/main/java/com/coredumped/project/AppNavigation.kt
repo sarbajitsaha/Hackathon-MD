@@ -98,6 +98,18 @@ fun AppNavigation() {
             HandWashScreen(navController = navController)
         }
         animatedComposable(
+            route = "socialize",
+            scale = animatorScale
+        ) {
+            SocializeScreen(navController = navController)
+        }
+        animatedComposable(
+            route = "idcard",
+            scale = animatorScale
+        ) {
+            IdCardScreen(navController = navController)
+        }
+        animatedComposable(
             route = "learning",
             scale = animatorScale
         ) {
