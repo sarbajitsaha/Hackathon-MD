@@ -174,7 +174,7 @@ fun PopBubbleScreen(navController: NavController) {
                         bubbles.forEach { bubble ->
                             if (!bubble.isPopping) {
                                 val dist = sqrt((offset.x - bubble.x).pow(2) + (offset.y - bubble.y).pow(2))
-                                if (dist <= bubble.radius) {
+                                if (dist <= bubble.radius * 1.5f) {
                                     coroutineScope.launch {
                                         bubble.isPopping = true
                                         bubble.scale.animateTo(0f, animationSpec = tween(300))

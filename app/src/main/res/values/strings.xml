@@ -18,14 +18,41 @@
 
     <string name="category_learning">Learning</string>
     <string name="flashcards">Flash Cards</string>
-    <string name="flashcards_foods">Foods</string>
-    <string name="flashcards_ice_cream">Ice Cream</string>
+
+    <string name="flashcards_fruits">Fruits and Veggies</string>
+    <string name="flashcards_orange">Orange</string>
     <string name="flashcards_apple">Apple</string>
     <string name="flashcards_banana">Banana</string>
     <string name="flashcards_mango">Mango</string>
+    <string name="flashcards_carrot">Carrot</string>
+    <string name="flashcards_potato">Potato</string>
+
     <string name="flashcards_animals">Animals and Birds</string>
+    <string name="flashcards_lion">Lion</string>
+    <string name="flashcards_tiger">Tiger</string>
+    <string name="flashcards_elephant">Elephant</string>
+    <string name="flashcards_dog">Dog</string>
+    <string name="flashcards_cat">Cat</string>
+    <string name="flashcards_parrot">Parrot</string>
+
     <string name="flashcards_vehicles">Vehicles</string>
+    <string name="flashcards_car">Car</string>
+    <string name="flashcards_bike">Bike</string>
+    <string name="flashcards_bus">Bus</string>
+    <string name="flashcards_train">Train</string>
+    <string name="flashcards_auto">Auto</string>
+    <string name="flashcards_bicycle">Bicycle</string>
+
     <string name="flashcards_stationery">Stationery</string>
+    <string name="flashcards_pencil">Pencil</string>
+    <string name="flashcards_eraser">Eraser</string>
+    <string name="flashcards_sharpener">Sharpener</string>
+    <string name="flashcards_notebook">Notebook</string>
+    <string name="flashcards_scale">Scale</string>
+    <string name="flashcards_scissors">Scissors</string>
+
+
+
 
     <string name="simple_maths">Simple Maths</string>
     <string name="iq_test">IQ Test</string>
@@ -53,5 +80,6 @@
     <string name="video_waterfall">Waterfall</string>
     <string name="video_forest">Forest</string>
     <string name="is_it_correct">Is it correct?</string>
+    <string name="tutorial_drag_finger">Tutorial Drag Finger</string>
 
 </resources>

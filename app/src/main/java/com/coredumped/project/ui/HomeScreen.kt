@@ -2,6 +2,7 @@ package com.coredumped.project.ui
 
 import android.app.Activity
 import android.content.Context
+import android.provider.Settings.Global.getString
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,26 +19,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.coredumped.project.BackgroundMusic
 import com.coredumped.project.R
 import kotlin.math.min as mathMin
+
 
 @Composable
 fun HomeScreen(navController: NavController) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+
+    BackgroundMusic(R.raw.background_music)
 
     val categories = listOf(
         CategoryData(
@@ -73,6 +81,29 @@ fun HomeScreen(navController: NavController) {
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
+        )
+
+        Text(
+            // FIX: Correctly load the string resource using the stringResource() function.
+            text = stringResource(id = R.string.app_name),
+            style = TextStyle(
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+
+                // STYLE 1: Set the text color to a bright, fluorescent color.
+                color = Color.Black, // The bright "core" of the neon light
+
+                // STYLE 2: Create a "glow" effect using a shadow of a vibrant color.
+                // This makes the text appear to emit light.
+                shadow = Shadow(
+                    color = Color(0xFF00BFFF), // A vibrant "Electric Blue" for the glow
+                    offset = Offset.Zero,      // Center the glow perfectly behind the text
+                    blurRadius = 20f           // A large blur radius creates the soft, fuzzy glow
+                )
+            ),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 20.dp) // Position it neatly between the top buttons
         )
 
         // Single Row layout for horizontal arrangement

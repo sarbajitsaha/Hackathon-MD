@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.coredumped.project.BackgroundMusic
 import com.coredumped.project.R
 import kotlin.math.min as mathMin
 
@@ -55,30 +56,32 @@ fun LearningScreen(navController: NavController) {
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
 
+    BackgroundMusic(R.raw.background_music)
+
     val categories = listOf(
         CategoryDataLearning(
-            text = "Foods",
-            imageResId = R.drawable.icecream,
+            text = "Fruits",
+            imageResId = R.drawable.mango,
             color = Color.Blue,
-            route = "flashcards_foods" // Empty route means disabled
+            route = "flashcards_fruits" // Empty route means disabled
         ),
         CategoryDataLearning(
             text = "Animals",
             imageResId = R.drawable.tiger,
             color = Color.Green,
-            route = "" // Empty route means disabled
+            route = "flashcards_animals" // Empty route means disabled
         ),
         CategoryDataLearning(
             text = "Vehicles",
             imageResId = R.drawable.bus,
             color = Color.Blue,
-            route = "" // Empty route means disabled
+            route = "flashcards_vehicles" // Empty route means disabled
         ),
         CategoryDataLearning(
             text = "Stationery",
             imageResId = R.drawable.stationery,
             color = Color.Cyan,
-            route = "" // Empty route means disabled
+            route = "flashcards_stationary" // Empty route means disabled
         )
     )
 
@@ -205,7 +208,7 @@ fun CategoryItemLearning(
 // Helper unchanged
 private fun getLabelRes(text: String): Int {
     return when (text) {
-        "Foods" -> R.string.flashcards_foods
+        "Fruits" -> R.string.flashcards_fruits
         "Animals" -> R.string.flashcards_animals
         "Vehicles" -> R.string.flashcards_vehicles
         "Stationery" -> R.string.flashcards_stationery
