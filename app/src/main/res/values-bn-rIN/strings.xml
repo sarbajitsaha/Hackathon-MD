@@ -27,6 +27,7 @@
     <string name="flashcards_stationery">স্টেশনারি</string>
     <string name="flashcards">ফ্ল্যাশ কার্ড</string>
     <string name="flashcards_scissors">কাঁচি</string>
+    <string name="flashcards_numbers">" সংখ্যা"</string>
     <string name="maths_0">সরল গণিত</string>
         <string name="how_many_stars">কটা তারা?</string>
         <string name="which_is_more">কোনটা বেশি?</string>
@@ -61,4 +62,5 @@
     <string name="video_ocean">"ঢেউ "</string>
     <string name="video_waterfall">ঝরনা</string>
     <string name="video_forest">জঙ্গল</string>
+    <string name="flashcards_days">সপ্তাহের দিন</string>
 </resources>

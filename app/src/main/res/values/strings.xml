@@ -54,6 +54,19 @@
     <string name="flashcards_scale">Scale</string>
     <string name="flashcards_scissors">Scissors</string>
 
+    <string name="flashcards_days">Days</string>"
+    <string name="flashcards_sunday">Sunday</string>"
+    <string name="flashcards_monday">Monday</string>"
+    <string name="flashcards_tuesday">Tuesday</string>"
+    <string name="flashcards_wednesday">Wednesday</string>"
+    <string name="flashcards_thursday">Thursday</string>"
+    <string name="flashcards_friday">Friday</string>"
+    <string name="flashcards_saturday">Saturday</string>"
+
+    <string name="flashcards_numbers">Numbers</string>"
+
+
+
 
 
 

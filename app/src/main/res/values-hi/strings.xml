@@ -24,6 +24,7 @@
     <string name="flashcards_stationery">लेखन सामग्री</string>
     <string name="flashcards">फ़्लैश कार्ड</string>
     <string name="flashcards_scissors">कैंची</string>
+    <string name="flashcards_numbers">नंबर</string>
     <string name="maths_0">सरल गणित</string>
         <string name="how_many_stars">कितने सितारे?</string>
         <string name="which_is_more">कौन बड़ा है?</string>
@@ -60,4 +61,5 @@
     <string name="video_ocean">लहरें</string>
     <string name="video_waterfall">झरना</string>
     <string name="video_forest">जंगल</string>
+    <string name="flashcards_days">सप्ताह के दिन</string>
 </resources>
