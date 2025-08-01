@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowBack
-// import androidx.compose.material.icons.filled.VolumeUp // Can be re-added for manual play
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -88,7 +87,6 @@ fun FlashCardsFruitsScreen(navController: NavController) {
     var exoPlayer by remember { mutableStateOf<ExoPlayer?>(null) }
     var audioLoopJob by remember { mutableStateOf<Job?>(null) }
     var isPlayingAudio by remember { mutableStateOf(false) }
-
 
     // Initialize ExoPlayer
     DisposableEffect(context) {
@@ -225,9 +223,6 @@ fun FlashCardsFruitsScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
-
-
             // Flashcard Content
             Column(
                 modifier = Modifier
