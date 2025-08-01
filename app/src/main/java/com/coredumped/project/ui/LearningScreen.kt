@@ -82,6 +82,12 @@ fun LearningScreen(navController: NavController) {
             imageResId = R.drawable.stationery,
             color = Color.Cyan,
             route = "flashcards_stationary" // Empty route means disabled
+        ),
+        CategoryDataLearning(
+            text = "Alphabets",
+            imageResId = R.drawable.alpha,
+            color = Color.Cyan,
+            route = "flashcards_alphabets" // Empty route means disabled
         )
     )
 
@@ -212,6 +218,7 @@ private fun getLabelRes(text: String): Int {
         "Animals" -> R.string.flashcards_animals
         "Vehicles" -> R.string.flashcards_vehicles
         "Stationery" -> R.string.flashcards_stationery
+        "Alphabets" -> R.string.flashcards_alphabets
         else -> R.string.test // Fallback
     }
 }

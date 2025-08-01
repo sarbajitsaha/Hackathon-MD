@@ -42,6 +42,7 @@ import com.coredumped.project.ui.LearningScreen
 import com.coredumped.project.ui.CalmAudioScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.DailyActivityScreen
+import com.coredumped.project.learning.FlashCardsAlphabetsScreen
 import com.coredumped.project.learning.FlashCardsFruitsScreen
 import com.coredumped.project.learning.FlashCardsAnimalsScreen
 import com.coredumped.project.learning.FlashCardsStationaryScreen
@@ -118,6 +119,12 @@ fun AppNavigation() {
             scale = animatorScale
         ) {
             LearningScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_alphabets",
+            scale = animatorScale
+        ) {
+            FlashCardsAlphabetsScreen(navController)
         }
         animatedComposable(
             route = "flashcards_fruits",
