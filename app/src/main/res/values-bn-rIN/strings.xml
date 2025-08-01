@@ -26,7 +26,11 @@
     <string name="flashcards_stationery">স্টেশনারি</string>
     <string name="flashcards">ফ্ল্যাশ কার্ড</string>
     <string name="flashcards_scissors">কাঁচি</string>
-    <string name="simple_maths">সরল গণিত</string>
+    <string name="maths_0">সরল গণিত</string>
+        <string name="how_many_stars">কটা তারা?</string>
+        <string name="which_is_more">কোনটা বেশি?</string>
+        <string name="which_is_less">কোনটা কম?</string>
+    <string name="maths_1">কঠিন গণিত</string>
     <string name="iq_test">আইকিউ পরীক্ষা</string>
     <string name="flashcards_orange">কমলা লেবু</string>
     <string name="flashcards_apple">আপেল</string>

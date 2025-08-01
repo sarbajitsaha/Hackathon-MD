@@ -1,5 +1,8 @@
 package com.coredumped.project.ui
 
+import android.content.Context
+import android.media.MediaPlayer
+import androidx.annotation.RawRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -61,10 +64,16 @@ fun IQScreen(navController: NavController) {
 
     val categories = listOf(
         CategoryDataIQ(
-            text = "Simple Maths",
-            imageResId = R.drawable.simple_maths,
+            text = "Easy Maths",
+            imageResId = R.drawable.maths_0,
             color = Color.Green,
-            route = "simple_maths"
+            route = "maths_0"
+        ),
+        CategoryDataIQ(
+            text = "Hard Maths",
+            imageResId = R.drawable.maths_1,
+            color = Color.Green,
+            route = "maths_1"
         ),
         CategoryDataIQ(
             text = "IQ Test",
@@ -197,7 +206,8 @@ fun CategoryItemIQ(
 // Helper unchanged
 private fun getLabelRes(text: String): Int {
     return when (text) {
-        "Simple Maths" -> R.string.simple_maths
+        "Easy Maths" -> R.string.maths_0
+        "Hard Maths" -> R.string.maths_1
         "IQ Test" -> R.string.iq_test
         else -> R.string.test // Fallback
     }
