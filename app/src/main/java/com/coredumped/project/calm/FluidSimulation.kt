@@ -2,6 +2,7 @@ package com.coredumped.project.calm
 
 import android.util.Log
 import android.webkit.ConsoleMessage
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -50,13 +51,22 @@ import kotlinx.coroutines.delay
 @Composable
 fun FluidSimulationScreen(navController: NavController) {
     val showTutorial = remember { mutableStateOf(true) }
-    // A state to hold the WebView instance so it can be passed to the tutorial
     var webView by remember { mutableStateOf<WebView?>(null) }
+    // State to track if the JS inside the WebView is ready
+    var isWebViewReady by remember { mutableStateOf(false) }
+
+    // This class acts as a bridge between JavaScript and Kotlin
+    class JsBridge(private val onReady: () -> Unit) {
+        @JavascriptInterface
+        fun onPageReady() {
+            Log.d("FluidSim", "JavaScript has called onPageReady.")
+            onReady()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
 
-        // WebView for the fluid simulation
         AndroidView(
             modifier = Modifier.fillMaxSize(),
             factory = {
@@ -65,6 +75,11 @@ fun FluidSimulationScreen(navController: NavController) {
                     settings.domStorageEnabled = true
                     settings.loadWithOverviewMode = true
                     settings.useWideViewPort = true
+                    settings.allowFileAccessFromFileURLs = true
+
+                    // Add the bridge that JS can call
+                    addJavascriptInterface(JsBridge { isWebViewReady = true }, "AndroidBridge")
+
                     webViewClient = WebViewClient()
                     webChromeClient = object : WebChromeClient() {
                         override fun onConsoleMessage(message: ConsoleMessage?): Boolean {
@@ -78,20 +93,19 @@ fun FluidSimulationScreen(navController: NavController) {
                     loadUrl("file:///android_asset/index.html")
                 }
             },
-            // Get the WebView instance once it's created
-            update = { webView = it }
+            update = { wv ->
+                webView = wv
+            }
         )
 
-        // Show the tutorial animation on top of the WebView
-        if (showTutorial.value) {
-            // Pass the WebView instance to the tutorial
+        // Show the tutorial only if it's enabled AND the webview has reported it's ready
+        if (showTutorial.value && isWebViewReady) {
             FluidDragTutorial(
                 webView = webView,
                 onComplete = { showTutorial.value = false }
             )
         }
 
-        // Colorful back button, aligned to the top-left corner
         Box(
             modifier = Modifier
                 .padding(16.dp)
@@ -101,9 +115,9 @@ fun FluidSimulationScreen(navController: NavController) {
                 .background(
                     brush = Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFFFF9500),  // Orange
-                            Color(0xFFFF2D55),  // Pink
-                            Color(0xFF5856D6)   // Purple
+                            Color(0xFFFF9500),
+                            Color(0xFFFF2D55),
+                            Color(0xFF5856D6)
                         )
                     )
                 )
@@ -121,13 +135,6 @@ fun FluidSimulationScreen(navController: NavController) {
     }
 }
 
-/**
- * A tutorial animation that simulates a finger dragging across the screen
- * and sends corresponding touch events to the provided WebView.
- *
- * @param webView The WebView instance to send touch events to.
- * @param onComplete A callback to be invoked when the animation finishes.
- */
 @Composable
 private fun FluidDragTutorial(webView: WebView?, onComplete: () -> Unit) {
     val configuration = LocalConfiguration.current
@@ -151,48 +158,58 @@ private fun FluidDragTutorial(webView: WebView?, onComplete: () -> Unit) {
         label = "finger_pulse_scale"
     )
 
-    // The main animation sequence
-    LaunchedEffect(webView) { // Relaunch if the webView instance changes
-        // Do nothing until the WebView is ready
+    LaunchedEffect(webView) {
         if (webView == null) return@LaunchedEffect
 
-        val startX = screenWidthPx * 0.15f
-        val endX = screenWidthPx * 0.85f
+        val startX = screenWidthPx * 0.25f
+        val endX = screenWidthPx * 0.75f
         val yPos = screenHeightPx / 2f
 
-        // Helper function to dispatch a pointer event into the WebView
-        fun dispatchPointerEvent(type: String, x: Float, y: Float) {
-            val script = "window.dispatchEvent(new PointerEvent('$type', { clientX: $x, clientY: $y, bubbles: true }));"
-            // Post to the WebView's handler to run on the UI thread
+        fun dispatchMouseEvent(type: String, x: Float, y: Float) {
+            // Target the 'canvas' for down/move, but 'window' for up, to match script.js
+            val target = if (type == "mouseup") "window" else "document.getElementsByTagName('canvas')[0]"
+            val script = """
+                (function() {
+                    const el = $target;
+                    if (el) {
+                        const event = new MouseEvent('$type', {
+                            clientX: $x,
+                            clientY: $y,
+                            bubbles: true,
+                            cancelable: true
+                        });
+                        el.dispatchEvent(event);
+                    }
+                })();
+            """.trimIndent()
             webView.post { webView.evaluateJavascript(script, null) }
         }
 
         fingerX.snapTo(startX)
         fingerY.snapTo(yPos)
+
+        // Appear and wait
+        fingerAlpha.animateTo(1f, animationSpec = tween(100))
         delay(1000)
 
-        fingerAlpha.animateTo(1f, animationSpec = tween(500))
-        delay(300)
-
         // --- Animate swipe from left to right ---
-        dispatchPointerEvent("pointerdown", startX, yPos)
-        // The block in animateTo gets called on every frame of the animation
-        fingerX.animateTo(endX, animationSpec = tween(durationMillis = 1500)) {
-            // `this.value` is the current X position of the finger
-            dispatchPointerEvent("pointermove", this.value, yPos)
+        dispatchMouseEvent("mousedown", startX, yPos)
+        fingerX.animateTo(endX, animationSpec = tween(durationMillis = 2500)) {
+            dispatchMouseEvent("mousemove", this.value, yPos)
         }
-        dispatchPointerEvent("pointerup", endX, yPos)
-        delay(500)
+        dispatchMouseEvent("mouseup", endX, yPos)
+        delay(100)
 
         // --- Animate swipe from right to left ---
-        dispatchPointerEvent("pointerdown", endX, yPos)
-        fingerX.animateTo(startX, animationSpec = tween(durationMillis = 1500)) {
-            dispatchPointerEvent("pointermove", this.value, yPos)
+        dispatchMouseEvent("mousedown", endX, yPos)
+        fingerX.animateTo(startX, animationSpec = tween(durationMillis = 3500)) {
+            dispatchMouseEvent("mousemove", this.value, yPos)
         }
-        dispatchPointerEvent("pointerup", startX, yPos)
-        delay(500)
+        dispatchMouseEvent("mouseup", startX, yPos)
+        delay(100)
 
-        fingerAlpha.animateTo(0f, animationSpec = tween(500))
+        // Fade out and complete
+        fingerAlpha.animateTo(0f, animationSpec = tween(100))
         onComplete()
     }
 
