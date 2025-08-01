@@ -149,6 +149,24 @@ fun AppNavigation() {
             FlashCardsStationaryScreen(navController)
         }
         animatedComposable(
+            route = "flashcards_days",
+            scale = animatorScale
+        ) {
+            FlashCardsDaysScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_numbers",
+            scale = animatorScale
+        ) {
+            FlashCardsNumbersScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_shapes",
+            scale = animatorScale
+        ) {
+            FlashCardsShapesScreen(navController)
+        }
+        animatedComposable(
             route = "flashcards_vehicles",
             scale = animatorScale
         ) {
