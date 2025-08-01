@@ -57,20 +57,26 @@ fun LearningScreen(navController: NavController) {
 
     val categories = listOf(
         CategoryDataLearning(
-            text = "FlashCards",
-            imageResId = R.drawable.flashcard,
+            text = "Foods",
+            imageResId = R.drawable.icecream,
             color = Color.Blue,
-            route = "flashcards"
+            route = "flashcards_foods" // Empty route means disabled
         ),
         CategoryDataLearning(
-            text = "Girl",
-            imageResId = R.drawable.girl,
+            text = "Animals",
+            imageResId = R.drawable.tiger,
+            color = Color.Green,
+            route = "" // Empty route means disabled
+        ),
+        CategoryDataLearning(
+            text = "Vehicles",
+            imageResId = R.drawable.bus,
             color = Color.Blue,
             route = "" // Empty route means disabled
         ),
         CategoryDataLearning(
-            text = "Boy",
-            imageResId = R.drawable.boy,
+            text = "Stationery",
+            imageResId = R.drawable.stationery,
             color = Color.Cyan,
             route = "" // Empty route means disabled
         )
@@ -199,9 +205,10 @@ fun CategoryItemLearning(
 // Helper unchanged
 private fun getLabelRes(text: String): Int {
     return when (text) {
-        "FlashCards" -> R.string.flashcards
-        "Girl" -> R.string.activity_girl
-        "Boy" -> R.string.activity_boy
+        "Foods" -> R.string.flashcards_foods
+        "Animals" -> R.string.flashcards_animals
+        "Vehicles" -> R.string.flashcards_vehicles
+        "Stationery" -> R.string.flashcards_stationery
         else -> R.string.test // Fallback
     }
 }

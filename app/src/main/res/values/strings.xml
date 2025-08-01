@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Project</string>
+    <string name="app_name">Twinkle</string>
     <string name="category_daily_activity">Daily Activity</string>
-    <string name="category_learning">Learning</string>
+
     <string name="category_iq">IQ</string>
     <string name="category_calm">Calm</string>
     <string name="activity_brush">Brush</string>
@@ -10,41 +10,36 @@
     <string name="activity_socialize">Socialize</string>
     <string name="activity_girl">Girl</string>
     <string name="activity_boy">Boy</string>
-    <string name="calm_fluid">Fluid Simulation</string>
+    <string name="calm_fluid">Wave Game</string>
     <string name="calm_audio">Calming Audio</string>
     <string name="calm_video">Calming Video</string>
     <string name="calm_bubbles">Pop Bubbles</string>
     <string name="test">Test</string>
+
+    <string name="category_learning">Learning</string>
     <string name="flashcards">Flash Cards</string>
-    <string name="flashcards_fruits">Fruits and Vegetables</string>
+    <string name="flashcards_foods">Foods</string>
+    <string name="flashcards_ice_cream">Ice Cream</string>
+    <string name="flashcards_apple">Apple</string>
+    <string name="flashcards_banana">Banana</string>
+    <string name="flashcards_mango">Mango</string>
     <string name="flashcards_animals">Animals and Birds</string>
     <string name="flashcards_vehicles">Vehicles</string>
     <string name="flashcards_stationery">Stationery</string>
+
     <string name="simple_maths">Simple Maths</string>
     <string name="iq_test">IQ Test</string>
 
         <!-- Calm Audio Screen Category Headers -->
         <string name="category_nature_sounds">Nature Sounds</string>
-        <string name="category_mindfulness_sounds">Mindfulness Sounds</string>
         <string name="category_music_sounds">Music Sounds</string>
 
         <!-- Nature Sound Items -->
         <string name="sound_rain">Rain</string>
         <string name="sound_waves">Ocean Waves</string>
         <string name="sound_forest">Forest Birds</string>
-        <string name="sound_birds">Wind Chimes</string>
-
-        <!-- Mindfulness Sound Items -->
-        <string name="sound_breathing">Breathing Exercise</string>
-        <string name="sound_cloud">Cloud Floating</string>
-        <string name="sound_relaxation">Body Relaxation</string>
-        <string name="sound_whisper">Soft Whisper</string>
-
-        <!-- Music Sound Items -->
-        <string name="sound_piano">Piano</string>
-        <string name="sound_harp">Harp</string>
+        <string name="sound_birds">Bird Chirping</string>
         <string name="sound_flute">Flute</string>
-        <string name="sound_ambient">Ambient Melody</string>
 
         <!-- UI Elements -->
         <string name="back_button">Back</string>
@@ -52,6 +47,11 @@
         <string name="play_button">Play</string>
         <string name="stop_button">Stop</string>
         <string name="calm_background_desc">Calm Background</string>
+    <string name="close_button">Close\n</string>
+    <string name="category_nature_videos">Nature Videos</string>
+    <string name="video_ocean">Waves</string>
+    <string name="video_waterfall">Waterfall</string>
+    <string name="video_forest">Forest</string>
     <string name="is_it_correct">Is it correct?</string>
 
 </resources>

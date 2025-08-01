@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -17,12 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +31,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,17 +42,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.coredumped.project.R
+import kotlin.time.times
 import kotlin.math.min as mathMin
 
-val TAG = "CalmScreen"
+private const val TAG = "CalmScreen"
 
 @Composable
 fun CalmScreen(navController: NavController) {
+    Log.d(TAG, "Rendering CalmScreen")
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
-
-    // Calculate responsive grid cells based on screen width
 
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
@@ -66,31 +66,27 @@ fun CalmScreen(navController: NavController) {
         val items = listOf(
             CategoryDataCalm(
                 text = "Fluid",
-                imageResId = R.drawable.fluid,
-                color = Color.Blue,
+                imageResId = R.drawable.fluid_simulation,
                 route = "fluid_simulation"
             ),
             CategoryDataCalm(
                 text = "Audio",
                 imageResId = R.drawable.calm_audio,
-                color = Color.Green,
                 route = "calm_audio"
             ),
             CategoryDataCalm(
                 text = "Video",
                 imageResId = R.drawable.calm_video,
-                color = Color.Blue,
-                route = "" // Empty route means disabled
+                route = "calm_video"
             ),
             CategoryDataCalm(
                 text = "Bubbles",
                 imageResId = R.drawable.bubbles,
-                color = Color.Cyan,
                 route = "pop_bubble"
             )
         )
 
-        // Single Row layout for horizontal arrangement
+        // Horizontal row of categories
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,14 +98,16 @@ fun CalmScreen(navController: NavController) {
                 CategoryItemCalm(
                     text = category.text,
                     imageResId = category.imageResId,
-                    color = category.color,
-                    onClick = { navController.navigate(category.route) },
+                    onClick = {
+                        Log.d(TAG, "Navigating to ${category.route}")
+                        navController.navigate(category.route)
+                    },
                     itemCount = items.size
                 )
             }
         }
 
-        // Back button with responsive size
+        // Back button
         val backButtonSize = mathMin(64f, screenWidth * 0.12f).dp
 
         Box(
@@ -127,12 +125,15 @@ fun CalmScreen(navController: NavController) {
                         )
                     )
                 )
-                .clickable { navController.popBackStack() }
+                .clickable {
+                    Log.d(TAG, "Back button clicked")
+                    navController.popBackStack()
+                }
                 .align(Alignment.TopStart),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
                 tint = Color.White,
                 modifier = Modifier.size(mathMin(32f, screenWidth * 0.06f).dp)
@@ -141,11 +142,9 @@ fun CalmScreen(navController: NavController) {
     }
 }
 
-// Data class for category information
 data class CategoryDataCalm(
     val text: String,
     val imageResId: Int,
-    val color: Color,
     val route: String
 )
 
@@ -153,22 +152,20 @@ data class CategoryDataCalm(
 fun CategoryItemCalm(
     text: String,
     imageResId: Int,
-    color: Color,
     onClick: () -> Unit,
-    itemCount: Int = 4 // Default to 4 items
+    itemCount: Int = 4
 ) {
+
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val screenHeight = configuration.screenHeightDp
 
-    // Calculate available width per item (accounting for padding)
     val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
-
-    // Calculate responsive font size based on available width
     val fontSize = mathMin(18f, availableWidthPerItem * 0.15f).sp
 
     Column(
         modifier = Modifier
-            .width((availableWidthPerItem).dp)
+            .width(availableWidthPerItem.dp)
             .padding(4.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White.copy(alpha = 0.3f))
@@ -177,20 +174,18 @@ fun CategoryItemCalm(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Image takes maximum possible space
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .aspectRatio(1f) // Keep image square
+                .aspectRatio(1f)
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Text with adaptive size and overflow handling
         Text(
             text = stringResource(id = getLabelResCalm(text)),
             fontWeight = FontWeight.Bold,
@@ -207,12 +202,12 @@ fun CategoryItemCalm(
 }
 
 private fun getLabelResCalm(text: String): Int {
-    Log.d(TAG, "$text getLabelCalm")
+    Log.d(TAG, "Getting label for $text")
     return when (text) {
         "Fluid" -> R.string.calm_fluid
         "Audio" -> R.string.calm_audio
         "Video" -> R.string.calm_video
         "Bubbles" -> R.string.calm_bubbles
-        else -> R.string.test // Fallback
+        else -> R.string.test
     }
 }

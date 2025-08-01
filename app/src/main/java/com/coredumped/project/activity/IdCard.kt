@@ -18,8 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.navigation.NavController
 import com.coredumped.project.R
@@ -56,6 +59,7 @@ fun IdCardScreen(navController: NavController) {
                 if (!hasVideoStarted) {
                     Log.d(TAG, "IdCardScreen: ExoPlayer is ready. Starting playback.")
                     player.playWhenReady = true // Auto-start playback
+                    player.repeatMode = Player.REPEAT_MODE_ONE // Loop the video
                     exoPlayerInstance = player
                     hasVideoStarted = true
                 }
@@ -68,27 +72,27 @@ fun IdCardScreen(navController: NavController) {
             autoPlay = true // Explicitly indicating intent for immediate playback
         )
 
-        // Simple Back/Close Button
+        // Back button (always visible)
         Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
                 .padding(16.dp)
-                .size(56.dp)
-                .shadow(2.dp, CircleShape)
+                .size(64.dp)
+                .shadow(4.dp, CircleShape)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.3f))
-                .clickable {
-                    Log.d(TAG, "Back button clicked. Navigating back.")
-                    exoPlayerInstance?.stop()
-                    navController.popBackStack()
-                },
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFFFF9500), Color(0xFFFF2D55), Color(0xFF5856D6))
+                    )
+                )
+                .clickable { navController.popBackStack() }
+                .align(Alignment.TopStart),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.back_button),
                 tint = Color.White,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(48.dp)
             )
         }
     }
