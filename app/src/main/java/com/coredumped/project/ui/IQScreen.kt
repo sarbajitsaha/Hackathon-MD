@@ -74,13 +74,14 @@ fun IQScreen(navController: NavController) {
             imageResId = R.drawable.maths_1,
             color = Color.Green,
             route = "maths_1"
-        ),
+        )
+        /*,
         CategoryDataIQ(
             text = "IQ Test",
             imageResId = R.drawable.flashcard,
             color = Color.Blue,
             route = "iq_test"
-        )
+        )*/
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
