@@ -69,16 +69,16 @@ fun DailyActivityScreen(navController: NavController) {
             route = "handwash"
         ),
         CategoryDataDA(
-            text = "Girl",
-            imageResId = R.drawable.girl,
+            text = "Wear ID Card",
+            imageResId = R.drawable.idcard,
             color = Color.Blue,
-            route = "" // Empty route means disabled
+            route = "idcard"
         ),
         CategoryDataDA(
-            text = "Boy",
-            imageResId = R.drawable.boy,
+            text = "Socialize",
+            imageResId = R.drawable.socialize,
             color = Color.Cyan,
-            route = "" // Empty route means disabled
+            route = "socialize"
         )
     )
 
@@ -207,8 +207,8 @@ private fun getLabelRes(text: String): Int {
     return when (text) {
         "Brush" -> R.string.activity_brush
         "HandWash" -> R.string.activity_handwash
-        "Girl" -> R.string.activity_girl
-        "Boy" -> R.string.activity_boy
+        "Wear ID Card" -> R.string.activity_idcard
+        "Socialize" -> R.string.activity_socialize
         else -> R.string.test // Fallback
     }
 }

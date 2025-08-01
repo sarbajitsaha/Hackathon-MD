@@ -33,6 +33,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.activity.BrushScreen
 import com.coredumped.project.activity.HandWashScreen
+import com.coredumped.project.activity.IdCardScreen
+import com.coredumped.project.activity.SocializeScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
 import com.coredumped.project.ui.LearningScreen
@@ -92,6 +94,18 @@ fun AppNavigation() {
             scale = animatorScale
         ) {
             HandWashScreen(navController = navController)
+        }
+        animatedComposable(
+            route = "idcard",
+            scale = animatorScale
+        ) {
+            IdCardScreen(navController = navController)
+        }
+        animatedComposable(
+            route = "socialize",
+            scale = animatorScale
+        ) {
+            SocializeScreen(navController = navController)
         }
         animatedComposable(
             route = "learning",

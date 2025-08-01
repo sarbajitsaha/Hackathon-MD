@@ -6,6 +6,8 @@
     <string name="category_calm">Calm</string>
     <string name="activity_brush">Brush</string>
     <string name="activity_handwash">Hand Wash</string>
+    <string name="activity_idcard">Wear ID Card</string>
+    <string name="activity_socialize">Socialize</string>
     <string name="activity_girl">Girl</string>
     <string name="activity_boy">Boy</string>
     <string name="calm_fluid">Fluid Simulation</string>
