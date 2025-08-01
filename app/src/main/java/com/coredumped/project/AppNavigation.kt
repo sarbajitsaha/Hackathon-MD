@@ -42,12 +42,16 @@ import com.coredumped.project.ui.LearningScreen
 import com.coredumped.project.ui.CalmAudioScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.DailyActivityScreen
-import com.coredumped.project.learning.FlashCardsFoodsScreen
+import com.coredumped.project.learning.FlashCardsFruitsScreen
+import com.coredumped.project.learning.FlashCardsAnimalsScreen
+import com.coredumped.project.learning.FlashCardsStationaryScreen
+import com.coredumped.project.learning.FlashCardsVehiclesScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
 import com.coredumped.project.iq.IQTestScreen
 import com.coredumped.project.iq.SimpleMathsScreen
+import com.coredumped.project.learning.FlashCardsVehiclesScreenPreview
 
 @Composable
 fun AppNavigation() {
@@ -116,10 +120,28 @@ fun AppNavigation() {
             LearningScreen(navController)
         }
         animatedComposable(
-            route = "flashcards_foods",
+            route = "flashcards_fruits",
             scale = animatorScale
         ) {
-            FlashCardsFoodsScreen(navController)
+            FlashCardsFruitsScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_animals",
+            scale = animatorScale
+        ) {
+            FlashCardsAnimalsScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_stationary",
+            scale = animatorScale
+        ) {
+            FlashCardsStationaryScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_vehicles",
+            scale = animatorScale
+        ) {
+            FlashCardsVehiclesScreen(navController)
         }
         animatedComposable(
             route = "simple_maths",

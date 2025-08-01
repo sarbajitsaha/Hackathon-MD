@@ -58,7 +58,7 @@ import com.coredumped.project.R
 // import kotlinx.coroutines.delay // No longer needed for MediaPlayer
 import kotlin.math.min
 
-// private const val TAG = "FlashCardsFoods" // Can be removed if no other logging
+// private const val TAG = "FlashCardsFruits" // Can be removed if no other logging
 
 // Define a list of background colors for the flashcards
 val flashcardBackgroundColors = listOf(
@@ -71,26 +71,26 @@ val flashcardBackgroundColors = listOf(
 )
 
 // Data class for a single flashcard item (audioResId removed)
-data class FoodFlashCardItem(
+data class fruitFlashCardItem(
     val name: String,
     @DrawableRes val imageResId: Int
     // @RawRes val audioResId: Int, // Removed
 )
 
 // Sample data - audioResId removed from items
-val foodFlashCards = listOf(
-    FoodFlashCardItem("apple", R.drawable.apple),
-    FoodFlashCardItem("banana", R.drawable.banana),
-    FoodFlashCardItem("mango", R.drawable.mango),
-    FoodFlashCardItem("ice-cream", R.drawable.icecream),
-//    FoodFlashCardItem("grapes", R.drawable.grapes),
-//    FoodFlashCardItem("strawberry", R.drawable.strawberry)
+val fruitFlashCards = listOf(
+    fruitFlashCardItem("apple", R.drawable.apple),
+    fruitFlashCardItem("banana", R.drawable.banana),
+    fruitFlashCardItem("mango", R.drawable.mango),
+    fruitFlashCardItem("orange", R.drawable.orange),
+    fruitFlashCardItem("carrot", R.drawable.carrot),
+    fruitFlashCardItem("potato", R.drawable.potato)
 )
 
 @Composable
-fun FlashCardsFoodsScreen(navController: NavController) {
+fun FlashCardsFruitsScreen(navController: NavController) {
     var currentCardIndex by remember { mutableIntStateOf(0) }
-    val currentCard = foodFlashCards[currentCardIndex]
+    val currentCard = fruitFlashCards[currentCardIndex]
     // val context = LocalContext.current // No longer needed for MediaPlayer
     // var mediaPlayer by remember { mutableStateOf<MediaPlayer?>(null) } // No longer needed
 
@@ -115,7 +115,7 @@ fun FlashCardsFoodsScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    top = 80.dp,
+                    top = 16.dp,
                     start = 16.dp,
                     end = 16.dp,
                     bottom = 16.dp
@@ -134,10 +134,12 @@ fun FlashCardsFoodsScreen(navController: NavController) {
                     painter = painterResource(id = currentCard.imageResId),
                     contentDescription = currentCard.name,
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
-                        .fillMaxHeight(0.7f),
+                        .fillMaxWidth(0.9f)
+                        .fillMaxHeight(0.8f),
                     contentScale = ContentScale.Fit
                 )
+
+                Spacer(modifier = Modifier.height(8.dp)) // Adjust spacer if needed
 
                 Text(
                     text = stringResource(id = getLabelRes(currentCard.name)), // Assuming you want to keep string resources for names
@@ -168,12 +170,12 @@ fun FlashCardsFoodsScreen(navController: NavController) {
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable(
-                            enabled = foodFlashCards.isNotEmpty(),
+                            enabled = fruitFlashCards.isNotEmpty(),
                             onClick = {
                                 if (currentCardIndex > 0) {
                                     currentCardIndex--
                                 } else {
-                                    currentCardIndex = foodFlashCards.size - 1
+                                    currentCardIndex = fruitFlashCards.size - 1
                                 }
                             }
                         ),
@@ -193,9 +195,9 @@ fun FlashCardsFoodsScreen(navController: NavController) {
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                         .clickable(
-                            enabled = foodFlashCards.isNotEmpty(),
+                            enabled = fruitFlashCards.isNotEmpty(),
                             onClick = {
-                                if (currentCardIndex < foodFlashCards.size - 1) {
+                                if (currentCardIndex < fruitFlashCards.size - 1) {
                                     currentCardIndex++
                                 } else {
                                     currentCardIndex = 0
@@ -246,21 +248,21 @@ fun FlashCardsFoodsScreen(navController: NavController) {
 
 @Preview(showBackground = true)
 @Composable
-fun FlashCardsFoodsScreenPreview() {
+fun FlashCardsFruitsScreenPreview() {
     MaterialTheme {
-        FlashCardsFoodsScreen(navController = rememberNavController())
+        FlashCardsFruitsScreen(navController = rememberNavController())
     }
 }
 
-// Keep this function if you are using it to get string resources for food names
+// Keep this function if you are using it to get string resources for fruit names
 private fun getLabelRes(text: String): Int {
     return when (text) {
         "apple" -> R.string.flashcards_apple
         "banana" -> R.string.flashcards_banana
         "mango" -> R.string.flashcards_mango
-        "ice-cream" -> R.string.flashcards_ice_cream
-//        "grapes" -> R.string.flashcards_grapes // Assuming you have this
-//        "strawberry" -> R.string.flashcards_strawberry // Assuming you have this
+        "orange" -> R.string.flashcards_orange
+        "carrot" -> R.string.flashcards_carrot // Assuming you have this
+        "potato" -> R.string.flashcards_potato // Assuming you have this
         else -> R.string.test // Fallback
     }
 }
