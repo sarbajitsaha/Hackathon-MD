@@ -29,7 +29,7 @@ The app is bilingual (English, Hindi and Bengali) to cater to regional users.
 - **Localization**: Android's built-in resources (strings.xml for English/Bengali).
 - **Build Tools**: Android Studio, Gradle with R8/ProGuard for APK shrinking.
 
-The app is optimized for low-end devices (1GB+ RAM) and small APK size through compressed assets (WebP images, short MP3 audio).
+The app is optimized for low-end devices (2 GB+ RAM) and small APK size through compressed assets.
 
 ## Usage
 
@@ -39,9 +39,6 @@ The app is optimized for low-end devices (1GB+ RAM) and small APK size through c
    - **Learning**: Browse/interact with flashcards.
    - **Calm**: Access relaxation tools.
 2. Toggle language in Settings (gear icon on dashboard).
-3. Customize: In Learning or Daily Activity, use the "+" button to add from gallery or record audio.
-4. Track Progress: After quizzes, view charts in the IQ section.
-
-
-### Screenshots
+3. Customize: In Learning or Daily Activity, use the "+" button to add from gallery or record audio. //TODO
+4. Track Progress: After quizzes, view charts in the IQ section. //TODO
 
