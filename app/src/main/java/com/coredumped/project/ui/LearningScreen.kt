@@ -74,7 +74,7 @@ fun LearningScreen(navController: NavController) {
         CategoryDataLearning("Stationery", R.drawable.stationery, Color.Yellow, "flashcards_stationary"),
         CategoryDataLearning("Alphabets", R.drawable.alpha, Color.Cyan, "flashcards_alphabets"),
 //        CategoryDataLearning("Numbers", R.drawable.numbers_category, Color.Magenta, "flashcards_numbers"), // Example new // Example new
-//        CategoryDataLearning("Shapes", R.drawable.shapes_category, Color.Black, "flashcards_shapes"),       // Example new
+        CategoryDataLearning("Shapes", R.drawable.basicshapes, Color.Black, "flashcards_shapes"),       // Example new
 //        CategoryDataLearning("Days", R.drawable.days_category, Color.LightGray, "flashcards_days"),   // Example new
         // Add more categories as needed
     )
@@ -214,7 +214,7 @@ private fun getLabelRes(text: String): Int {
         "Stationery" -> R.string.flashcards_stationery
         "Alphabets" -> R.string.flashcards_alphabets
 //        "Numbers" -> R.string.flashcards_numbers // Add if you have this string
-//        "Shapes" -> R.string.flashcards_shapes   // Add if you have this string
+        "Shapes" -> R.string.flashcards_shapes   // Add if you have this string
 //        "Days" -> R.string.flashcards_days     // Add if you have this string
         // Add more mappings as needed
         else -> R.string.test // Fallback for undefined categories

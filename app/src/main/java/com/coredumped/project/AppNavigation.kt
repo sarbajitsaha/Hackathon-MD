@@ -47,6 +47,7 @@ import com.coredumped.project.learning.FlashCardsFruitsScreen
 import com.coredumped.project.learning.FlashCardsAnimalsScreen
 import com.coredumped.project.learning.FlashCardsStationaryScreen
 import com.coredumped.project.learning.FlashCardsVehiclesScreen
+import com.coredumped.project.learning.FlashCardsShapesScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
@@ -126,6 +127,12 @@ fun AppNavigation() {
             scale = animatorScale
         ) {
             FlashCardsAlphabetsScreen(navController)
+        }
+        animatedComposable(
+            route = "flashcards_shapes",
+            scale = animatorScale
+        ) {
+            FlashCardsShapesScreen(navController)
         }
         animatedComposable(
             route = "flashcards_fruits",
