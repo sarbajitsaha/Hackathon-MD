@@ -43,7 +43,8 @@ import com.coredumped.project.ui.DailyActivityScreen
 import com.coredumped.project.ui.FlashCardsScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
-import com.coredumped.project.ui.IQTestScreen
+import com.coredumped.project.ui.IQScreen
+import com.coredumped.project.iq.IQTestScreen
 
 @Composable
 fun AppNavigation() {
@@ -119,6 +120,12 @@ fun AppNavigation() {
         }
         animatedComposable(
             route = "iq",
+            scale = animatorScale
+        ) {
+            IQScreen(navController)
+        }
+        animatedComposable(
+            route = "iq_test",
             scale = animatorScale
         ) {
             IQTestScreen(navController)
