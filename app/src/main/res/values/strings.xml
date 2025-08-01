@@ -21,6 +21,7 @@
     <string name="flashcards_vehicles">Vehicles</string>
     <string name="flashcards_stationery">Stationery</string>
     <string name="simple_maths">Simple Maths</string>
+    <string name="iq_test">IQ Test</string>
 
         <!-- Calm Audio Screen Category Headers -->
         <string name="category_nature_sounds">Nature Sounds</string>

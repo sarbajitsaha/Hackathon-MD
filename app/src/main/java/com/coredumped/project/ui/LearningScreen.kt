@@ -63,12 +63,6 @@ fun LearningScreen(navController: NavController) {
             route = "flashcards"
         ),
         CategoryDataLearning(
-            text = "Simple Maths",
-            imageResId = R.drawable.simple_maths,
-            color = Color.Green,
-            route = "simple_maths"
-        ),
-        CategoryDataLearning(
             text = "Girl",
             imageResId = R.drawable.girl,
             color = Color.Blue,
@@ -206,7 +200,6 @@ fun CategoryItemLearning(
 private fun getLabelRes(text: String): Int {
     return when (text) {
         "FlashCards" -> R.string.flashcards
-        "Simple Maths" -> R.string.simple_maths
         "Girl" -> R.string.activity_girl
         "Boy" -> R.string.activity_boy
         else -> R.string.test // Fallback
