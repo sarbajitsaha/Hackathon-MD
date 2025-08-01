@@ -135,6 +135,8 @@ fun FlashCardsAnimalsScreen(navController: NavController) {
                         )
                     )
                 )
+
+                Spacer(modifier = Modifier.height(8.dp)) // Adjust spacer if needed
             }
 
             // Next and Previous Buttons
