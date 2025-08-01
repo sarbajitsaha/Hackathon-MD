@@ -33,7 +33,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -60,16 +59,16 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 val bubbleColors = listOf(
-    Color(0xFF1C4359), // Darker Blue
-    Color(0xFF6B1123), // Darker Red
-    Color(0xFF202050), // Darker Purple
-    Color(0xFF6B3E00), // Darker Orange
-    Color(0xFF124A20), // Darker Green
-    Color(0xFF6B1714), // Darker Red-Orange
-    Color(0xFF6B5500), // Darker Yellow
-    Color(0xFF004A47), // Darker Teal
-    Color(0xFF421E53), // Darker Lavender
-    Color(0xFF6B303A)  // Darker Coral
+    Color(0xFF00BFFF), // Bright Blue (from Darker Blue)
+    Color(0xFFFF073A), // Neon Red (from Darker Red)
+    Color(0xFFBF00FF), // Electric Purple (from Darker Purple)
+    Color(0xFFFF9900), // Vibrant Orange (from Darker Orange)
+    Color(0xFF39FF14), // Neon Green (from Darker Green)
+    Color(0xFFFF4500), // Bright Red-Orange (from Darker Red-Orange)
+    Color(0xFFFFFF00), // Bright Yellow (from Darker Yellow)
+    Color(0xFF00F5D4), // Bright Teal (from Darker Teal)
+    Color(0xFFF72585), // Neon Magenta/Pink (from Darker Lavender)
+    Color(0xFFFF6B6B)  // Bright Coral (from Darker Coral)
 )
 
 @Composable
@@ -78,17 +77,13 @@ fun PopBubbleScreen(navController: NavController) {
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
 
-    // Calculate screen dimensions in pixels
     val screenWidth = with(density) { configuration.screenWidthDp.dp.toPx() }
     val screenHeight = with(density) { configuration.screenHeightDp.dp.toPx() }
 
-    // Calculate reference dimension for scaling (smaller of width/height)
     val minDimension = min(screenWidth, screenHeight)
 
-    // Define bubble size range as percentage of screen size
-    // Using 8-15% of min dimension for bubble radius
-    val minBubbleRadius = minDimension * 0.06f
-    val maxBubbleRadius = minDimension * 0.1f
+    val minBubbleRadius = minDimension * 0.08f
+    val maxBubbleRadius = minDimension * 0.12f
 
     val popSound = remember { MediaPlayer.create(context, R.raw.bubble_pop) }
     val bubbles = remember { mutableStateListOf<Bubble>() }
@@ -101,7 +96,6 @@ fun PopBubbleScreen(navController: NavController) {
     val showTutorial = remember { mutableStateOf(true) }
     val tutorialShown = remember { mutableStateOf(false) }
 
-    // Remember screen dimensions for bubble spawning
     val screenDimensions = remember {
         ScreenDimensions(
             width = screenWidth,
@@ -111,10 +105,9 @@ fun PopBubbleScreen(navController: NavController) {
         )
     }
 
-    // Game loop for updating bubbles and particles
     LaunchedEffect(Unit) {
         while (true) {
-            delay(16) // ~60 FPS
+            delay(16)
             val currentTime = System.currentTimeMillis()
             bubbles.forEach { bubble ->
                 if (bubble.isTutorial.not() && !bubble.isPopping) {
@@ -124,57 +117,44 @@ fun PopBubbleScreen(navController: NavController) {
             particles.forEach { particle ->
                 particle.x += particle.vx
                 particle.y += particle.vy
-                particle.alpha -= 0.02f // Fade out over ~50 frames
+                particle.alpha -= 0.02f
             }
-            // Remove off-screen/popped bubbles and faded particles
             bubbles.removeAll { it.y + it.radius < 0 || (it.isPopping && it.scale.value <= 0f) }
             particles.removeAll { it.alpha <= 0f }
-            // Update pop rate
             if (currentTime - lastPopTime.value < 1000L) {
                 popRate.value = 1f / ((currentTime - lastPopTime.value) / 1000f)
             } else {
                 popRate.value = 0f
             }
-            // Adjust spawn delay
             spawnDelay.value = (1000f - (popRate.value * 100f)).toLong().coerceIn(100L, 500L)
-            // Trigger recomposition
             updateTrigger.value++
         }
     }
 
-    // Spawn bubbles periodically with overlap check
     LaunchedEffect(Unit) {
         while (true) {
             delay(spawnDelay.value)
-            val y = screenDimensions.height + 50f // Start off bottom
+            val y = screenDimensions.height + 50f
             var attempts = 0
             var spawned = false
             while (attempts < 10 && !spawned) {
                 attempts++
-                // Dynamic bubble size based on screen dimensions
                 val radius = Random.nextFloat() * (screenDimensions.maxRadius - screenDimensions.minRadius) + screenDimensions.minRadius
                 val x = Random.nextFloat() * (screenDimensions.width - 2 * radius) + radius
-
-                // Scale speed based on screen height (0.4-1.0% of screen height per frame)
                 val minSpeed = screenDimensions.height * 0.004f
                 val maxSpeed = screenDimensions.height * 0.01f
                 val speed = Random.nextFloat() * (maxSpeed - minSpeed) + minSpeed
-
-                // Select a random color from our darker colors
                 val color = bubbleColors.random()
                 val candidate = Bubble(x, y, radius, speed, color = color)
                 if (!willCollideWithAny(candidate, bubbles)) {
                     bubbles.add(candidate)
                     spawned = true
-
-                    // Start the tutorial after the first bubble is spawned
                     if (!tutorialShown.value && bubbles.size == 1) {
-                        delay(500) // Give a moment for the bubble to rise a bit
+                        delay(500)
                         tutorialShown.value = true
                     }
                 }
             }
-            // If no good position after 10 tries, skip this spawn to avoid forcing overlaps
         }
     }
 
@@ -195,17 +175,12 @@ fun PopBubbleScreen(navController: NavController) {
                             if (!bubble.isPopping) {
                                 val dist = sqrt((offset.x - bubble.x).pow(2) + (offset.y - bubble.y).pow(2))
                                 if (dist <= bubble.radius) {
-                                    // Pop the bubble
                                     coroutineScope.launch {
                                         bubble.isPopping = true
                                         bubble.scale.animateTo(0f, animationSpec = tween(300))
                                     }
-
-                                    // Dynamic particle size based on bubble size
                                     val minParticleRadius = bubble.radius * 0.05f
                                     val maxParticleRadius = bubble.radius * 0.1f
-
-                                    // Spawn pop particles with the same color as the bubble
                                     repeat(Random.nextInt(8, 12)) {
                                         val angle = Random.nextFloat() * 2 * PI.toFloat()
                                         val particleSpeed = Random.nextFloat() * 10 + 5
@@ -214,19 +189,15 @@ fun PopBubbleScreen(navController: NavController) {
                                         val particleRadius = Random.nextFloat() * (maxParticleRadius - minParticleRadius) + minParticleRadius
                                         particles.add(BubbleParticle(bubble.x, bubble.y, vx, vy, particleRadius, color = bubble.color))
                                     }
-                                    // Restart sound if already playing
                                     if (popSound.isPlaying) {
                                         popSound.pause()
                                         popSound.seekTo(0)
                                     }
                                     popSound.start()
                                     lastPopTime.value = System.currentTimeMillis()
-
-                                    // Hide tutorial after user pops a bubble
                                     if (showTutorial.value) {
                                         showTutorial.value = false
                                     }
-
                                     return@forEach
                                 }
                             }
@@ -238,22 +209,43 @@ fun PopBubbleScreen(navController: NavController) {
             bubbles.forEach { bubble ->
                 val alpha = if (bubble.isPopping) bubble.scale.value else 1f
                 val scaledRadius = bubble.radius * bubble.scale.value
-                val center = Offset(bubble.x, bubble.y)
-                // Base semi-transparent bubble with the bubble's color
-                drawCircle(
-                    color = bubble.color.copy(alpha = alpha * 0.3f),
-                    radius = scaledRadius,
-                    center = center
-                )
-                // White highlight for shine (offset top-left)
-                drawCircle(
-                    color = Color.White.copy(alpha = alpha * 0.8f),
-                    radius = scaledRadius / 4,
-                    center = center + Offset(-scaledRadius / 3, -scaledRadius / 3)
-                )
+
+                // --- START OF FIX ---
+                // Only draw if the bubble is visible (radius > 0) to prevent crash
+                if (scaledRadius > 0f) {
+                    val center = Offset(bubble.x, bubble.y)
+
+                    // 1. Define a radial gradient for the glow effect.
+                    val glowBrush = Brush.radialGradient(
+                        colors = listOf(bubble.color.copy(alpha = 0.4f * alpha), Color.Transparent),
+                        center = center,
+                        radius = scaledRadius * 1.3f // Make the glow slightly larger than the bubble
+                    )
+
+                    // 2. Draw the glow effect behind the main bubble.
+                    drawCircle(
+                        brush = glowBrush,
+                        radius = scaledRadius * 1.3f,
+                        center = center
+                    )
+
+                    // 3. Draw the main bubble body with higher opacity to make it look solid.
+                    drawCircle(
+                        color = bubble.color.copy(alpha = alpha * 0.9f),
+                        radius = scaledRadius,
+                        center = center
+                    )
+
+                    // 4. Keep the white highlight for a nice shine.
+                    drawCircle(
+                        color = Color.White.copy(alpha = alpha * 0.7f),
+                        radius = scaledRadius / 3.5f,
+                        center = center + Offset(-scaledRadius / 3, -scaledRadius / 3)
+                    )
+                }
+                // --- END OF FIX ---
             }
             particles.forEach { particle ->
-                // Draw particles with the particle's color
                 drawCircle(
                     color = particle.color.copy(alpha = particle.alpha * 0.3f),
                     radius = particle.radius,
@@ -262,7 +254,6 @@ fun PopBubbleScreen(navController: NavController) {
             }
         }
 
-        // Colorful back button in the top left corner
         Box(
             modifier = Modifier
                 .padding(16.dp)
@@ -290,7 +281,6 @@ fun PopBubbleScreen(navController: NavController) {
             )
         }
 
-        // Show tutorial finger when tutorial is active and we have at least one bubble
         if (showTutorial.value && bubbles.isNotEmpty() && tutorialShown.value) {
             TutorialFinger(
                 bubbles = bubbles,
@@ -304,7 +294,6 @@ fun PopBubbleScreen(navController: NavController) {
     }
 }
 
-// Helper class to hold screen dimensions and bubble size information
 data class ScreenDimensions(
     val width: Float,
     val height: Float,
@@ -330,16 +319,13 @@ fun TutorialFinger(
     tutorialBubble.isTutorial = true
 
     val density = LocalDensity.current
-    // Scale finger size based on bubble size
     val fingerSize = (tutorialBubble.radius * 0.8f).dp
     val fingerSizePx = with(density) { fingerSize.toPx() }
 
-    // Start finger off-screen to the right
     val fingerX = remember { Animatable(bubbles.first().x + 200f) }
     val fingerY = remember { Animatable(bubbles.first().y) }
     val fingerScale = remember { Animatable(1f) }
 
-    // Add a pulsing effect to draw attention
     val infiniteTransition = rememberInfiniteTransition(label = "fingerPulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -352,33 +338,18 @@ fun TutorialFinger(
     )
 
     LaunchedEffect(Unit) {
-        // Delay to allow bubble to become visible
         delay(300)
-
-        launch {
-            fingerX.animateTo(targetX, animationSpec = tween(1000))
-        }
-        launch {
-            fingerY.animateTo(targetY, animationSpec = tween(1000))
-        }
-
-        delay(1000) // Wait for move to complete
-
-        // Simulate tap: scale down and up more dramatically
+        launch { fingerX.animateTo(targetX, animationSpec = tween(1000)) }
+        launch { fingerY.animateTo(targetY, animationSpec = tween(1000)) }
+        delay(1000)
         fingerScale.animateTo(0.7f, animationSpec = tween(200))
         fingerScale.animateTo(1f, animationSpec = tween(200))
-
-        // Trigger pop on the bubble
         coroutineScope.launch {
             tutorialBubble.isPopping = true
             tutorialBubble.scale.animateTo(0f, animationSpec = tween(300))
         }
-
-        // Dynamic particle size based on bubble size
         val minParticleRadius = tutorialBubble.radius * 0.05f
         val maxParticleRadius = tutorialBubble.radius * 0.1f
-
-        // Spawn pop particles with the same color as the bubble
         repeat(Random.nextInt(8, 12)) {
             val angle = Random.nextFloat() * 2 * PI.toFloat()
             val particleSpeed = Random.nextFloat() * 10 + 5
@@ -387,34 +358,26 @@ fun TutorialFinger(
             val particleRadius = Random.nextFloat() * (maxParticleRadius - minParticleRadius) + minParticleRadius
             particles.add(BubbleParticle(tutorialBubble.x, tutorialBubble.y, vx, vy, particleRadius, color = tutorialBubble.color))
         }
-
-        // Play sound
         if (popSound.isPlaying) {
             popSound.pause()
             popSound.seekTo(0)
         }
         popSound.start()
-
-        delay(800) // Longer delay after pop to make sure user sees what happened
-
-        // Animate finger away
-        fingerX.animateTo(fingerX.value + 300f, animationSpec = tween(500)) // Move right off-screen
-
-        delay(200) // Short delay before completing tutorial
+        delay(800)
+        fingerX.animateTo(fingerX.value + 300f, animationSpec = tween(500))
+        delay(200)
         onComplete()
     }
 
-    // Enhanced finger with shadow and more visible styling
     Box(
         modifier = Modifier
-            .offset { Offset(fingerX.value - fingerSizePx/2, fingerY.value - fingerSizePx/2).toIntOffset() }
+            .offset { Offset(fingerX.value - fingerSizePx / 2, fingerY.value - fingerSizePx / 2).toIntOffset() }
             .size(fingerSize)
             .graphicsLayer {
                 scaleX = fingerScale.value * pulseScale
                 scaleY = fingerScale.value * pulseScale
             }
     ) {
-        // Add a glow/shadow behind the finger
         Icon(
             imageVector = Icons.Default.TouchApp,
             contentDescription = null,
@@ -423,8 +386,6 @@ fun TutorialFinger(
                 .size(fingerSize)
                 .offset(2.dp, 2.dp)
         )
-
-        // Main finger icon
         Icon(
             imageVector = Icons.Default.TouchApp,
             contentDescription = "Tap to pop bubble",
@@ -434,7 +395,6 @@ fun TutorialFinger(
     }
 }
 
-// Helper extension for Offset to IntOffset
 private fun Offset.toIntOffset() = androidx.compose.ui.unit.IntOffset(x.toInt(), y.toInt())
 
 data class Bubble(
@@ -442,7 +402,7 @@ data class Bubble(
     var y: Float,
     var radius: Float,
     var speed: Float,
-    val color: Color = bubbleColors.random(), // Default to a random color
+    val color: Color = bubbleColors.random(),
     val scale: Animatable<Float, AnimationVector1D> = Animatable(1f),
     var isPopping: Boolean = false,
     var isTutorial: Boolean = false
@@ -454,20 +414,19 @@ data class BubbleParticle(
     var vx: Float,
     var vy: Float,
     var radius: Float,
-    val color: Color = bubbleColors.random(), // Default to a random color
+    val color: Color = bubbleColors.random(),
     var alpha: Float = 1f
 )
 
-// Helper to check if a new bubble will collide with any existing
 private fun willCollideWithAny(newBubble: Bubble, existingBubbles: List<Bubble>): Boolean {
     existingBubbles.forEach { existing ->
         val dx = abs(newBubble.x - existing.x)
-        val deltaY0 = newBubble.y - existing.y // Positive, new is below
-        val relVel = existing.speed - newBubble.speed // existing_speed - new_speed
+        val deltaY0 = newBubble.y - existing.y
+        val relVel = existing.speed - newBubble.speed
         val rSum = newBubble.radius + existing.radius
-        if (relVel < 0) { // New is faster, will catch up
+        if (relVel < 0) {
             if (dx < rSum) return true
-        } else { // Same speed or existing faster; check min dist at closest (initial)
+        } else {
             val minDist = sqrt(dx.pow(2) + deltaY0.pow(2))
             if (minDist < rSum) return true
         }
