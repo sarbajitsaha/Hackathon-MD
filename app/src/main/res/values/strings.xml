@@ -52,5 +52,6 @@
     <string name="video_ocean">Waves</string>
     <string name="video_waterfall">Waterfall</string>
     <string name="video_forest">Forest</string>
+    <string name="is_it_correct">Is it correct?</string>
 
 </resources>
