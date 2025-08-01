@@ -30,12 +30,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.coredumped.project.BackgroundMusic
 import com.coredumped.project.R
 
 @Composable
 fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = context.findActivity()
+
+    BackgroundMusic(R.raw.background_music)
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Add the same background image as HomeScreen for consistency and visual appeal
