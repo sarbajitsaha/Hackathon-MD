@@ -30,7 +30,6 @@ SOFTWARE.
 const canvas = document.getElementsByTagName('canvas')[0];
 resizeCanvas();
 
-/* ORIGINAL CONFIG
 let config = {
     SIM_RESOLUTION: 128,
     DYE_RESOLUTION: 1024,
@@ -57,39 +56,16 @@ let config = {
     SUNRAYS: true,
     SUNRAYS_RESOLUTION: 196,
     SUNRAYS_WEIGHT: 1.0,
-}
-*/
+};
 
-/* REDUCED CONFIG */
-let config = {
+// Config overrides for MEDIUM-tier devices.
+const medium_config = {
     SIM_RESOLUTION: 64,
     DYE_RESOLUTION: 512,
-    CAPTURE_RESOLUTION: 512,
-    DENSITY_DISSIPATION: 0.9,
-    VELOCITY_DISSIPATION: 0.1,
-    PRESSURE: 0.8,
-    PRESSURE_ITERATIONS: 10,
-    CURL: 30,
-    SPLAT_RADIUS: 0.25,
-    SPLAT_FORCE: 6000,
-    SHADING: false,
-    COLORFUL: true,
-    COLOR_UPDATE_SPEED: 10,
-    PAUSED: false,
-    BACK_COLOR: { r: 0, g: 0, b: 0 },
-    TRANSPARENT: false,
-    BLOOM: true,
-    BLOOM_ITERATIONS: 8,
-    BLOOM_RESOLUTION: 256,
-    BLOOM_INTENSITY: 0.8,
-    BLOOM_THRESHOLD: 0.6,
-    BLOOM_SOFT_KNEE: 0.7,
-    SUNRAYS: true,
-    SUNRAYS_RESOLUTION: 196,
-    SUNRAYS_WEIGHT: 1.0,
-}
+    PRESSURE_ITERATIONS: 15,
+};
 
-// Config for LOW-end devices (e.g., <= 2GB RAM, older mobile GPUs)
+// Config overrides for LOW-tier devices.
 const low_config = {
     SIM_RESOLUTION: 32,
     DYE_RESOLUTION: 256,
@@ -99,34 +75,16 @@ const low_config = {
     SUNRAYS: false,
 };
 
-// Config for MEDIUM-end devices (e.g., > 2GB RAM, mid-range mobile GPUs)
-const medium_config = {
-    SIM_RESOLUTION: 64,
-    DYE_RESOLUTION: 512,
-    PRESSURE_ITERATIONS: 15,
-    SHADING: true,
-    BLOOM: true,
-    SUNRAYS: true,
-};
-
-// Config for HIGH-end devices (e.g., powerful mobile GPUs, desktops)
-const high_config = {
-    SIM_RESOLUTION: 128,
-    DYE_RESOLUTION: 1024,
-    PRESSURE_ITERATIONS: 20,
-    SHADING: true,
-    BLOOM: true,
-    SUNRAYS: true,
-};
-
+/**
+ * Detects the device's performance tier based on WebGL renderer and device memory.
+ * This function is tailored for mobile devices.
+ * @returns {'HIGH' | 'MEDIUM' | 'LOW'}
+ */
 function detectDeviceTier() {
-    // Check for mobile first
-    const isMobileDevice = isMobile();
-
-    // Get the WebGL renderer info
     const canvas = document.createElement('canvas');
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
     let renderer = 'unknown';
+
     if (gl) {
         const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
         if (debugInfo) {
@@ -134,51 +92,38 @@ function detectDeviceTier() {
         }
     }
 
-    // Check device memory (if available)
-    const memory = navigator.deviceMemory || 0;
+    // navigator.deviceMemory is an approximation and not always available. Default to a mid-range value.
+    const memory = navigator.deviceMemory || 4;
 
-    console.log(`Device Memory: ${memory}GB`);
-    console.log(`Renderer: ${renderer}`);
+    console.log(`Device Memory: ${memory}GB, Renderer: ${renderer}`);
 
-    if (isMobileDevice) {
-        // Low-tier mobile GPUs or low memory
-        if (memory <= 2 || renderer.includes('mali-') || renderer.includes('adreno (tm) 5') || renderer.includes('adreno (tm) 4')) {
-            console.log("Device Tier: LOW");
-            return 'LOW';
-        }
-        // Mid-tier mobile GPUs
-        if (memory <= 4 || renderer.includes('adreno (tm) 6')) {
-            console.log("Device Tier: MEDIUM");
-            return 'MEDIUM';
-        }
-        // High-tier mobile
+    // High-tier devices (e.g., Adreno 650+, Mali-G77+)
+    // Prioritize checking for high-end markers first.
+    const isHighEndGpu = /adreno.*(650|660|7\d{2})/.test(renderer) || /mali-g(77|78|710)/.test(renderer);
+    if (memory >= 6 && isHighEndGpu) {
         console.log("Device Tier: HIGH");
         return 'HIGH';
-    } else {
-        // Assume desktops are at least medium
-        // Check for powerful dedicated GPUs
-        if (renderer.includes('nvidia') || renderer.includes('amd')) {
-            console.log("Device Tier: HIGH");
-            return 'HIGH';
-        }
-        // Assume integrated graphics are medium
-        console.log("Device Tier: MEDIUM");
-        return 'MEDIUM';
     }
+
+    // Low-tier devices (older GPUs or low memory)
+    const isLowEndGpu = /adreno.*(4\d{2}|5\d{2})/.test(renderer) || /mali-(4\d{2}|t\d{3})/.test(renderer);
+    if (memory <= 3 || isLowEndGpu) {
+        console.log("Device Tier: LOW");
+        return 'LOW';
+    }
+
+    // Anything that is not clearly high or low is considered medium.
+    console.log("Device Tier: MEDIUM");
+    return 'MEDIUM';
 }
 
-// Detect device tier and apply the appropriate config
+// Detect the device tier and apply the appropriate configuration overrides.
 const tier = detectDeviceTier();
-switch (tier) {
-    case 'LOW':
-        Object.assign(config, low_config);
-        break;
-    case 'MEDIUM':
-        Object.assign(config, medium_config);
-        break;
-    case 'HIGH':
-        Object.assign(config, high_config);
-        break;
+
+if (tier === 'MEDIUM') {
+    Object.assign(config, medium_config);
+} else if (tier === 'LOW') {
+    Object.assign(config, low_config);
 }
 
 function pointerPrototype () {
@@ -1631,3 +1576,10 @@ function hashCode (s) {
     }
     return hash;
 };
+
+window.addEventListener('load', () => {
+    // Check if the AndroidBridge exists before calling it
+    if (window.AndroidBridge && typeof window.AndroidBridge.onPageReady === 'function') {
+        window.AndroidBridge.onPageReady();
+    }
+});
