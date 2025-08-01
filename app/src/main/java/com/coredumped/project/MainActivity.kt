@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.LocaleList
 import android.view.View
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.LearningScreen
+import com.coredumped.project.ui.findActivity
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +46,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
+                KeepScreenOn() //keep the screen on for simplicity of user
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -69,6 +74,22 @@ class MainActivity : ComponentActivity() {
             super.attachBaseContext(base.createConfigurationContext(config))
         } else {
             super.attachBaseContext(base)
+        }
+    }
+}
+
+@Composable
+fun KeepScreenOn() {
+    val context = LocalContext.current
+    DisposableEffect(Unit) {
+        val window = context.findActivity()?.window
+        // Add the flag to keep the screen on
+        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // onDispose is called when the composable leaves the screen
+        onDispose {
+            // Clear the flag to allow the screen to turn off again
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
     }
 }

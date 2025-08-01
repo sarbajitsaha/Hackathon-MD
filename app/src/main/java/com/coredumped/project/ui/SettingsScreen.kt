@@ -121,7 +121,7 @@ fun SettingsScreen(navController: NavController) {
                     )
                 ) {
                     Text(
-                        text = "Bengali / বাংলা",
+                        text = "বাংলা",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -148,7 +148,7 @@ fun SettingsScreen(navController: NavController) {
                     )
                 ) {
                     Text(
-                        text = "Hindi / हिंदी",
+                        text = "हिंदी",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )

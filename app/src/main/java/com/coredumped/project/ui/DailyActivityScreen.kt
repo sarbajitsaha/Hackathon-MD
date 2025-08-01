@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.coredumped.project.BackgroundMusic
 import com.coredumped.project.R
 import kotlin.math.min as mathMin
 
@@ -54,6 +55,8 @@ fun DailyActivityScreen(navController: NavController) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
+
+    BackgroundMusic(R.raw.background_music)
 
     val categories = listOf(
         CategoryDataDA(

@@ -58,6 +58,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.coredumped.project.R
 
@@ -77,10 +80,32 @@ fun CalmAudioScreen(navController: NavController) {
     var currentSoundName by remember { mutableStateOf("") }
     var volume by remember { mutableFloatStateOf(1.0f) }
 
-    // Clean up player on dispose
+    // Clean up player on dispose and when app goes to background
+    val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(Unit) {
+        val observer = LifecycleEventObserver { _, event ->
+            // Stop and release the player if the app is stopped (backgrounded)
+            if (event == Lifecycle.Event.ON_STOP) {
+                currentPlayer?.let {
+                    Log.d(TAG, "App is in background. Releasing player.")
+                    if (it.isPlaying) {
+                        it.stop()
+                    }
+                    it.release()
+                    currentPlayer = null
+                    isPlaying = false
+                    currentSoundName = ""
+                }
+            }
+        }
+
+        // Add the observer to the lifecycle
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // onDispose is called when the composable leaves the screen
         onDispose {
             Log.d(TAG, "Disposing audio player")
+            lifecycleOwner.lifecycle.removeObserver(observer) // Clean up the observer
             currentPlayer?.release()
             currentPlayer = null
         }
