@@ -2,6 +2,7 @@ package com.coredumped.project.iq
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
@@ -43,10 +45,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.coredumped.project.R
+import kotlin.math.min
 import kotlin.random.Random
 
 // Removed sp import as it's not directly used in the provided snippet for modification.
@@ -57,6 +62,8 @@ val DarkGreen = Color(0xFF388E3C)  // A darker, more saturated green
 val LightRed = Color(0xFFEF9A9A)   // A lighter red
 val DarkRed = Color(0xFFD32F2F)    // A darker, more saturated red
 val LightGray = Color(0xFFE0E0E0)   // A light gray for error highlighting
+
+val maxProblems = 10;
 
 class SimpleMathsGame {
 
@@ -164,6 +171,10 @@ fun SimpleMathsScreen(navController: NavController) {
         currentProblemState = game.generateProblem()
         isAnswerSubmitted = false
         selectedUserResponse = null
+        totalProblemsAttempted++
+        if (totalProblemsAttempted == maxProblems) {
+            showResultsDialog = true
+        }
         Log.d(
             TAG,
             "Next problem requested: ${currentProblemState?.equation}, Expected: ${currentProblemState?.correctAnswerString}"
@@ -177,7 +188,6 @@ fun SimpleMathsScreen(navController: NavController) {
         val isCorrect = game.checkAnswer(userResponse)
         score = game.getScore()
         isAnswerSubmitted = true
-        totalProblemsAttempted++
         Log.d(
             TAG,
             "User response '$userResponse' submitted. Correct: $isCorrect. Score: $score. Total Attempted: $totalProblemsAttempted"
@@ -213,8 +223,20 @@ fun SimpleMathsScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Is it Correct?", style = MaterialTheme.typography.titleLarge)
-                Text(text = "Score: $score", style = MaterialTheme.typography.titleLarge)
+                Text(text = stringResource(id = R.string.is_it_correct), style = MaterialTheme.typography.titleLarge)
+                val currentQuestionDisplayNumber = min(totalProblemsAttempted + 1, maxProblems)
+
+                Text(
+                    // UPDATED TEXT FORMAT
+                    text = if (totalProblemsAttempted >= maxProblems && isAnswerSubmitted) {
+                        "Question $maxProblems / $maxProblems" // Show max/max if last question is submitted
+                    } else {
+                        "Question $currentQuestionDisplayNumber / $maxProblems"
+                    },
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Text(text = "Score: $score", style = MaterialTheme.typography.titleMedium)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -301,8 +323,13 @@ fun SimpleMathsScreen(navController: NavController) {
                     .shadow(4.dp, CircleShape)
                     .clip(CircleShape)
                     .background(
-                        color = if (isAnswerSubmitted) MaterialTheme.colorScheme.secondaryContainer
-                        else MaterialTheme.colorScheme.primaryContainer.copy(alpha = if (selectedUserResponse != null) 1f else 0.5f)
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFFFF9500),
+                                Color(0xFFFF2D55),
+                                Color(0xFF5856D6)
+                            )
+                        )
                     ),
                 enabled = isAnswerSubmitted || (currentProblemState != null && selectedUserResponse != null)
             ) {
@@ -315,23 +342,23 @@ fun SimpleMathsScreen(navController: NavController) {
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
-            IconButton(
-                onClick = { showResultsDialog = true },
+            Box(
                 modifier = Modifier
-                    .size(56.dp)
+                    .padding(16.dp)
+                    .size(64.dp)
                     .shadow(4.dp, CircleShape)
                     .clip(CircleShape)
                     .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(Color(0xFF0D47A1), Color(0xFF1976D2))
-                        )
+                        color = MaterialTheme.colorScheme.primaryContainer
                     )
+                    .clickable { navController.popBackStack() },
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.DoneAll,
-                    contentDescription = "Show Results",
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
                     tint = Color.White,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(32.dp)
                 )
             }
         }
@@ -406,7 +433,7 @@ fun ResultsDialog(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    "You got",
+                    "Your Score:",
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -414,11 +441,6 @@ fun ResultsDialog(
                     text = "$score / $totalAttempted",
                     style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "equations right.",
-                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         },

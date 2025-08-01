@@ -52,5 +52,6 @@
         <string name="play_button">Play</string>
         <string name="stop_button">Stop</string>
         <string name="calm_background_desc">Calm Background</string>
+    <string name="is_it_correct">Is it correct?</string>
 
 </resources>
