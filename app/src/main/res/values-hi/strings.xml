@@ -7,6 +7,7 @@
     <string name="category_calm">शांत</string>
     <string name="activity_brush">ब्रश</string>
     <string name="activity_handwash">हाथ धोना</string>
+    <string name="activity_socialize">व्यवहार</string>
     <string name="activity_girl">लड़की</string>
     <string name="activity_boy">लड़का</string>
     <string name="calm_fluid">द्रव सिमुलेशन</string>
@@ -45,4 +46,14 @@
     <string name="flashcards_sharpener">आसियाना</string>
     <string name="flashcards_notebook">"खाता "</string>
     <string name="flashcards_scale">स्केल</string>
+    <string name="category_nature_sounds">प्रकृति ध्वनियाँ</string>
+    <string name="activity_idcard">आईडी कार्ड</string>
+    <string name="category_music_sounds">संगीतमय ध्वनियाँ</string>
+    <string name="sound_rain">बारिश</string>
+    <string name="sound_birds">पक्षी का चहकना</string>
+    <string name="sound_flute">बांसुरी</string>
+    <string name="category_nature_videos">प्रकृति वीडियो</string>
+    <string name="video_ocean">लहरें</string>
+    <string name="video_waterfall">झरना</string>
+    <string name="video_forest">जंगल</string>
 </resources>

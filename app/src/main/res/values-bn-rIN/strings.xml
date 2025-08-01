@@ -47,4 +47,13 @@
     <string name="flashcards_sharpener">শার্পনার</string>
     <string name="flashcards_notebook">খাতা</string>
     <string name="flashcards_scale">স্কেল</string>
+    <string name="category_nature_sounds">প্রকৃতির শব্দ</string>
+    <string name="category_music_sounds">মিউজিক্যাল সাউন্ডস</string>
+    <string name="sound_rain">বৃষ্টি</string>
+    <string name="sound_birds">পাখির কিচিরমিচির</string>
+    <string name="sound_flute">বাঁশি</string>
+    <string name="category_nature_videos">প্রকৃতির ভিডিও</string>
+    <string name="video_ocean">"ঢেউ "</string>
+    <string name="video_waterfall">ঝরনা</string>
+    <string name="video_forest">জঙ্গল</string>
 </resources>

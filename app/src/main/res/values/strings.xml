@@ -59,7 +59,7 @@
 
         <!-- Calm Audio Screen Category Headers -->
         <string name="category_nature_sounds">Nature Sounds</string>
-        <string name="category_music_sounds">Music Sounds</string>
+        <string name="category_music_sounds">Musical Sounds</string>
 
         <!-- Nature Sound Items -->
         <string name="sound_rain">Rain</string>
