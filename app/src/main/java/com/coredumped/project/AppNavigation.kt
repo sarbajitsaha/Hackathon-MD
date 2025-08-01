@@ -42,7 +42,7 @@ import com.coredumped.project.ui.LearningScreen
 import com.coredumped.project.ui.CalmAudioScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.DailyActivityScreen
-import com.coredumped.project.ui.FlashCardsScreen
+import com.coredumped.project.learning.FlashCardsFoodsScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
@@ -104,10 +104,10 @@ fun AppNavigation() {
             LearningScreen(navController)
         }
         animatedComposable(
-            route = "flashcards",
+            route = "flashcards_foods",
             scale = animatorScale
         ) {
-            FlashCardsScreen(navController)
+            FlashCardsFoodsScreen(navController)
         }
         animatedComposable(
             route = "simple_maths",

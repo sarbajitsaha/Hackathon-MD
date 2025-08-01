@@ -16,11 +16,15 @@
     <string name="calm_video">শান্তকর ভিডিও</string>
     <string name="calm_bubbles">বুদবুদ খেলা</string>
     <string name="test">পরীক্ষা</string>
-    <string name="flashcards_fruits">ফল এবং সবজি</string>
+    <string name="flashcards_foods">খাবার</string>
+    <string name="flashcards_mango">আম</string>
     <string name="flashcards_animals">পশু-পাখি</string>
     <string name="flashcards_vehicles">যানবাহন</string>
     <string name="flashcards_stationery">স্টেশনারি</string>
     <string name="flashcards">ফ্ল্যাশ কার্ড</string>
     <string name="simple_maths">সরল গণিত</string>
     <string name="iq_test">আইকিউ পরীক্ষা</string>
+    <string name="flashcards_ice_cream">আইসক্রিম</string>
+    <string name="flashcards_apple">আপেল</string>
+    <string name="flashcards_banana">কলা</string>
 </resources>

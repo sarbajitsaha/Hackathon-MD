@@ -14,11 +14,15 @@
     <string name="calm_video">शांत करने वाला वीडियो</string>
     <string name="calm_bubbles">बुलबुले फोड़ना</string>
     <string name="test">परीक्षण</string>
-    <string name="flashcards_fruits">फल और सब्जियां</string>
+    <string name="flashcards_foods">खाना</string>
+    <string name="flashcards_mango">आम</string>
     <string name="flashcards_animals">पशु पक्षी</string>
     <string name="flashcards_vehicles">वाहनों</string>
     <string name="flashcards_stationery">लेखन सामग्री</string>
     <string name="flashcards">फ़्लैश कार्ड</string>
     <string name="simple_maths">सरल गणित</string>
     <string name="iq_test">आईक्यू परीक्षण</string>
+    <string name="flashcards_ice_cream">आइसक्रीम</string>
+    <string name="flashcards_apple">सेब</string>
+    <string name="flashcards_banana">केला</string>
 </resources>
