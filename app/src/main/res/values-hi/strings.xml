@@ -24,7 +24,11 @@
     <string name="flashcards_stationery">लेखन सामग्री</string>
     <string name="flashcards">फ़्लैश कार्ड</string>
     <string name="flashcards_scissors">कैंची</string>
-    <string name="simple_maths">सरल गणित</string>
+    <string name="maths_0">सरल गणित</string>
+        <string name="how_many_stars">कितने सितारे?</string>
+        <string name="which_is_more">कौन बड़ा है?</string>
+        <string name="which_is_less">कौन बड़ा है?</string>
+    <string name="maths_1">मुश्किल गणित</string>
     <string name="iq_test">आईक्यू परीक्षण</string>
     <string name="flashcards_fruits">फल और सब्जियां</string>
     <string name="flashcards_orange">संतरा</string>

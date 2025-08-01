@@ -51,7 +51,8 @@ import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
 import com.coredumped.project.iq.IQTestScreen
-import com.coredumped.project.iq.SimpleMathsScreen
+import com.coredumped.project.iq.Maths0Screen
+import com.coredumped.project.iq.Maths1Screen
 import com.coredumped.project.learning.FlashCardsVehiclesScreenPreview
 
 @Composable
@@ -151,10 +152,16 @@ fun AppNavigation() {
             FlashCardsVehiclesScreen(navController)
         }
         animatedComposable(
-            route = "simple_maths",
+            route = "maths_0",
             scale = animatorScale
         ) {
-            SimpleMathsScreen(navController)
+            Maths0Screen(navController)
+        }
+        animatedComposable(
+            route = "maths_1",
+            scale = animatorScale
+        ) {
+            Maths1Screen(navController)
         }
         animatedComposable(
             route = "calm",

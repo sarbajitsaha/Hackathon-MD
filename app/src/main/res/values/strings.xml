@@ -57,7 +57,11 @@
 
 
 
-    <string name="simple_maths">Simple Maths</string>
+    <string name="maths_0">Easy Maths</string>
+        <string name="how_many_stars">How many stars?</string>
+        <string name="which_is_more">Which is more?</string>
+        <string name="which_is_less">Which is less?</string>
+    <string name="maths_1">Hard Maths</string>
     <string name="iq_test">IQ Test</string>
 
         <!-- Calm Audio Screen Category Headers -->

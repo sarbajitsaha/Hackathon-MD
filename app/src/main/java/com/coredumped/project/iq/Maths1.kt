@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -44,8 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
+// import androidx.compose.ui.res.stringResource // Will be removed as per request
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,47 +54,20 @@ import kotlin.random.Random
 import android.content.Context
 import android.media.MediaPlayer
 import androidx.annotation.RawRes
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 
-object SoundPlayer {
-
-    private var mediaPlayer: MediaPlayer? = null
-
-    fun playSound(context: Context, @RawRes soundResourceId: Int) {
-        // Release any existing MediaPlayer instance
-        mediaPlayer?.release()
-        mediaPlayer = null
-
-        // Create and start a new MediaPlayer instance
-        mediaPlayer = MediaPlayer.create(context, soundResourceId)
-        mediaPlayer?.setOnCompletionListener {
-            // Release the MediaPlayer when playback is complete
-            it.release()
-            mediaPlayer = null
-        }
-        mediaPlayer?.start()
-    }
-
-    // Optional: Call this in your Activity's onStop or Composable's onDispose
-    // to release resources if the screen is left while sound is playing.
-    fun release() {
-        mediaPlayer?.release()
-        mediaPlayer = null
-    }
-}
-
-// Removed sp import as it's not directly used in the provided snippet for modification.
-// It might be used elsewhere in your actual file.
 // Define Light and Darker Green/Red colors
-val LightGreen = Color(0xFFA5D6A7) // A lighter green
-val DarkGreen = Color(0xFF388E3C)  // A darker, more saturated green
-val LightRed = Color(0xFFEF9A9A)   // A lighter red
-val DarkRed = Color(0xFFD32F2F)    // A darker, more saturated red
-val LightGray = Color(0xFFE0E0E0)   // A light gray for error highlighting
+private val LightGreen = Color(0xFFA5D6A7) // A lighter green
+private val DarkGreen = Color(0xFF388E3C)  // A darker, more saturated green
+private val LightRed = Color(0xFFEF9A9A)   // A lighter red
+private val DarkRed = Color(0xFFD32F2F)    // A darker, more saturated red
+private val LightGray = Color(0xFFE0E0E0)   // A light gray for error highlighting
 
-val maxProblems = 10;
+private const val maxProblems = 10;
 
-class SimpleMathsGame {
+class Maths1Game {
 
     private var score = 0
     private var currentProblemInternal: Problem? = null
@@ -128,7 +99,7 @@ class SimpleMathsGame {
                 operationSymbol = "-"
             }
 
-            else -> {
+            else -> { // Default case, can be addition or another logic
                 actualAnswer = num1 + num2
                 operationSymbol = "+"
             }
@@ -146,7 +117,7 @@ class SimpleMathsGame {
             expectedUserResponse = "Correct"
         } else {
             var wrongAnswerOffset = Random.nextInt(-5, 6)
-            while (wrongAnswerOffset == 0) {
+            while (wrongAnswerOffset == 0) { // Ensure offset is not zero
                 wrongAnswerOffset = Random.nextInt(-5, 6)
             }
             displayedResult = actualAnswer + wrongAnswerOffset
@@ -178,11 +149,34 @@ class SimpleMathsGame {
 
 private const val TAG = "SimpleMathsScreen"
 
-@Composable
-fun SimpleMathsScreen(navController: NavController) {
-    val game = remember { SimpleMathsGame() }
+private object SoundPlayer {
 
-    var currentProblemState by remember { mutableStateOf<SimpleMathsGame.Problem?>(null) }
+    private var mediaPlayer: MediaPlayer? = null
+
+    fun playSound(context: Context, @RawRes soundResourceId: Int) {
+        mediaPlayer?.release()
+        mediaPlayer = null
+
+        mediaPlayer = MediaPlayer.create(context, soundResourceId)
+        mediaPlayer?.setOnCompletionListener {
+            it.release()
+            mediaPlayer = null
+        }
+        mediaPlayer?.start()
+    }
+
+    fun release() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+}
+
+
+@Composable
+fun Maths1Screen(navController: NavController) {
+    val game = remember { Maths1Game() }
+
+    var currentProblemState by remember { mutableStateOf<Maths1Game.Problem?>(null) }
     var score by remember { mutableIntStateOf(game.getScore()) }
     var isAnswerSubmitted by remember { mutableStateOf(false) }
     var selectedUserResponse by remember { mutableStateOf<String?>(null) }
@@ -199,17 +193,24 @@ fun SimpleMathsScreen(navController: NavController) {
     }
 
     fun handleNextProblem() {
-        currentProblemState = game.generateProblem()
-        isAnswerSubmitted = false
-        selectedUserResponse = null
-        totalProblemsAttempted++
-        if (totalProblemsAttempted == maxProblems) {
-            showResultsDialog = true
+        // Reset for next problem only if not exceeding max problems
+        if (totalProblemsAttempted < maxProblems -1) { // -1 because totalProblemsAttempted is 0-indexed for attempts made
+            currentProblemState = game.generateProblem()
+            isAnswerSubmitted = false
+            selectedUserResponse = null
+            totalProblemsAttempted++
+            Log.d(
+                TAG,
+                "Next problem requested: ${currentProblemState?.equation}, Expected: ${currentProblemState?.correctAnswerString}. Attempted: $totalProblemsAttempted"
+            )
+        } else {
+            // This is after the last problem has been attempted and next is clicked (or should be handled by submit)
+            if (!showResultsDialog) {
+                totalProblemsAttempted++ // To reflect maxProblems were attempted
+                showResultsDialog = true
+                Log.d(TAG, "Max problems reached. Total attempted: $totalProblemsAttempted. Showing results.")
+            }
         }
-        Log.d(
-            TAG,
-            "Next problem requested: ${currentProblemState?.equation}, Expected: ${currentProblemState?.correctAnswerString}"
-        )
     }
 
     fun handleSubmitResponse(userResponse: String) {
@@ -218,21 +219,38 @@ fun SimpleMathsScreen(navController: NavController) {
         selectedUserResponse = userResponse
         val isCorrect = game.checkAnswer(userResponse)
         score = game.getScore()
-        isAnswerSubmitted = true
+        isAnswerSubmitted = true // Mark as submitted
         Log.d(
             TAG,
-            "User response '$userResponse' submitted. Correct: $isCorrect. Score: $score. Total Attempted: $totalProblemsAttempted"
+            "User response '$userResponse' submitted. Correct: $isCorrect. Score: $score. Total Attempted before this: $totalProblemsAttempted"
         )
+
+        // Check if this submission completes the game
+        if (totalProblemsAttempted == maxProblems - 1 && isAnswerSubmitted) { // If it was the last problem
+            if (!showResultsDialog) {
+                // We don't increment totalProblemsAttempted here as handleNextProblem or initial load logic manages it
+                // We just show the dialog because the game is over
+                showResultsDialog = true
+                Log.d(TAG, "Last problem submitted. Total attempted will be $maxProblems. Showing results.")
+            }
+        }
     }
+
 
     if (showResultsDialog) {
         ResultsDialog(
             score = score,
-            totalAttempted = totalProblemsAttempted,
+            totalAttempted = maxProblems, // Show total as maxProblems for consistency
             onDismiss = {
                 showResultsDialog = false
-                game.resetGame()
-                navController.popBackStack()
+                game.resetGame() // Reset game logic
+                score = game.getScore() // Update UI score
+                totalProblemsAttempted = 0 // Reset UI attempts
+                currentProblemState = game.generateProblem() // Load new problem
+                isAnswerSubmitted = false
+                selectedUserResponse = null
+                // navController.popBackStack() // Removed to allow playing again
+                Log.d(TAG, "Results dialog dismissed. Game reset.")
             }
         )
     }
@@ -242,37 +260,49 @@ fun SimpleMathsScreen(navController: NavController) {
             .fillMaxSize()
             .imePadding()
     ) {
+        // Main content column
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(1f) // Give most space to this column
                 .fillMaxHeight()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Top info row (Back Button, Question Count, Score)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = stringResource(id = R.string.is_it_correct), style = MaterialTheme.typography.titleLarge)
+                // Group Question Count and Score to manage spacing with SpaceBetween
                 val currentQuestionDisplayNumber = min(totalProblemsAttempted + 1, maxProblems)
-
+                Box(
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .clickable { navController.popBackStack() }, // Set state to null to close
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = stringResource(R.string.close_button),
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
                 Text(
-                    // UPDATED TEXT FORMAT
-                    text = if (totalProblemsAttempted >= maxProblems && isAnswerSubmitted) {
-                        "Question $maxProblems / $maxProblems" // Show max/max if last question is submitted
-                    } else {
-                        "Question $currentQuestionDisplayNumber / $maxProblems"
-                    },
-                    style = MaterialTheme.typography.titleMedium
+                    text = "Question $currentQuestionDisplayNumber / $maxProblems",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
-
                 Text(text = "Score: $score", style = MaterialTheme.typography.titleMedium)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (currentProblemState == null) {
+            if (currentProblemState == null && !showResultsDialog) {
                 Box(
                     modifier = Modifier.weight(1f),
                     contentAlignment = Alignment.Center
@@ -280,8 +310,9 @@ fun SimpleMathsScreen(navController: NavController) {
                     CircularProgressIndicator()
                     Text("Loading equation...", modifier = Modifier.padding(top = 8.dp))
                 }
-            } else {
+            } else if (currentProblemState != null) {
                 val problem = currentProblemState!!
+                // Equation Text
                 Text(
                     text = problem.equation,
                     style = MaterialTheme.typography.displayMedium,
@@ -289,9 +320,10 @@ fun SimpleMathsScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 24.dp)
-                        .weight(1f)
+                        .weight(1f) // Ensure it takes available vertical space
                 )
 
+                // Choice Buttons Row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -299,48 +331,54 @@ fun SimpleMathsScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    val correctButtonSelected = selectedUserResponse == "Correct"
-                    val incorrectButtonSelected = selectedUserResponse == "Incorrect"
-                    val context = LocalContext.current
+                    val context = LocalContext.current // Get context for sound player
 
                     ChoiceIconButton(
                         onClick = {
-                            val choiceSound = if (problem.isEquationCorrect) R.raw.correct else R.raw.wrong
+                            // Determine sound based on if the equation presented IS correct,
+                            // not if the user's choice "Correct" is the right answer to the problem
+                            val soundToPlay = if (problem.isEquationCorrect) R.raw.correct else R.raw.wrong
                             handleSubmitResponse("Correct")
-                            SoundPlayer.playSound(context, choiceSound)
+                            SoundPlayer.playSound(context, soundToPlay)
                         },
                         icon = Icons.Filled.Check,
                         contentDescription = "Correct",
-                        isSelected = correctButtonSelected,
-                        isCorrectChoice = problem.isEquationCorrect,
+                        isSelected = selectedUserResponse == "Correct",
+                        isCorrectChoice = problem.correctAnswerString == "Correct", // The actual correct response for this problem
                         isAnswerSubmitted = isAnswerSubmitted,
                         baseColorLight = LightGreen,
                         baseColorDark = DarkGreen,
-                        errorColorDark = LightGray
+                        errorColorDark = LightGray // This is the color if this button was chosen and it was WRONG
                     )
 
                     Spacer(modifier = Modifier.width(24.dp))
 
                     ChoiceIconButton(
                         onClick = {
-                            val choiceSound = if (problem.isEquationCorrect) R.raw.wrong else R.raw.correct
+                            // Determine sound based on if the equation presented IS INCORRECT,
+                            // not if the user's choice "Incorrect" is the right answer to the problem
+                            val soundToPlay = if (!problem.isEquationCorrect) R.raw.correct else R.raw.wrong
                             handleSubmitResponse("Incorrect")
-                            SoundPlayer.playSound(context, choiceSound)
+                            SoundPlayer.playSound(context, soundToPlay)
                         },
                         icon = Icons.Filled.Close,
                         contentDescription = "Incorrect",
-                        isSelected = incorrectButtonSelected,
-                        isCorrectChoice = !problem.isEquationCorrect,
+                        isSelected = selectedUserResponse == "Incorrect",
+                        isCorrectChoice = problem.correctAnswerString == "Incorrect", // The actual correct response for this problem
                         isAnswerSubmitted = isAnswerSubmitted,
                         baseColorLight = LightRed,
                         baseColorDark = DarkRed,
-                        errorColorDark = LightGray
+                        errorColorDark = LightGray // This is the color if this button was chosen and it was WRONG
                     )
                 }
-                Spacer(modifier = Modifier.weight(0.5f))
+                Spacer(modifier = Modifier.weight(0.5f)) // Pushes content up a bit
+            } else {
+                // Fallback for when currentProblemState is null but not loading (e.g., after results dialog if not navigating away)
+                Spacer(modifier = Modifier.weight(1f)) // Keep the layout structure
             }
         }
 
+        // Side column - NOW ONLY FOR "Next Question" button
         Column(
             modifier = Modifier
                 .fillMaxHeight()
@@ -348,59 +386,32 @@ fun SimpleMathsScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            IconButton(
-                onClick = {
-                    if (isAnswerSubmitted) {
-                        handleNextProblem()
-                    } else {
-                        if (currentProblemState != null && selectedUserResponse != null && !isAnswerSubmitted) {
-                            handleSubmitResponse(selectedUserResponse!!)
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .size(64.dp)
-                    .shadow(4.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFFFF9500),
-                                Color(0xFFFF2D55),
-                                Color(0xFF5856D6)
-                            )
+            // "Next Question" button
+            // Show if an answer has been submitted, AND it's not the last problem (or about to be the last problem shown)
+            // AND the results dialog isn't already up
+            if (isAnswerSubmitted && totalProblemsAttempted < maxProblems -1  && !showResultsDialog) {
+                IconButton(
+                    onClick = { handleNextProblem() },
+                    modifier = Modifier
+                        .size(64.dp)
+                        .shadow(4.dp, CircleShape)
+                        .clip(CircleShape)
+                        .background(
+                            brush = Brush.linearGradient(colors = listOf(Color(0xFF4CAF50), Color(0xFF8BC34A)))
                         )
-                    ),
-                enabled = isAnswerSubmitted || (currentProblemState != null && selectedUserResponse != null)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ChevronRight,
-                    contentDescription = if (isAnswerSubmitted) "Next Equation" else "Submit Answer",
-                    modifier = Modifier.size(32.dp),
-                    tint = if (isAnswerSubmitted) MaterialTheme.colorScheme.onSecondaryContainer
-                    else MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(64.dp)
-                    .shadow(4.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ChevronRight,
+                        contentDescription = "Next Question",
+                        modifier = Modifier.size(32.dp),
+                        tint = Color.White
                     )
-                    .clickable { navController.popBackStack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
-                )
+                }
+            } else {
+                // Placeholder to keep layout consistent if Next button is not shown
+                Spacer(modifier = Modifier.size(64.dp))
             }
+            // The back button that was here is now removed.
         }
     }
 }
@@ -410,43 +421,44 @@ fun ChoiceIconButton(
     onClick: () -> Unit,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     contentDescription: String,
-    isSelected: Boolean,
-    isCorrectChoice: Boolean,
-    isAnswerSubmitted: Boolean,
-    baseColorLight: Color,
-    baseColorDark: Color,
-    errorColorDark: Color,
+    isSelected: Boolean, // Is this specific button currently selected by the user?
+    isCorrectChoice: Boolean, // Is choosing this button the correct action for the current problem?
+    isAnswerSubmitted: Boolean, // Has any answer been submitted for the current problem?
+    baseColorLight: Color, // Default color when not submitted
+    baseColorDark: Color, // Color if this was selected AND it was correct
+    errorColorDark: Color, // Color if this was selected AND it was incorrect (or for unselected correct answer sometimes)
     modifier: Modifier = Modifier
 ) {
+    // Determine the background color based on submission state and correctness
     val containerColor = when {
-        isAnswerSubmitted && isCorrectChoice -> baseColorDark
-        isAnswerSubmitted && !isCorrectChoice -> errorColorDark
-        else -> baseColorLight // Default to light color
+        isAnswerSubmitted && isCorrectChoice -> baseColorDark // Selected and Correct: Dark (e.g., Dark Green)
+        isAnswerSubmitted && !isCorrectChoice -> errorColorDark  // Selected and Incorrect: Error (e.g., Dark Red or Gray)
+        else -> baseColorLight // Default state or before submission
     }
 
-    val iconColor = Color.White // Always white
+    val iconColor = Color.White // Keep icon color consistent for visibility on varied backgrounds
     val iconSize = 48.dp
 
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .size(iconSize * 1.5f)
+            .size(iconSize * 1.5f) // Button size
             .shadow(4.dp, CircleShape)
             .clip(CircleShape)
-            .background(containerColor), // Applied background here
-        enabled = !isAnswerSubmitted,
+            .background(containerColor), // Apply the determined background color
+        enabled = !isAnswerSubmitted, // Disable button after an answer is submitted
         colors = IconButtonDefaults.iconButtonColors(
-            containerColor = Color.Transparent, // Make default IconButton container transparent, background is handled by Modifier
-            contentColor = iconColor, // Use the always white color
-            disabledContainerColor = Color.Transparent, // Background handled by modifier
-            disabledContentColor = iconColor.copy(alpha = if (isAnswerSubmitted && (isSelected || isCorrectChoice)) 1f else 0.7f) // Keep white, slightly transparent if not prominent
+            containerColor = Color.Transparent, // IconButton's own container is transparent; background is handled by Modifier
+            contentColor = iconColor,
+            disabledContainerColor = Color.Transparent, // Respect the Modifier.background
+            disabledContentColor = iconColor.copy(alpha = if (isAnswerSubmitted && isSelected) 1f else 0.7f) // Icon slightly dimmer if disabled but not selected
         )
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
             modifier = Modifier.size(iconSize)
-            // tint is overridden by IconButtonDefaults.iconButtonColors contentColor
+            // Tint is handled by IconButtonDefaults contentColor
         )
     }
 }
