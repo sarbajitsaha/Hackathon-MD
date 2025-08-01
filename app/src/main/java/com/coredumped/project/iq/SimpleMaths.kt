@@ -53,6 +53,37 @@ import androidx.navigation.NavController
 import com.coredumped.project.R
 import kotlin.math.min
 import kotlin.random.Random
+import android.content.Context
+import android.media.MediaPlayer
+import androidx.annotation.RawRes
+import androidx.compose.ui.platform.LocalContext
+
+object SoundPlayer {
+
+    private var mediaPlayer: MediaPlayer? = null
+
+    fun playSound(context: Context, @RawRes soundResourceId: Int) {
+        // Release any existing MediaPlayer instance
+        mediaPlayer?.release()
+        mediaPlayer = null
+
+        // Create and start a new MediaPlayer instance
+        mediaPlayer = MediaPlayer.create(context, soundResourceId)
+        mediaPlayer?.setOnCompletionListener {
+            // Release the MediaPlayer when playback is complete
+            it.release()
+            mediaPlayer = null
+        }
+        mediaPlayer?.start()
+    }
+
+    // Optional: Call this in your Activity's onStop or Composable's onDispose
+    // to release resources if the screen is left while sound is playing.
+    fun release() {
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+}
 
 // Removed sp import as it's not directly used in the provided snippet for modification.
 // It might be used elsewhere in your actual file.
@@ -270,9 +301,14 @@ fun SimpleMathsScreen(navController: NavController) {
                 ) {
                     val correctButtonSelected = selectedUserResponse == "Correct"
                     val incorrectButtonSelected = selectedUserResponse == "Incorrect"
+                    val context = LocalContext.current
 
                     ChoiceIconButton(
-                        onClick = { handleSubmitResponse("Correct") },
+                        onClick = {
+                            val choiceSound = if (problem.isEquationCorrect) R.raw.correct else R.raw.wrong
+                            handleSubmitResponse("Correct")
+                            SoundPlayer.playSound(context, choiceSound)
+                        },
                         icon = Icons.Filled.Check,
                         contentDescription = "Correct",
                         isSelected = correctButtonSelected,
@@ -286,7 +322,11 @@ fun SimpleMathsScreen(navController: NavController) {
                     Spacer(modifier = Modifier.width(24.dp))
 
                     ChoiceIconButton(
-                        onClick = { handleSubmitResponse("Incorrect") },
+                        onClick = {
+                            val choiceSound = if (problem.isEquationCorrect) R.raw.wrong else R.raw.correct
+                            handleSubmitResponse("Incorrect")
+                            SoundPlayer.playSound(context, choiceSound)
+                        },
                         icon = Icons.Filled.Close,
                         contentDescription = "Incorrect",
                         isSelected = incorrectButtonSelected,
@@ -375,7 +415,7 @@ fun ChoiceIconButton(
     isAnswerSubmitted: Boolean,
     baseColorLight: Color,
     baseColorDark: Color,
-    errorColorDark: Color, // Color to show if this button was selected but was the wrong choice
+    errorColorDark: Color,
     modifier: Modifier = Modifier
 ) {
     val containerColor = when {
