@@ -53,6 +53,10 @@
     <string name="flashcards_alphabets">अंग्रेज़ी वर्णमाला</string>
     <string name="flashcards_shapes">आकृति</string>
     <string name="flashcards_scale">स्केल</string>
+    <string name="flashcards_circle">वृत्त</string>
+    <string name="flashcards_square">वर्ग</string>
+    <string name="flashcards_rectangle">आयत</string>
+    <string name="flashcards_triangle">त्रिकोण</string>
     <string name="category_nature_sounds">प्रकृति ध्वनियाँ</string>
     <string name="activity_idcard">आईडी कार्ड</string>
     <string name="category_music_sounds">संगीतमय ध्वनियाँ</string>
