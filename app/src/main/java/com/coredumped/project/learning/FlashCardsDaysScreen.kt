@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 
 private const val MEDIA_PLAYER_DAYS_TAG = "FlashCardDaysAudioPlayer"
-private const val AUDIO_LOOP_DELAY_MS_DAYS = 4500L
+private const val AUDIO_LOOP_DELAY_MS_DAYS = 3000L
 
 // Background colors for the screen
 val flashcardDaysScreenBackgroundColors = listOf(

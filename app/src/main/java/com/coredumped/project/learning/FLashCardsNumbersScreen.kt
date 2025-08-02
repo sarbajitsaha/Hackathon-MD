@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 
 private const val MEDIA_PLAYER_NUMBERS_TAG = "FlashCardNumbersAudioPlayer"
-private const val AUDIO_LOOP_DELAY_MS_NUMBERS = 4500L
+private const val AUDIO_LOOP_DELAY_MS_NUMBERS = 3000L
 
 // Background colors for the screen
 val flashcardNumbersScreenBackgroundColors = listOf(

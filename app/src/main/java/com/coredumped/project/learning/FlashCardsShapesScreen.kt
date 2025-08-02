@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.min
 
 private const val MEDIA_PLAYER_TAG = "FlashCardAudioPlayer"
-private const val AUDIO_LOOP_DELAY_MS = 4500L // 3 seconds delay between audio plays
+private const val AUDIO_LOOP_DELAY_MS = 3000L // 3 seconds delay between audio plays
 
 // Background colors
 val flashcardShapesBackgroundColors = listOf(

@@ -414,7 +414,7 @@ fun WelcomeScreen(navController: NavController, prefs: SharedPreferences) {
             // Ensure you have R.string.app_name defined in your strings.xml
             Text(
                 text = stringResource(id = R.string.app_name),
-                color = Color.White,
+                color = Color.Black,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
