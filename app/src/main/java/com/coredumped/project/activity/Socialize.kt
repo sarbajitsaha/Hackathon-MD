@@ -72,27 +72,22 @@ fun SocializeScreen(navController: NavController) {
             autoPlay = true // Explicitly indicating intent for immediate playback
         )
 
-        // Back button (always visible)
+        // Custom close button to exit the video player
         Box(
             modifier = Modifier
-                .padding(16.dp)
-                .size(64.dp)
-                .shadow(4.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFFFF9500), Color(0xFFFF2D55), Color(0xFF5856D6))
-                    )
-                )
-                .clickable { navController.popBackStack() }
-                .align(Alignment.TopStart),
+                .align(Alignment.TopStart) // Keep original alignment
+                .padding(16.dp)             // Keep original padding for top-start
+                .size(48.dp)                // Use new, smaller size for the Box
+                .clip(CircleShape)          // Use new shape clipping
+                .background(Color.Black.copy(alpha = 0.5f)) // Use new semi-transparent background
+                .clickable { navController.popBackStack() }, // Keep original navigation functionality
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = stringResource(R.string.back_button),
+                imageVector = Icons.Default.ArrowBack, // Keep original back arrow icon
+                contentDescription = stringResource(R.string.back_button), // Keep original content description
                 tint = Color.White,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(32.dp) // Use new, smaller icon size
             )
         }
     }

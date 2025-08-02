@@ -17,7 +17,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +32,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.coredumped.project.activity.BrushScreen
 import com.coredumped.project.activity.HandWashScreen
@@ -63,6 +66,30 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
+
+    val screensWithMusic = setOf(
+        "splash", "settings", "home",
+        "daily_activity", "learning", "calm", "iq"
+    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // 3. Use LaunchedEffect to control music based on the current screen.
+    LaunchedEffect(currentRoute) {
+        if (currentRoute in screensWithMusic) {
+            BackgroundMusic.start(context, R.raw.background_music)
+            BackgroundMusic.resume()
+        } else {
+            BackgroundMusic.pause()
+        }
+    }
+
+    // 4. Use DisposableEffect to release the player when the app closes.
+    DisposableEffect(Unit) {
+        onDispose {
+            BackgroundMusic.release()
+        }
+    }
 
     val animatorScale = remember {
         Settings.Global.getFloat(

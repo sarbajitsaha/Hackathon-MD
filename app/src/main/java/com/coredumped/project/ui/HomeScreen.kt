@@ -45,8 +45,6 @@ fun HomeScreen(navController: NavController) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
 
-    BackgroundMusic(R.raw.background_music)
-
     val categories = listOf(
         CategoryData(
             text = "Daily Activity",

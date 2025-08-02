@@ -65,8 +65,6 @@ fun LearningScreen(navController: NavController) {
     val screenWidth = configuration.screenWidthDp.dp
     // val screenHeight = configuration.screenHeightDp.dp // Not directly used for item sizing anymore
 
-    BackgroundMusic(R.raw.background_music) // Ensure this music file exists
-
     val allCategories = listOf(
         CategoryDataLearning("Fruits", R.drawable.mango, Color.Blue, "flashcards_fruits"),
         CategoryDataLearning("Animals", R.drawable.tiger, Color.Green, "flashcards_animals"),

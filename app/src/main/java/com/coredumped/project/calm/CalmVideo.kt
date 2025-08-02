@@ -149,8 +149,8 @@ fun CalmVideoScreen(navController: NavController) {
                     // Custom close button to exit the video player
                     Box(
                         modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(24.dp)
+                            .align(Alignment.TopStart)
+                            .padding(16.dp)
                             .size(48.dp)
                             .clip(CircleShape)
                             .background(Color.Black.copy(alpha = 0.5f))

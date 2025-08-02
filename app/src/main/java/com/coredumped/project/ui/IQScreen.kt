@@ -59,9 +59,6 @@ fun IQScreen(navController: NavController) {
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
 
-    BackgroundMusic(R.raw.background_music)
-
-
     val categories = listOf(
         CategoryDataIQ(
             text = "Easy Maths",

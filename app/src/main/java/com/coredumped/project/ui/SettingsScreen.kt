@@ -38,7 +38,6 @@ fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = context.findActivity()
 
-    BackgroundMusic(R.raw.background_music)
 
     Box(modifier = Modifier.fillMaxSize()) {
         // Add the same background image as HomeScreen for consistency and visual appeal

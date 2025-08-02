@@ -56,8 +56,6 @@ fun DailyActivityScreen(navController: NavController) {
     val screenWidth = configuration.screenWidthDp
     val screenHeight = configuration.screenHeightDp
 
-    BackgroundMusic(R.raw.background_music)
-
     val categories = listOf(
         CategoryDataDA(
             text = "Brush",

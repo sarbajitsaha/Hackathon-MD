@@ -57,10 +57,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        BackgroundMusic.pause()
+    }
+
     override fun onResume() {
         super.onResume()
         // Re-apply immersive mode on resume
         WindowInsetsControllerCompat(window, window.decorView).hide(WindowInsetsCompat.Type.systemBars())
+        BackgroundMusic.resume()
     }
 
     override fun attachBaseContext(base: Context) {
