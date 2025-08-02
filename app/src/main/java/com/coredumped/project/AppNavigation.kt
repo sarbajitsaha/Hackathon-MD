@@ -2,31 +2,43 @@ package com.coredumped.project
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.media.MediaPlayer
 import android.provider.Settings
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -60,6 +72,7 @@ import com.coredumped.project.iq.IQTestScreen
 import com.coredumped.project.iq.Maths0Screen
 import com.coredumped.project.iq.Maths1Screen
 import com.coredumped.project.learning.FlashCardsVehiclesScreenPreview
+import kotlinx.coroutines.delay
 
 @Composable
 fun AppNavigation() {
@@ -68,13 +81,14 @@ fun AppNavigation() {
     val prefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
 
     val screensWithMusic = setOf(
-        "splash", "settings", "home",
+        // "splash" route removed to prevent main background music from playing here
+        "settings", "home",
         "daily_activity", "learning", "calm", "iq"
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    // 3. Use LaunchedEffect to control music based on the current screen.
+    // This effect now ignores the "splash" screen
     LaunchedEffect(currentRoute) {
         if (currentRoute in screensWithMusic) {
             BackgroundMusic.start(context, R.raw.background_music)
@@ -84,7 +98,7 @@ fun AppNavigation() {
         }
     }
 
-    // 4. Use DisposableEffect to release the player when the app closes.
+    // Use DisposableEffect to release the player when the app closes.
     DisposableEffect(Unit) {
         onDispose {
             BackgroundMusic.release()
@@ -101,7 +115,7 @@ fun AppNavigation() {
 
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") {
-            SplashScreen(navController = navController, prefs = prefs)
+            WelcomeScreen(navController = navController, prefs = prefs)
         }
         animatedComposable(
             route = "settings",
@@ -321,18 +335,45 @@ fun NavGraphBuilder.animatedComposable(
 }
 
 @Composable
-fun PlaceholderScreen(title: String) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "$title - Coming Soon!")
-    }
-}
+fun WelcomeScreen(navController: NavController, prefs: SharedPreferences) {
+    val context = LocalContext.current
+    // State to trigger the animation
+    var startAnimation by remember { mutableStateOf(false) }
 
-@Composable
-fun SplashScreen(navController: NavController, prefs: SharedPreferences) {
+    // Animate alpha and scale
+    val alphaAnim = animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0f,
+        animationSpec = tween(durationMillis = 1500),
+        label = "alpha"
+    )
+
+    val scaleAnim = animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0.8f,
+        animationSpec = tween(durationMillis = 1500),
+        label = "scale"
+    )
+
+    // This effect plays the one-time welcome sound and cleans up after itself.
+    DisposableEffect(Unit) {
+        val welcomePlayer: MediaPlayer?
+        if (!BackgroundMusic.isMuted(context)) {
+            welcomePlayer = MediaPlayer.create(context, R.raw.welcome)
+            welcomePlayer?.start()
+        } else {
+            welcomePlayer = null
+        }
+        onDispose {
+            welcomePlayer?.stop()
+            welcomePlayer?.release()
+        }
+    }
+
+    // This effect runs once, starts the animation, and then navigates away
     LaunchedEffect(Unit) {
+        startAnimation = true // Start the animation
+        delay(2500) // Wait for the animation to finish
+
+        // Navigation logic from the old splash screen
         val isLanguageSet = prefs.contains("preferred_language")
         val destination = if (isLanguageSet) "home" else "settings"
 
@@ -342,19 +383,41 @@ fun SplashScreen(navController: NavController, prefs: SharedPreferences) {
             }
         }
     }
+
+    // UI Layout
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Background image from old splash screen
         Image(
             painter = painterResource(id = R.drawable.homescreen),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(50.dp)
-        )
+
+        // Animated content
+        Column(
+            modifier = Modifier
+                .scale(scaleAnim.value)
+                .alpha(alphaAnim.value),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.app_icon),
+                contentDescription = "App Icon",
+                modifier = Modifier.size(150.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            // Ensure you have R.string.app_name defined in your strings.xml
+            Text(
+                text = stringResource(id = R.string.app_name),
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }

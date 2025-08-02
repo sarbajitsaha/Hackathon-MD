@@ -81,29 +81,6 @@ fun HomeScreen(navController: NavController) {
             contentScale = ContentScale.Crop
         )
 
-        Text(
-            // FIX: Correctly load the string resource using the stringResource() function.
-            text = stringResource(id = R.string.app_name),
-            style = TextStyle(
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-
-                // STYLE 1: Set the text color to a bright, fluorescent color.
-                color = Color.Black, // The bright "core" of the neon light
-
-                // STYLE 2: Create a "glow" effect using a shadow of a vibrant color.
-                // This makes the text appear to emit light.
-                shadow = Shadow(
-                    color = Color(0xFF00BFFF), // A vibrant "Electric Blue" for the glow
-                    offset = Offset.Zero,      // Center the glow perfectly behind the text
-                    blurRadius = 20f           // A large blur radius creates the soft, fuzzy glow
-                )
-            ),
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 20.dp) // Position it neatly between the top buttons
-        )
-
         // Single Row layout for horizontal arrangement
         Row(
             modifier = Modifier
