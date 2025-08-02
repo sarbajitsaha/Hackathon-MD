@@ -28,7 +28,7 @@
     <string name="maths_0">सरल गणित</string>
         <string name="how_many_stars">कितने सितारे?</string>
         <string name="which_is_more">कौन बड़ा है?</string>
-        <string name="which_is_less">कौन बड़ा है?</string>
+        <string name="which_is_less">कौन छोटा है?</string>
     <string name="maths_1">मुश्किल गणित</string>
     <string name="iq_test">आईक्यू परीक्षण</string>
     <string name="flashcards_fruits">फल और सब्जियां</string>
@@ -49,7 +49,9 @@
     <string name="flashcards_pencil">पेंसिल</string>
     <string name="flashcards_eraser">रबड़</string>
     <string name="flashcards_sharpener">आसियाना</string>
-    <string name="flashcards_notebook">"खाता "</string>
+    <string name="flashcards_notebook">खाता</string>
+    <string name="flashcards_alphabets">अंग्रेज़ी वर्णमाला</string>
+    <string name="flashcards_shapes">आकृति</string>
     <string name="flashcards_scale">स्केल</string>
     <string name="category_nature_sounds">प्रकृति ध्वनियाँ</string>
     <string name="activity_idcard">आईडी कार्ड</string>
