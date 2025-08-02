@@ -199,6 +199,7 @@ fun FlashCardsShapesScreen(navController: NavController) {
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
+    val textToDisplay = stringResource(id = getShapeLabelRes(currentCard.nameKey))
 
     val dynamicBackgroundColor by animateColorAsState(
         targetValue = flashcardShapesBackgroundColors[currentCardIndex % flashcardShapesBackgroundColors.size],
@@ -235,11 +236,27 @@ fun FlashCardsShapesScreen(navController: NavController) {
             ) {
                 Image(
                     painter = painterResource(id = currentCard.imageResId),
-                    contentDescription = stringResource(R.string.flashcard_image_description),
+                    contentDescription = textToDisplay,
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
                         .fillMaxHeight(0.8f),
                     contentScale = ContentScale.Fit
+                )
+
+                Spacer(modifier = Modifier.height(8.dp)) // Adjust spacer if needed
+
+                Text(
+                    text = textToDisplay,
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = 0.3f),
+                            offset = androidx.compose.ui.geometry.Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp)) // Adjust spacer if needed
@@ -323,6 +340,17 @@ fun FlashCardsShapesScreen(navController: NavController) {
                 modifier = Modifier.size(min(32f, screenWidth * 0.06f).dp)
             )
         }
+    }
+}
+
+// Ensure string resources exist (e.g., in values/strings.xml)
+private fun getShapeLabelRes(textKey: String): Int {
+    return when (textKey.lowercase()) {
+        "circle" -> R.string.flashcards_circle
+        "square" -> R.string.flashcards_square
+        "rectangle" -> R.string.flashcards_rectangle
+        "triangle" -> R.string.flashcards_triangle
+        else -> R.string.test // Fallback
     }
 }
 

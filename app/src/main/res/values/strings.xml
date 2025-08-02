@@ -66,6 +66,10 @@
 
     <string name="flashcards_numbers">Numbers</string>"
 
+    <string name="flashcards_circle">Circle</string>
+    <string name="flashcards_square">Square</string>
+    <string name="flashcards_rectangle">Rectangle</string>
+    <string name="flashcards_triangle">Triangle</string>
 
 
 
