@@ -29,6 +29,10 @@
     <string name="flashcards">ফ্ল্যাশ কার্ড</string>
     <string name="flashcards_scissors">কাঁচি</string>
     <string name="flashcards_numbers">" সংখ্যা"</string>
+    <string name="flashcards_circle">বৃত্ত</string>
+    <string name="flashcards_square">বর্গক্ষেত্র</string>
+    <string name="flashcards_rectangle">আয়তক্ষেত্র</string>
+    <string name="flashcards_triangle">ত্রিভুজ</string>
     <string name="maths_0">সরল গণিত</string>
         <string name="how_many_stars">কটা তারা?</string>
         <string name="which_is_more">কোনটা বেশি?</string>
