@@ -102,5 +102,7 @@
     <string name="video_forest">Forest</string>
     <string name="is_it_correct">Is it correct?</string>
     <string name="tutorial_drag_finger">Tutorial Drag Finger</string>
+    <string name="unmute">" Unmute"</string>
+    <string name="mute">" Mute"</string>
 
 </resources>

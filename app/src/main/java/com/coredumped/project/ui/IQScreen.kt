@@ -81,6 +81,8 @@ fun IQScreen(navController: NavController) {
         )*/
     )
 
+    val backButtonSize = mathMin(64f, screenWidth * 0.12f).dp
+
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.homescreen),
@@ -93,9 +95,10 @@ fun IQScreen(navController: NavController) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp)
+                .padding(top = 80.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             categories.forEach { category ->
                 CategoryItemIQ(
@@ -111,9 +114,6 @@ fun IQScreen(navController: NavController) {
                 )
             }
         }
-
-        // Responsive back button
-        val backButtonSize = mathMin(64f, screenWidth * 0.12f).dp
 
         Box(
             modifier = Modifier
@@ -177,7 +177,7 @@ fun CategoryItemIQ(
             painter = painterResource(id = imageResId),
             contentDescription = null,
             modifier = Modifier
-                .fillMaxWidth(0.9f)
+                .fillMaxWidth(0.5f) // Reduced from 0.9f
                 .aspectRatio(1f) // Keep image square
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop

@@ -10,6 +10,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.IOException
+import androidx.core.content.edit
 
 /**
  * A singleton object to manage a single instance of MediaPlayer for background music.
@@ -19,11 +20,33 @@ import java.io.IOException
 object BackgroundMusic {
     private var player: MediaPlayer? = null
     private var isPlayerInitialized = false
+    private var isMuted = false
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var fadeInJob: Job? = null
     private const val MAX_VOLUME = 0.4f // The target volume
     private const val FADE_DURATION_MS = 2000 // seconds for the fade
+
+    /**
+     * Toggles the mute state, saves it, and applies it to the player.
+     */
+    fun toggleMute(context: Context) {
+        isMuted = !isMuted
+        context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            .edit { putBoolean("is_music_muted", isMuted) }
+
+        // Immediately apply volume change if player is active
+        if (player?.isPlaying == true) {
+            val targetVolume = if (isMuted) 0f else MAX_VOLUME
+            player?.setVolume(targetVolume, targetVolume)
+        }
+    }
+
+    fun isMuted(context: Context): Boolean {
+        isMuted = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            .getBoolean("is_music_muted", false)
+        return isMuted
+    }
 
     /**
      * Starts playing the background music. If music is already playing, it does nothing.
@@ -32,6 +55,7 @@ object BackgroundMusic {
      * @param musicResId The raw resource ID of the music file.
      */
     fun start(context: Context, @RawRes musicResId: Int) {
+        isMuted(context) // Load initial mute state
         if (player == null) {
             player = MediaPlayer.create(context, musicResId).apply {
                 isLooping = true
@@ -78,6 +102,8 @@ object BackgroundMusic {
     private fun performFadeIn() {
         if (!isPlayerInitialized || player == null) return
 
+        val targetVolume = if (isMuted) 0f else MAX_VOLUME
+
         // Launch a coroutine to handle the volume change over time
         fadeInJob = scope.launch {
             player?.setVolume(0f, 0f) // Start at zero volume
@@ -86,7 +112,7 @@ object BackgroundMusic {
             val startTime = System.currentTimeMillis()
             while (System.currentTimeMillis() < startTime + FADE_DURATION_MS) {
                 val elapsedTime = System.currentTimeMillis() - startTime
-                val currentVolume = (elapsedTime.toFloat() / FADE_DURATION_MS) * MAX_VOLUME
+                val currentVolume = (elapsedTime.toFloat() / FADE_DURATION_MS) * targetVolume
 
                 // Check if player is still valid before setting volume
                 if (player != null) {
@@ -97,7 +123,7 @@ object BackgroundMusic {
                 delay(50) // Update volume every 50ms
             }
             // Ensure the final volume is set correctly
-            player?.setVolume(MAX_VOLUME, MAX_VOLUME)
+            player?.setVolume(targetVolume, targetVolume)
         }
     }
 

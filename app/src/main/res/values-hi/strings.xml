@@ -62,4 +62,7 @@
     <string name="video_waterfall">झरना</string>
     <string name="video_forest">जंगल</string>
     <string name="flashcards_days">सप्ताह के दिन</string>
+    <string name="is_it_correct">क्या यह सही है?</string>
+    <string name="unmute">" अनम्यूट"</string>
+    <string name="mute">" म्यूट"</string>
 </resources>

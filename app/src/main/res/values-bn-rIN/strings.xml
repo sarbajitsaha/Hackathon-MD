@@ -64,4 +64,8 @@
     <string name="video_waterfall">ঝরনা</string>
     <string name="video_forest">জঙ্গল</string>
     <string name="flashcards_days">সপ্তাহের দিন</string>
+    <string name="is_it_correct">এটা কি ঠিক?</string>
+    <string name="unmute">" আনমিউট"</string>
+    <string name="mute">" মিউট"</string>
+
 </resources>
