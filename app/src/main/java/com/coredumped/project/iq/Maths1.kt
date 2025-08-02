@@ -244,13 +244,7 @@ fun Maths1Screen(navController: NavController) {
             onDismiss = {
                 showResultsDialog = false
                 game.resetGame() // Reset game logic
-                score = game.getScore() // Update UI score
-                totalProblemsAttempted = 0 // Reset UI attempts
-                currentProblemState = game.generateProblem() // Load new problem
-                isAnswerSubmitted = false
-                selectedUserResponse = null
-                // navController.popBackStack() // Removed to allow playing again
-                Log.d(TAG, "Results dialog dismissed. Game reset.")
+                navController.popBackStack()
             }
         )
     }
