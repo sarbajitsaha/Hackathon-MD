@@ -391,7 +391,7 @@ fun WelcomeScreen(navController: NavController, prefs: SharedPreferences) {
     ) {
         // Background image from old splash screen
         Image(
-            painter = painterResource(id = R.drawable.homescreen),
+            painter = painterResource(id = R.drawable.welcome),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

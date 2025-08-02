@@ -25,6 +25,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -100,7 +102,7 @@ fun LearningScreen(navController: NavController) {
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
                     contentPadding = PaddingValues(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
                 ) {
                     items(rowCategories) { category ->
                         // Calculate item width to fit ITEMS_PER_ROW items
@@ -157,50 +159,54 @@ fun CategoryItemLearning(
     imageResId: Int,
     onClick: () -> Unit
 ) {
-    // val configuration = LocalConfiguration.current // Not needed here if width is passed
-    // val screenWidth = configuration.screenWidthDp // Not needed here
-
-    // Font size can be made adaptive or fixed
     val fontSize = 16.sp // Example: fixed font size, adjust as needed
-    // Or, calculate based on the itemWidth passed in modifier if more dynamic sizing is needed
 
-    Column(
-        modifier = modifier // Use the passed modifier (which includes width)
-            .fillMaxHeight(0.35f) // Limit height relative to screen or fixed Dp
-            .padding(vertical = 4.dp) // Keep internal padding
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.8f)) // Slightly more opaque
-            .clickable(onClick = onClick)
-            .padding(8.dp), // Padding for content inside the card
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    // Use a Card for better elevation and shape handling.
+    // The card itself is now square due to aspectRatio(1f).
+    Card(
+        modifier = modifier
+            .aspectRatio(1f) // This makes the card a square.
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Image(
-            painter = painterResource(id = imageResId),
-            contentDescription = text, // Good practice for accessibility
-            modifier = Modifier
-                .fillMaxWidth(0.8f) // Image takes 80% of card width
-                .aspectRatio(1f)    // Keep image square
-                .clip(RoundedCornerShape(8.dp)),
-            contentScale = ContentScale.Crop
-        )
+        // Box is used to layer the image and the text overlay.
+        Box(modifier = Modifier.fillMaxSize()) {
+            // The image now fills the entire card.
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = text,
+                modifier = Modifier.fillMaxSize(), // Fill the parent Box.
+                contentScale = ContentScale.Crop // Crop ensures the image fills space without distortion.
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = stringResource(id = getLabelRes(text)), // Make sure getLabelRes handles all texts
-            fontWeight = FontWeight.Bold,
-            fontSize = fontSize,
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-            maxLines = 2, // Allow up to 2 lines for text
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 2.dp)
-        )
+            // This Box creates a gradient scrim at the bottom for text readability.
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                        )
+                    )
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(id = getLabelRes(text)),
+                    fontWeight = FontWeight.Bold,
+                    fontSize = fontSize,
+                    color = Color.White, // White text for contrast against the dark scrim.
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
+
 
 // Helper to get string resource ID from category text key
 // Ensure all category texts in CategoryDataLearning have a corresponding entry here
