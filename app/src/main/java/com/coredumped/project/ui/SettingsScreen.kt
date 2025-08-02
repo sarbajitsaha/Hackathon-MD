@@ -52,20 +52,19 @@ import com.coredumped.project.R
 fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = context.findActivity()
-    // State for the mute button, initialized from the BackgroundMusic manager
     var isMuted by remember { mutableStateOf(BackgroundMusic.isMuted(context)) }
 
+    // Check if there's a screen to go back to.
+    val canPop = navController.previousBackStackEntry != null
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Add the same background image as HomeScreen for consistency and visual appeal
         Image(
             painter = painterResource(id = R.drawable.homescreen),
-            contentDescription = null, // No desc needed for background
+            contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
-        // Overlay a subtle translucent scrim for better text/button readability
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -75,7 +74,13 @@ fun SettingsScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp), // Increased padding for a more open feel
+                // Adjust padding to push content down if back button is visible
+                .padding(
+                    start = 32.dp,
+                    end = 32.dp,
+                    bottom = 32.dp,
+                    top = if (canPop) 96.dp else 32.dp
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -83,8 +88,8 @@ fun SettingsScreen(navController: NavController) {
                 text = "Choose Language / ভাষা নির্বাচন করুন / भाषा चुनें",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White, // White for visibility on dark scrim
-                modifier = Modifier.padding(bottom = 32.dp) // Space below title
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 32.dp)
             )
 
             Row(
@@ -92,23 +97,22 @@ fun SettingsScreen(navController: NavController) {
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // Playful, bigger English button with rounded corners and custom colors
                 Button(
                     onClick = {
                         saveLanguagePreference(context, "en")
                         navController.navigate("home") {
-                            popUpTo("settings") { inclusive = true } // Remove settings from back stack
-                            launchSingleTop = true // Avoid multiple copies of home
+                            popUpTo("settings") { inclusive = true }
+                            launchSingleTop = true
                         }
-                        activity?.recreate() // Recreates activity to apply language
+                        activity?.recreate()
                     },
                     modifier = Modifier
                         .weight(1f)
                         .height(80.dp)
                         .padding(8.dp)
-                        .clip(RoundedCornerShape(16.dp)), // Rounded for playful look
+                        .clip(RoundedCornerShape(16.dp)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50), // Green for English (vibrant, child-friendly)
+                        containerColor = Color(0xFF4CAF50),
                         contentColor = Color.White
                     )
                 ) {
@@ -119,23 +123,22 @@ fun SettingsScreen(navController: NavController) {
                     )
                 }
 
-                // Playful, bigger Bengali button with rounded corners and custom colors
                 Button(
                     onClick = {
                         saveLanguagePreference(context, "bn")
                         navController.navigate("home") {
-                            popUpTo("settings") { inclusive = true } // Remove settings from back stack
-                            launchSingleTop = true // Avoid multiple copies of home
+                            popUpTo("settings") { inclusive = true }
+                            launchSingleTop = true
                         }
-                        activity?.recreate() // Recreates activity to apply language and route to home
+                        activity?.recreate()
                     },
                     modifier = Modifier
                         .weight(1f)
                         .height(80.dp)
                         .padding(8.dp)
-                        .clip(RoundedCornerShape(16.dp)), // Rounded for playful look
+                        .clip(RoundedCornerShape(16.dp)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFC107), // Yellow for Bengali (warm, inviting)
+                        containerColor = Color(0xFFFFC107),
                         contentColor = Color.Black
                     )
                 ) {
@@ -146,23 +149,22 @@ fun SettingsScreen(navController: NavController) {
                     )
                 }
 
-                // Playful, bigger Hindi button with rounded corners and custom colors
                 Button(
                     onClick = {
                         saveLanguagePreference(context, "hi")
                         navController.navigate("home") {
-                            popUpTo("settings") { inclusive = true } // Remove settings from back stack
-                            launchSingleTop = true // Avoid multiple copies of home
+                            popUpTo("settings") { inclusive = true }
+                            launchSingleTop = true
                         }
-                        activity?.recreate() // Recreates activity to apply language and route to home
+                        activity?.recreate()
                     },
                     modifier = Modifier
                         .weight(1f)
                         .height(80.dp)
                         .padding(8.dp)
-                        .clip(RoundedCornerShape(16.dp)), // Rounded for playful look
+                        .clip(RoundedCornerShape(16.dp)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2196F3), // Blue for Hindi
+                        containerColor = Color(0xFF2196F3),
                         contentColor = Color.White
                     )
                 ) {
@@ -175,18 +177,17 @@ fun SettingsScreen(navController: NavController) {
             }
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Music Mute Button
             Button(
                 onClick = {
                     BackgroundMusic.toggleMute(context)
-                    isMuted = !isMuted // Update local state to recompose the button
+                    isMuted = !isMuted
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.5f)
                     .height(70.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isMuted) Color(0xFFF44336) else Color(0xFF795548), // Red when muted, brown when active
+                    containerColor = if (isMuted) Color(0xFFF44336) else Color(0xFF795548),
                     contentColor = Color.White
                 )
             ) {
@@ -200,38 +201,39 @@ fun SettingsScreen(navController: NavController) {
             }
         }
 
-        // Back Button
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .size(64.dp)
-                .shadow(4.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFFF9500),
-                            Color(0xFFFF2D55),
-                            Color(0xFF5856D6)
+        // Only show Back Button if we can pop the stack
+        if (canPop) {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(64.dp)
+                    .shadow(4.dp, CircleShape)
+                    .clip(CircleShape)
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFFFF9500),
+                                Color(0xFFFF2D55),
+                                Color(0xFF5856D6)
+                            )
                         )
                     )
+                    .clickable { navController.popBackStack() }
+                    .align(Alignment.TopStart),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier.size(48.dp)
                 )
-                .clickable { navController.popBackStack() }
-                .align(Alignment.TopStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(48.dp)
-            )
+            }
         }
     }
 }
 
-/* For settings, move to separate file later */
 private fun saveLanguagePreference(context: Context, lang: String) {
     val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-    prefs.edit().putString("preferred_language", lang).commit() // Use commit() for synchronous save
+    prefs.edit().putString("preferred_language", lang).apply()
 }
