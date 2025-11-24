@@ -71,4 +71,8 @@
     <string name="is_it_correct">क्या यह सही है?</string>
     <string name="unmute">" अनम्यूट"</string>
     <string name="mute">" म्यूट"</string>
+    <string name="time_learning_menu">समय</string>
+    <string name="time_analog_clock">एनालॉग घड़ी</string>
+    <string name="time_flow">समय का प्रवाह</string>
+    <string name="time_visual_alarm">विज़ुअल अलार्म</string>
 </resources>

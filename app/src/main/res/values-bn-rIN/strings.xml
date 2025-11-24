@@ -71,5 +71,9 @@
     <string name="is_it_correct">এটা কি ঠিক?</string>
     <string name="unmute">" আনমিউট"</string>
     <string name="mute">" মিউট"</string>
+    <string name="time_learning_menu">সময়</string>
+    <string name="time_analog_clock">অ্যানালগ ঘড়ি</string>
+    <string name="time_flow">সময় প্রবাহ</string>
+    <string name="time_visual_alarm">ভিজ্যুয়াল অ্যালার্ম</string>
 
 </resources>
