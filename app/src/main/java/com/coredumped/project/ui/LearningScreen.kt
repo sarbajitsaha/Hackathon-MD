@@ -51,14 +51,6 @@ import com.coredumped.project.BackgroundMusic
 import com.coredumped.project.R
 import kotlin.math.min as mathMin
 
-// Data class for category information
-data class CategoryDataLearning(
-    val text: String,
-    val imageResId: Int,
-    val color: Color, // This color is not used in CategoryItemLearning currently
-    val route: String
-)
-
 const val ITEMS_PER_ROW = 4
 
 @Composable
@@ -76,6 +68,7 @@ fun LearningScreen(navController: NavController) {
         CategoryDataLearning("Numbers", R.drawable.numbers, Color.Magenta, "flashcards_numbers"), // Example new // Example new
         CategoryDataLearning("Days", R.drawable.days, Color.LightGray, "flashcards_days"),   // Example new
         CategoryDataLearning("Shapes", R.drawable.basicshapes, Color.Black, "flashcards_shapes"),       // Example new
+        CategoryDataLearning("Time", R.drawable.clock_icon, Color.Magenta, "time_learning_menu")
         // Add more categories as needed
     )
 
@@ -220,6 +213,10 @@ private fun getLabelRes(text: String): Int {
         "Numbers" -> R.string.flashcards_numbers // Add if you have this string
         "Shapes" -> R.string.flashcards_shapes   // Add if you have this string
         "Days" -> R.string.flashcards_days     // Add if you have this string
+        "Time" -> R.string.time_learning_menu
+        "Analog Clock" -> R.string.time_analog_clock
+        "Time Flow" -> R.string.time_flow
+        "Visual Alarm" -> R.string.time_visual_alarm
         // Add more mappings as needed
         else -> R.string.test // Fallback for undefined categories
     }

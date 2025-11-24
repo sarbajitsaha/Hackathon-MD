@@ -55,24 +55,26 @@
     <string name="flashcards_scale">Scale</string>
     <string name="flashcards_scissors">Scissors</string>
 
-    <string name="flashcards_days">Days</string>"
-    <string name="flashcards_sunday">Sunday</string>"
-    <string name="flashcards_monday">Monday</string>"
-    <string name="flashcards_tuesday">Tuesday</string>"
-    <string name="flashcards_wednesday">Wednesday</string>"
-    <string name="flashcards_thursday">Thursday</string>"
-    <string name="flashcards_friday">Friday</string>"
-    <string name="flashcards_saturday">Saturday</string>"
+    <string name="flashcards_days">Days</string>
+    <string name="flashcards_sunday">Sunday</string>
+    <string name="flashcards_monday">Monday</string>
+    <string name="flashcards_tuesday">Tuesday</string>
+    <string name="flashcards_wednesday">Wednesday</string>
+    <string name="flashcards_thursday">Thursday</string>
+    <string name="flashcards_friday">Friday</string>
+    <string name="flashcards_saturday">Saturday</string>
 
-    <string name="flashcards_numbers">Numbers</string>"
+    <string name="flashcards_numbers">Numbers</string>
 
     <string name="flashcards_circle">Circle</string>
     <string name="flashcards_square">Square</string>
     <string name="flashcards_rectangle">Rectangle</string>
     <string name="flashcards_triangle">Triangle</string>
 
-
-
+    <string name="time_learning_menu">Time</string>
+    <string name="time_analog_clock">Analog Clock</string>
+    <string name="time_flow">Time Flow</string>
+    <string name="time_visual_alarm">Visual Alarm</string>
 
 
     <string name="maths_0">Easy Maths</string>

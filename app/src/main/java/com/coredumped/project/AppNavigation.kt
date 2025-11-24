@@ -54,6 +54,7 @@ import com.coredumped.project.activity.SocializeScreen
 import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
 import com.coredumped.project.ui.LearningScreen
+import com.coredumped.project.ui.TimeLearningMenuScreen
 import com.coredumped.project.ui.CalmAudioScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.DailyActivityScreen
@@ -165,6 +166,30 @@ fun AppNavigation() {
         ) {
             LearningScreen(navController)
         }
+        animatedComposable(
+            route = "time_learning_menu",
+            scale = animatorScale
+        ) {
+            TimeLearningMenuScreen(navController)
+        }
+        /*animatedComposable(
+            route = "time_analog",
+            scale = animatorScale
+        ) {
+            // TimeAnalogScreen(navController)
+        }
+        animatedComposable(
+            route = "time_flow",
+            scale = animatorScale
+        ) {
+            // TimeFlowScreen(navController)
+        }
+        animatedComposable(
+            route = "time_visual_alarm",
+            scale = animatorScale
+        ) {
+            // TimeVisualAlarmScreen(navController)
+        }*/
         animatedComposable(
             route = "flashcards_alphabets",
             scale = animatorScale
