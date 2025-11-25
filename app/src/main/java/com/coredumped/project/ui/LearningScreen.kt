@@ -152,7 +152,7 @@ fun CategoryItemLearning(
     imageResId: Int,
     onClick: () -> Unit
 ) {
-    val fontSize = 16.sp // Example: fixed font size, adjust as needed
+    val fontSize = 24.sp // Increased font size for better readability
 
     // Use a Card for better elevation and shape handling.
     // The card itself is now square due to aspectRatio(1f).
@@ -214,9 +214,10 @@ private fun getLabelRes(text: String): Int {
         "Shapes" -> R.string.flashcards_shapes   // Add if you have this string
         "Days" -> R.string.flashcards_days     // Add if you have this string
         "Time" -> R.string.time_learning_menu
+        "Visual Timer" -> R.string.time_visual_timer
+        "My Day" -> R.string.time_my_day
+        "Time Detective" -> R.string.time_detective
         "Analog Clock" -> R.string.time_analog_clock
-        "Time Flow" -> R.string.time_flow
-        "Visual Alarm" -> R.string.time_visual_alarm
         // Add more mappings as needed
         else -> R.string.test // Fallback for undefined categories
     }

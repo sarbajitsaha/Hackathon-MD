@@ -72,9 +72,10 @@
     <string name="flashcards_triangle">Triangle</string>
 
     <string name="time_learning_menu">Time</string>
+    <string name="time_visual_timer">Visual Timer</string>
+    <string name="time_my_day">My Day</string>
+    <string name="time_detective">Time Detective</string>
     <string name="time_analog_clock">Analog Clock</string>
-    <string name="time_flow">Time Flow</string>
-    <string name="time_visual_alarm">Visual Alarm</string>
 
 
     <string name="maths_0">Easy Maths</string>
@@ -110,5 +111,7 @@
     <string name="tutorial_drag_finger">Tutorial Drag Finger</string>
     <string name="unmute">" Unmute"</string>
     <string name="mute">" Mute"</string>
+    <string name="time_flow">Time Flow\n</string>
+    <string name="time_visual_alarm">Visual Alarm</string>
 
 </resources>

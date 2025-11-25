@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,9 +53,10 @@ fun TimeLearningMenuScreen(navController: NavController) {
     val screenWidth = configuration.screenWidthDp.dp
 
     val timeCategories = listOf(
-        CategoryDataLearning("Analog Clock", R.drawable.analog_clock, Color.Red, "time_analog"),
-        CategoryDataLearning("Time Flow", R.drawable.time_flow, Color.Green, "time_flow"),
-        CategoryDataLearning("Visual Alarm", R.drawable.visual_alarm, Color.Blue, "time_visual_alarm")
+        CategoryDataLearning("Visual Timer", R.drawable.visual_timer, Color(0xFFE53935), "visual_timer"),
+        CategoryDataLearning("My Day", R.drawable.myday, Color(0xFF1E88E5), "my_day"),
+        CategoryDataLearning("Time Detective", R.drawable.time_detective, Color(0xFFFFB300), "time_detective"),
+        CategoryDataLearning("Analog Clock", R.drawable.analog_clock, Color(0xFF43A047), "analog_clock")
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -67,29 +70,29 @@ fun TimeLearningMenuScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp)
-                .verticalScroll(rememberScrollState())
+                .padding(top = 80.dp, start = 16.dp, end = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            LazyRow(
+            // Single Row layout for horizontal arrangement (like HomeScreen)
+            androidx.compose.foundation.layout.Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                contentPadding = PaddingValues(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(timeCategories) { category ->
-                    val totalHorizontalPadding = (timeCategories.size + 1) * 8f
-                    val itemWidth = (screenWidth - totalHorizontalPadding.dp) / timeCategories.size
-
-                    CategoryItemLearning(
-                        modifier = Modifier.width(itemWidth),
+                timeCategories.forEach { category ->
+                    TimeItem(
                         text = category.text,
                         imageResId = category.imageResId,
                         onClick = {
                             if (category.route.isNotEmpty()) {
-                                // navController.navigate(category.route)
+                                navController.navigate(category.route)
                             }
-                        }
+                        },
+                        itemCount = timeCategories.size
                     )
                 }
             }
@@ -118,5 +121,71 @@ fun TimeLearningMenuScreen(navController: NavController) {
                 modifier = Modifier.size(min(32f, configuration.screenWidthDp * 0.06f).dp)
             )
         }
+    }
+}
+
+@Composable
+fun TimeItem(
+    text: String,
+    imageResId: Int,
+    onClick: () -> Unit,
+    itemCount: Int = 4
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    // Calculate available width per item (accounting for padding)
+    val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
+
+    // Calculate responsive font size based on available width
+    val fontSize = min(18f, availableWidthPerItem * 0.15f).sp
+
+    Column(
+        modifier = Modifier
+            .width((availableWidthPerItem).dp)
+            .padding(4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White.copy(alpha = 0.3f))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Image takes maximum possible space
+        Image(
+            painter = painterResource(id = imageResId),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .aspectRatio(1f) // Keep image square
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Text with adaptive size and overflow handling
+        Text(
+            text = stringResource(id = getTimeLabelRes(text)),
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
+        )
+    }
+}
+
+private fun getTimeLabelRes(text: String): Int {
+    return when (text) {
+        "Visual Timer" -> R.string.time_visual_timer
+        "My Day" -> R.string.time_my_day
+        "Time Detective" -> R.string.time_detective
+        "Analog Clock" -> R.string.time_analog_clock
+        else -> R.string.test
     }
 }

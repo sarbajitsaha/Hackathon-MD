@@ -55,6 +55,7 @@ import com.coredumped.project.calm.FluidSimulationScreen
 import com.coredumped.project.calm.PopBubbleScreen
 import com.coredumped.project.ui.LearningScreen
 import com.coredumped.project.ui.TimeLearningMenuScreen
+import com.coredumped.project.ui.VisualTimerScreen
 import com.coredumped.project.ui.CalmAudioScreen
 import com.coredumped.project.ui.CalmScreen
 import com.coredumped.project.ui.DailyActivityScreen
@@ -172,23 +173,29 @@ fun AppNavigation() {
         ) {
             TimeLearningMenuScreen(navController)
         }
+        animatedComposable(
+            route = "visual_timer",
+            scale = animatorScale
+        ) {
+            VisualTimerScreen(navController)
+        }
         /*animatedComposable(
-            route = "time_analog",
+            route = "my_day",
             scale = animatorScale
         ) {
-            // TimeAnalogScreen(navController)
+            // MyDayScreen(navController)
         }
         animatedComposable(
-            route = "time_flow",
+            route = "time_detective",
             scale = animatorScale
         ) {
-            // TimeFlowScreen(navController)
+            // TimeDetectiveScreen(navController)
         }
         animatedComposable(
-            route = "time_visual_alarm",
+            route = "analog_clock",
             scale = animatorScale
         ) {
-            // TimeVisualAlarmScreen(navController)
+            // AnalogClockScreen(navController)
         }*/
         animatedComposable(
             route = "flashcards_alphabets",
