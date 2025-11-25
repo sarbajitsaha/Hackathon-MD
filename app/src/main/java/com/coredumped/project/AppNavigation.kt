@@ -67,6 +67,7 @@ import com.coredumped.project.learning.FlashCardsVehiclesScreen
 import com.coredumped.project.learning.FlashCardsDaysScreen
 import com.coredumped.project.learning.FlashCardsNumbersScreen
 import com.coredumped.project.learning.FlashCardsShapesScreen
+import com.coredumped.project.ui.AnalogClockLearningScreen
 import com.coredumped.project.ui.HomeScreen
 import com.coredumped.project.ui.SettingsScreen
 import com.coredumped.project.ui.IQScreen
@@ -179,6 +180,12 @@ fun AppNavigation() {
         ) {
             VisualTimerScreen(navController)
         }
+        animatedComposable(
+            route = "analog_clock",
+            scale = animatorScale
+        ) {
+            AnalogClockLearningScreen(navController)
+        }
         /*animatedComposable(
             route = "my_day",
             scale = animatorScale
@@ -190,12 +197,6 @@ fun AppNavigation() {
             scale = animatorScale
         ) {
             // TimeDetectiveScreen(navController)
-        }
-        animatedComposable(
-            route = "analog_clock",
-            scale = animatorScale
-        ) {
-            // AnalogClockScreen(navController)
         }*/
         animatedComposable(
             route = "flashcards_alphabets",
