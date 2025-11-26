@@ -228,58 +228,6 @@ fun AnalogClockLearningScreen(navController: NavController) {
     }
 
     // Time animation logic - smooth continuous movement with consistent speed
-    LaunchedEffect(isAnimating, isPaused) {
-        while (true) {
-            if (isAnimating && !isPaused) {
-                delay(50) // Update every 50ms for smooth animation
-
-                // Calculate distance to next teaching moment
-                val nextTeachingMoment = teachingMoments[currentTeachingIndex]
-                val targetMinute = nextTeachingMoment.toMinuteOfDay().toFloat()
-
-                // Use a consistent speed
-                val speed = 40f
-
-                currentMinuteOfDay += speed / 20f
-
-                // Check if we've reached a teaching moment
-                if (currentMinuteOfDay >= targetMinute) {
-                    // Snap to exact teaching moment time
-                    currentMinuteOfDay = targetMinute
-                    isPaused = true
-                    isAnimating = false
-                    Log.d(TAG, "Paused at teaching moment: ${nextTeachingMoment.formatTime()}")
-
-                    // Auto-play audio when pausing
-                    delay(500) // Small delay before playing audio
-                    playAudio()
-                }
-            } else {
-                delay(100) // Small delay when paused
-            }
-        }
-    }
-
-    // Handle next button click
-    fun handleNext() {
-        exoPlayer?.stop()
-        currentTeachingIndex++
-
-        // Loop back to start after last teaching moment
-        if (currentTeachingIndex >= teachingMoments.size) {
-            currentTeachingIndex = 0
-            currentMinuteOfDay = 7 * 60f // Reset to 7:00 AM
-            Log.d(TAG, "Looping back to 7:00 AM")
-        }
-
-        isPaused = false
-        isAnimating = true
-        Log.d(TAG, "Continuing to next teaching moment")
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
             .background(
                 brush = Brush.verticalGradient(
                     colors = backgroundGradient
