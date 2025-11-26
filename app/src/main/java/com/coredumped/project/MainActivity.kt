@@ -16,20 +16,20 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.coredumped.project.common.utils.BackgroundMusic
+import com.coredumped.project.common.utils.findActivity
 import androidx.navigation.compose.rememberNavController
-import com.coredumped.project.ui.CalmScreen
-import com.coredumped.project.ui.HomeScreen
-import com.coredumped.project.ui.LearningScreen
-import com.coredumped.project.ui.findActivity
+import com.coredumped.project.features.calm.CalmScreen
+import com.coredumped.project.features.home.HomeScreen
+import com.coredumped.project.features.learning.LearningScreen
+import com.coredumped.project.navigation.AppNavigation
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge() // Handles edge-to-edge display, including setDecorFitsSystemWindows(false)
 
         // Set up immersive mode

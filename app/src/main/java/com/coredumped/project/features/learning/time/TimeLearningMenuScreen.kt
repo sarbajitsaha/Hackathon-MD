@@ -1,0 +1,193 @@
+package com.coredumped.project.features.learning.time
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.coredumped.project.R
+import com.coredumped.project.features.learning.data.CategoryDataLearning
+import kotlin.math.min
+
+@Composable
+fun TimeLearningMenuScreen(navController: NavController) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+
+    val timeCategories = listOf(
+        CategoryDataLearning("Visual Timer", R.drawable.visual_timer, Color(0xFFE53935), "visual_timer"),
+        CategoryDataLearning("My Day", R.drawable.myday, Color(0xFF1E88E5), "my_day"),
+        CategoryDataLearning("Time Detective", R.drawable.time_detective, Color(0xFFFFB300), "time_detective"),
+        CategoryDataLearning("Analog Clock", R.drawable.analog_clock, Color(0xFF43A047), "analog_clock")
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(id = R.drawable.homescreen),
+            contentDescription = "Background Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 80.dp, start = 16.dp, end = 16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Single Row layout for horizontal arrangement (like HomeScreen)
+            androidx.compose.foundation.layout.Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                timeCategories.forEach { category ->
+                    TimeItem(
+                        text = category.text,
+                        imageResId = category.imageResId,
+                        onClick = {
+                            if (category.route.isNotEmpty()) {
+                                navController.navigate(category.route)
+                            }
+                        },
+                        itemCount = timeCategories.size
+                    )
+                }
+            }
+        }
+
+        val backButtonSize = min(64f, configuration.screenWidthDp * 0.12f).dp
+        Box(
+            modifier = Modifier
+                .padding(start = 16.dp, top = 16.dp)
+                .size(backButtonSize)
+                .shadow(4.dp, CircleShape)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFFFF9500), Color(0xFFFF2D55), Color(0xFF5856D6))
+                    )
+                )
+                .clickable { navController.popBackStack() }
+                .align(Alignment.TopStart),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.White,
+                modifier = Modifier.size(min(32f, configuration.screenWidthDp * 0.06f).dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeItem(
+    text: String,
+    imageResId: Int,
+    onClick: () -> Unit,
+    itemCount: Int = 4
+) {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+
+    // Calculate available width per item (accounting for padding)
+    val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
+
+    // Calculate responsive font size based on available width
+    val fontSize = min(18f, availableWidthPerItem * 0.15f).sp
+
+    Column(
+        modifier = Modifier
+            .width((availableWidthPerItem).dp)
+            .padding(4.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White.copy(alpha = 0.3f))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        // Image takes maximum possible space
+        Image(
+            painter = painterResource(id = imageResId),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .aspectRatio(1f) // Keep image square
+                .clip(RoundedCornerShape(8.dp)),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Text with adaptive size and overflow handling
+        Text(
+            text = stringResource(id = getTimeLabelRes(text)),
+            fontWeight = FontWeight.Bold,
+            fontSize = fontSize,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
+        )
+    }
+}
+
+private fun getTimeLabelRes(text: String): Int {
+    return when (text) {
+        "Visual Timer" -> R.string.time_visual_timer
+        "My Day" -> R.string.time_my_day
+        "Time Detective" -> R.string.time_detective
+        "Analog Clock" -> R.string.time_analog_clock
+        else -> R.string.test
+    }
+}
+
