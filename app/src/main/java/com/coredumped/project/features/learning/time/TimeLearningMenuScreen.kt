@@ -76,7 +76,7 @@ fun TimeLearningMenuScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Single Row layout for horizontal arrangement (like HomeScreen)
+            // Single Row layout with tighter sizing similar to Home
             androidx.compose.foundation.layout.Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,21 +134,18 @@ fun TimeItem(
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
-
-    // Calculate available width per item (accounting for padding)
-    val availableWidthPerItem = (screenWidth - (16 * (itemCount + 1))) / itemCount
-
-    // Calculate responsive font size based on available width
-    val fontSize = min(18f, availableWidthPerItem * 0.15f).sp
+    // Make cards smaller and consistent with Home style
+    val targetItemWidthDp = (screenWidth * 0.22f).dp
+    val fontSize = 14.sp
 
     Column(
         modifier = Modifier
-            .width((availableWidthPerItem).dp)
-            .padding(4.dp)
+            .width(targetItemWidthDp)
+            .padding(6.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.3f))
+            .background(Color.White.copy(alpha = 0.25f))
             .clickable(onClick = onClick)
-            .padding(8.dp),
+            .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -157,8 +154,8 @@ fun TimeItem(
             painter = painterResource(id = imageResId),
             contentDescription = null,
             modifier = Modifier
-                .fillMaxWidth(0.9f)
-                .aspectRatio(1f) // Keep image square
+                .fillMaxWidth()
+                .aspectRatio(1f)
                 .clip(RoundedCornerShape(8.dp)),
             contentScale = ContentScale.Crop
         )
@@ -172,11 +169,11 @@ fun TimeItem(
             fontSize = fontSize,
             color = Color.Black,
             textAlign = TextAlign.Center,
-            maxLines = 3,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp)
+                .padding(horizontal = 4.dp)
         )
     }
 }

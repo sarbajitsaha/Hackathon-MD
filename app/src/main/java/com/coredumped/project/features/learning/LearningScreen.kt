@@ -50,7 +50,7 @@ import com.coredumped.project.R
 import kotlin.math.min as mathMin
 import com.coredumped.project.features.learning.data.CategoryDataLearning
 
-private const val ITEMS_PER_ROW = 2
+private const val ITEMS_PER_ROW = 4
 
 @Composable
 fun LearningScreen(navController: NavController) {
@@ -93,13 +93,13 @@ fun LearningScreen(navController: NavController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    contentPadding = PaddingValues(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                    contentPadding = PaddingValues(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
                 ) {
                     items(rowCategories) { category ->
                         // Calculate item width to fit ITEMS_PER_ROW items
                         // Subtract padding between items and outer padding for LazyRow
-                        val totalHorizontalPadding = (ITEMS_PER_ROW + 1) * 8f
+                        val totalHorizontalPadding = (ITEMS_PER_ROW + 1) * 12f
                         val itemWidth = (screenWidth - totalHorizontalPadding.dp) / ITEMS_PER_ROW
 
                         CategoryItemLearning(
@@ -151,7 +151,7 @@ fun CategoryItemLearning(
     imageResId: Int,
     onClick: () -> Unit
 ) {
-    val fontSize = 24.sp // Increased font size for better readability
+    val fontSize = 16.sp // Smaller font to match Home-style tiles
 
     // Use a Card for better elevation and shape handling.
     // The card itself is now square due to aspectRatio(1f).
@@ -160,7 +160,7 @@ fun CategoryItemLearning(
             .aspectRatio(1f) // This makes the card a square.
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         // Box is used to layer the image and the text overlay.
         Box(modifier = Modifier.fillMaxSize()) {

@@ -57,6 +57,8 @@ import com.coredumped.project.features.calm.PopBubbleScreen
 import com.coredumped.project.features.learning.LearningScreen
 import com.coredumped.project.features.learning.time.TimeLearningMenuScreen
 import com.coredumped.project.features.learning.time.VisualTimerScreen
+import com.coredumped.project.features.learning.time.MyDayScreen
+import com.coredumped.project.features.learning.time.TimeDetectiveScreen
 
 import com.coredumped.project.features.calm.CalmScreen
 import com.coredumped.project.features.daily_activity.DailyActivityScreen
@@ -187,18 +189,18 @@ fun AppNavigation() {
         ) {
             AnalogClockLearningScreen(navController)
         }
-        /*animatedComposable(
+        animatedComposable(
             route = "my_day",
             scale = animatorScale
         ) {
-            // MyDayScreen(navController)
+            MyDayScreen(navController)
         }
         animatedComposable(
             route = "time_detective",
             scale = animatorScale
         ) {
-            // TimeDetectiveScreen(navController)
-        }*/
+            TimeDetectiveScreen(navController)
+        }
         animatedComposable(
             route = "flashcards_alphabets",
             scale = animatorScale
