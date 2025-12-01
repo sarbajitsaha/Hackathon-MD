@@ -50,6 +50,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -78,7 +79,7 @@ fun MyDayScreen(navController: NavController) {
     val configuration = LocalConfiguration.current
     val items = remember { TimeLearningData.items }
     var index by remember { mutableIntStateOf(0) }
-    var selectedPeriod by remember { mutableIntStateOf(items.firstOrNull()?.period ?: TimePeriod.Morning) }
+    var selectedPeriod by remember { mutableStateOf(items.firstOrNull()?.period ?: TimePeriod.Morning) }
     val current = items.getOrNull(index)
 
     Box(modifier = Modifier.fillMaxSize()) {
