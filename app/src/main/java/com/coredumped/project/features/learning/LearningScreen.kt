@@ -67,7 +67,7 @@ fun LearningScreen(navController: NavController) {
         CategoryDataLearning("Numbers", R.drawable.numbers, Color.Magenta, "flashcards_numbers"),
         CategoryDataLearning("Days", R.drawable.days, Color.LightGray, "flashcards_days"),
         CategoryDataLearning("Shapes", R.drawable.basicshapes, Color.Black, "flashcards_shapes"),
-        CategoryDataLearning("Time", R.drawable.clock_icon, Color.Magenta, "time_learning_menu")
+        CategoryDataLearning("Time", R.drawable.clock_learning, Color.Magenta, "time_learning_menu")
     )
 
 
