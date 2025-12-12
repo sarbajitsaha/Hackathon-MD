@@ -46,6 +46,7 @@ import kotlinx.coroutines.isActive
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import com.coredumped.project.features.learning.time.components.LearningBackButton
 import kotlin.math.min as mathMin
 
 private const val TAG = "AnalogClockLearning"
@@ -318,41 +319,16 @@ fun AnalogClockLearningScreen(navController: NavController) {
             }
         }
 
-        // Custom Back Button
-        val configuration = LocalConfiguration.current
-        val screenWidth = configuration.screenWidthDp
-        val backButtonSize = mathMin(64f, screenWidth * 0.12f).dp
 
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .size(backButtonSize)
-                .shadow(4.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFFF9500),
-                            Color(0xFFFF2D55),
-                            Color(0xFF5856D6)
-                        )
-                    )
-                )
-                .clickable {
-                    // stopAlarm()
-                    // stopVideo()
-                    navController.popBackStack()
-                }
-                .align(Alignment.TopStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(mathMin(32f, screenWidth * 0.06f).dp)
-            )
-        }
+        // Custom Back Button
+        LearningBackButton(
+            onClick = {
+                // stopAlarm()
+                // stopVideo()
+                navController.popBackStack()
+            },
+            modifier = Modifier.align(Alignment.TopStart)
+        )
 
     // Animation Logic
     LaunchedEffect(isAnimating, currentTeachingIndex) {
@@ -392,45 +368,83 @@ fun AnalogClockLearningScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 32.dp),
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Landscape Layout (Row)
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Analog Clock
-            Box(
-                modifier = Modifier
-                    .heightIn(max = 300.dp)
-                    .fillMaxHeight(0.8f)
-                    .aspectRatio(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                ClockCanvas(hourRotation, minuteRotation)
-            }
+        val configuration = LocalConfiguration.current
+        val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-            // Digital time display and controls
-            if (isPaused) {
-                Spacer(modifier = Modifier.width(32.dp))
-                ControlsColumn(
-                    timeText = teachingMoments[currentTeachingIndex].formatTime(),
-                    onPlayAudio = { playAudio() },
-                    onNext = {
-                        if (currentTeachingIndex < teachingMoments.size - 1) {
-                            currentTeachingIndex++
-                            // Ensure we start from the current time, or slightly after if needed
-                            // But usually we just want to animate TO the next time.
-                            // If the next time is "tomorrow" (smaller value), we handle wrap around in loop
-                            isPaused = false
-                            isAnimating = true
-                        } else {
-                            navController.popBackStack()
+        if (isLandscape) {
+            // Landscape Layout (Row)
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Analog Clock
+                Box(
+                    modifier = Modifier
+                        .heightIn(max = 300.dp)
+                        .fillMaxHeight(0.9f)
+                        .aspectRatio(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ClockCanvas(hourRotation, minuteRotation)
+                }
+
+                // Digital time display and controls
+                if (isPaused) {
+                    Spacer(modifier = Modifier.width(32.dp))
+                    ControlsColumn(
+                        timeText = teachingMoments[currentTeachingIndex].formatTime(),
+                        onPlayAudio = { playAudio() },
+                        onNext = {
+                            if (currentTeachingIndex < teachingMoments.size - 1) {
+                                currentTeachingIndex++
+                                isPaused = false
+                                isAnimating = true
+                            } else {
+                                navController.popBackStack()
+                            }
                         }
-                    }
-                )
+                    )
+                }
+            }
+        } else {
+             // Portrait Layout (Column)
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Analog Clock
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ClockCanvas(hourRotation, minuteRotation)
+                }
+
+                // Digital time display and controls
+                if (isPaused) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    ControlsColumn(
+                        timeText = teachingMoments[currentTeachingIndex].formatTime(),
+                        onPlayAudio = { playAudio() },
+                        onNext = {
+                            if (currentTeachingIndex < teachingMoments.size - 1) {
+                                currentTeachingIndex++
+                                isPaused = false
+                                isAnimating = true
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
             }
         }
     }

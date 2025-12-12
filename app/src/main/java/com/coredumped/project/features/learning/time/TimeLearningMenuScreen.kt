@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.coredumped.project.R
 import com.coredumped.project.features.learning.data.CategoryDataLearning
+import com.coredumped.project.features.learning.time.components.LearningBackButton
 import kotlin.math.min
 
 @Composable
@@ -99,29 +100,10 @@ fun TimeLearningMenuScreen(navController: NavController) {
             }
         }
 
-        val backButtonSize = min(64f, configuration.screenWidthDp * 0.12f).dp
-        Box(
-            modifier = Modifier
-                .padding(start = 16.dp, top = 16.dp)
-                .size(backButtonSize)
-                .shadow(4.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFFFF9500), Color(0xFFFF2D55), Color(0xFF5856D6))
-                    )
-                )
-                .clickable { navController.popBackStack() }
-                .align(Alignment.TopStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(min(32f, configuration.screenWidthDp * 0.06f).dp)
-            )
-        }
+        LearningBackButton(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier.align(Alignment.TopStart)
+        )
     }
 }
 

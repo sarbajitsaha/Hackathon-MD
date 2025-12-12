@@ -59,6 +59,7 @@ fun LearningScreen(navController: NavController) {
     // val screenHeight = configuration.screenHeightDp.dp // Not directly used for item sizing anymore
 
     val allCategories = listOf(
+        CategoryDataLearning("Time", R.drawable.clock_learning, Color.Magenta, "time_learning_menu"),
         CategoryDataLearning("Fruits", R.drawable.mango, Color.Blue, "flashcards_fruits"),
         CategoryDataLearning("Animals", R.drawable.tiger, Color.Green, "flashcards_animals"),
         CategoryDataLearning("Vehicles", R.drawable.bus, Color.Red, "flashcards_vehicles"),
@@ -66,8 +67,7 @@ fun LearningScreen(navController: NavController) {
         CategoryDataLearning("Alphabets", R.drawable.alpha, Color.Cyan, "flashcards_alphabets"),
         CategoryDataLearning("Numbers", R.drawable.numbers, Color.Magenta, "flashcards_numbers"),
         CategoryDataLearning("Days", R.drawable.days, Color.LightGray, "flashcards_days"),
-        CategoryDataLearning("Shapes", R.drawable.basicshapes, Color.Black, "flashcards_shapes"),
-        CategoryDataLearning("Time", R.drawable.clock_learning, Color.Magenta, "time_learning_menu")
+        CategoryDataLearning("Shapes", R.drawable.basicshapes, Color.Black, "flashcards_shapes")
     )
 
 

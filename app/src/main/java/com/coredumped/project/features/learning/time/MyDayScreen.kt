@@ -16,6 +16,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -73,6 +75,7 @@ import com.coredumped.project.R
 import com.coredumped.project.features.learning.time.data.DailyRoutineItem
 import com.coredumped.project.features.learning.time.data.TimeLearningData
 import com.coredumped.project.features.learning.time.data.TimePeriod
+import com.coredumped.project.features.learning.time.components.LearningBackButton
 
 @Composable
 fun MyDayScreen(navController: NavController) {
@@ -92,10 +95,16 @@ fun MyDayScreen(navController: NavController) {
         )
 
         // Main content
+        val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp, start = 20.dp, end = 20.dp, bottom = 20.dp),
+                .padding(
+                    top = if (isLandscape) 16.dp else 80.dp,
+                    start = if (isLandscape) 80.dp else 20.dp,
+                    end = 20.dp,
+                    bottom = 20.dp
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -139,29 +148,10 @@ fun MyDayScreen(navController: NavController) {
         }
 
         // Back button
-        val backButtonSize = (configuration.screenWidthDp * 0.12f).coerceAtMost(64f).dp
-        Box(
-            modifier = Modifier
-                .padding(start = 16.dp, top = 16.dp)
-                .size(backButtonSize)
-                .shadow(8.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFFFF9500), Color(0xFFFF2D55), Color(0xFF5856D6))
-                    )
-                )
-                .clickable { navController.popBackStack() }
-                .align(Alignment.TopStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size((configuration.screenWidthDp * 0.06f).coerceAtMost(32f).dp)
-            )
-        }
+        LearningBackButton(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier.align(Alignment.TopStart)
+        )
     }
 }
 
@@ -178,196 +168,344 @@ private fun MyDayCard(
         modifier = modifier,
         shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.7f))
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            // Activity Icon
-            Box(
+        val configuration = LocalConfiguration.current
+        val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+        if (isLandscape) {
+            // Landscape Layout: Row with two columns
+            Row(
                 modifier = Modifier
-                    .size(120.dp)
-                    .shadow(6.dp, CircleShape)
-                    .clip(CircleShape)
-                    .background(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                Color(0xFFF5F5F5),
-                                Color(0xFFE0E0E0)
-                            )
-                        )
-                    )
-                    .padding(20.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = item.activityImageRes),
-                    contentDescription = item.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit
-                )
+                // Left Column: Image, Name, Description
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // Activity Icon
+                    Box(
+                        modifier = Modifier
+                            .size(260.dp)
+                            .shadow(4.dp, RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White.copy(alpha = 0.5f))
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = item.activityImageRes),
+                            contentDescription = item.name,
+                            modifier = Modifier.fillMaxSize().padding(4.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = item.name,
+                        fontSize = 28.sp, // Slightly smaller
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF37474F),
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    item.voiceoverText?.let { text ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFFF5F5F5))
+                                .padding(12.dp)
+                        ) {
+                            Text(
+                                text = text,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = Color(0xFF546E7A),
+                                textAlign = TextAlign.Center,
+                                lineHeight = 24.sp,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                // Right Column: Selection and Buttons
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "When do you do this?",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF37474F),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Compact Grid for Periods
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TimePeriodChip(
+                                period = TimePeriod.Morning,
+                                icon = R.drawable.clock_icon,
+                                isSelected = selectedPeriod == TimePeriod.Morning,
+                                onClick = { onPeriodSelected(TimePeriod.Morning) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            TimePeriodChip(
+                                period = TimePeriod.Afternoon,
+                                icon = R.drawable.clock_icon,
+                                isSelected = selectedPeriod == TimePeriod.Afternoon,
+                                onClick = { onPeriodSelected(TimePeriod.Afternoon) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TimePeriodChip(
+                                period = TimePeriod.Evening,
+                                icon = R.drawable.clock_icon,
+                                isSelected = selectedPeriod == TimePeriod.Evening,
+                                onClick = { onPeriodSelected(TimePeriod.Evening) },
+                                modifier = Modifier.weight(1f)
+                            )
+                            TimePeriodChip(
+                                period = TimePeriod.Night,
+                                icon = R.drawable.clock_icon,
+                                isSelected = selectedPeriod == TimePeriod.Night,
+                                onClick = { onPeriodSelected(TimePeriod.Night) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(
+                            onClick = onPlayAudio,
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5)),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Icon(Icons.Default.PlayArrow, "Play", tint = Color.White, modifier = Modifier.size(24.dp))
+                        }
+
+                        Button(
+                            onClick = onNext,
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFB300)),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                             Text("Next", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                             Spacer(modifier = Modifier.width(4.dp))
+                             Icon(Icons.Default.NavigateNext, "Next", tint = Color.White, modifier = Modifier.size(24.dp))
+                        }
+                    }
+                }
             }
-
-            // Activity Name
-            Text(
-                text = item.name,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF37474F),
-                textAlign = TextAlign.Center
-            )
-
-            // Description
-            item.voiceoverText?.let { text ->
+        } else {
+            // Portrait Layout (Original)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                // Activity Icon
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF5F5F5))
-                        .padding(16.dp)
+                        .height(280.dp)
+                        .shadow(4.dp, RoundedCornerShape(24.dp))
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color.White.copy(alpha = 0.5f))
+                        .padding(8.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = text,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFF546E7A),
-                        textAlign = TextAlign.Center,
-                        lineHeight = 26.sp,
-                        modifier = Modifier.fillMaxWidth()
+                    Image(
+                        painter = painterResource(id = item.activityImageRes),
+                        contentDescription = item.name,
+                        modifier = Modifier.fillMaxSize().padding(8.dp),
+                        contentScale = ContentScale.Fit
                     )
                 }
-            }
 
-            // Time Periods Section
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+                // Activity Name
                 Text(
-                    text = "When do you do this?",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    text = item.name,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
                     color = Color(0xFF37474F),
-                    modifier = Modifier.padding(bottom = 4.dp)
+                    textAlign = TextAlign.Center
                 )
 
-                // Time Period Options
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TimePeriodChip(
-                        period = TimePeriod.Morning,
-                        icon = R.drawable.clock_icon,
-                        isSelected = selectedPeriod == TimePeriod.Morning,
-                        onClick = { onPeriodSelected(TimePeriod.Morning) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    TimePeriodChip(
-                        period = TimePeriod.Afternoon,
-                        icon = R.drawable.clock_icon,
-                        isSelected = selectedPeriod == TimePeriod.Afternoon,
-                        onClick = { onPeriodSelected(TimePeriod.Afternoon) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TimePeriodChip(
-                        period = TimePeriod.Evening,
-                        icon = R.drawable.clock_icon,
-                        isSelected = selectedPeriod == TimePeriod.Evening,
-                        onClick = { onPeriodSelected(TimePeriod.Evening) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    TimePeriodChip(
-                        period = TimePeriod.Night,
-                        icon = R.drawable.clock_icon,
-                        isSelected = selectedPeriod == TimePeriod.Night,
-                        onClick = { onPeriodSelected(TimePeriod.Night) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Action Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Button(
-                    onClick = onPlayAudio,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(64.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E88E5)
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 8.dp
-                    )
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                // Description
+                item.voiceoverText?.let { text ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFFF5F5F5))
+                            .padding(16.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Play",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Play Audio",
+                            text = text,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            fontWeight = FontWeight.Medium,
+                            color = Color(0xFF546E7A),
+                            textAlign = TextAlign.Center,
+                            lineHeight = 26.sp,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
 
-                Button(
-                    onClick = onNext,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(64.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFFFB300)
-                    ),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 8.dp
-                    )
+                // Time Periods Section
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Text(
+                        text = "When do you do this?",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF37474F),
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+
+                    // Time Period Options
                     Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Next",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                        TimePeriodChip(
+                            period = TimePeriod.Morning,
+                            icon = R.drawable.clock_icon,
+                            isSelected = selectedPeriod == TimePeriod.Morning,
+                            onClick = { onPeriodSelected(TimePeriod.Morning) },
+                            modifier = Modifier.weight(1f)
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            imageVector = Icons.Default.NavigateNext,
-                            contentDescription = "Next",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
+                        TimePeriodChip(
+                            period = TimePeriod.Afternoon,
+                            icon = R.drawable.clock_icon,
+                            isSelected = selectedPeriod == TimePeriod.Afternoon,
+                            onClick = { onPeriodSelected(TimePeriod.Afternoon) },
+                            modifier = Modifier.weight(1f)
                         )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        TimePeriodChip(
+                            period = TimePeriod.Evening,
+                            icon = R.drawable.clock_icon,
+                            isSelected = selectedPeriod == TimePeriod.Evening,
+                            onClick = { onPeriodSelected(TimePeriod.Evening) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        TimePeriodChip(
+                            period = TimePeriod.Night,
+                            icon = R.drawable.clock_icon,
+                            isSelected = selectedPeriod == TimePeriod.Night,
+                            onClick = { onPeriodSelected(TimePeriod.Night) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+                // Removed Spacer(modifier = Modifier.weight(1f)) to allow scrolling
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Action Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Button(
+                        onClick = onPlayAudio,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(64.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF1E88E5)
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 8.dp
+                        )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Play",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Play Audio",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = onNext,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(64.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFFB300)
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 8.dp
+                        )
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Next",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                imageVector = Icons.Default.NavigateNext,
+                                contentDescription = "Next",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -408,7 +546,7 @@ private fun TimePeriodChip(
 
     Card(
         modifier = modifier
-            .height(72.dp)
+            .height(90.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = bgColor),
@@ -430,13 +568,13 @@ private fun TimePeriodChip(
             Image(
                 painter = painterResource(id = icon),
                 contentDescription = null,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(40.dp),
                 contentScale = ContentScale.Fit
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = label,
-                fontSize = 14.sp,
+                fontSize = 16.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 color = if (isSelected) Color(0xFF37474F) else Color(0xFF78909C),
                 textAlign = TextAlign.Center

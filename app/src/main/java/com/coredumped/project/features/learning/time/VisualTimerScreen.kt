@@ -50,8 +50,19 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 import kotlin.random.Random
-import android.widget.VideoView
-import android.widget.MediaController
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
+import com.coredumped.project.features.learning.time.components.ConfettiParticle
+import com.coredumped.project.features.learning.time.components.LearningBackButton
 
 @Composable
 fun VisualTimerScreen(navController: NavController) {
@@ -59,17 +70,20 @@ fun VisualTimerScreen(navController: NavController) {
     val context = LocalContext.current
 
     // --- Timer State ---
-    var selectedMinutes by remember { mutableStateOf(5) }
-    var totalSeconds by remember { mutableStateOf(selectedMinutes * 60) }
-    var remainingSeconds by remember { mutableStateOf(totalSeconds) }
+    // --- Timer State ---
+    var selectedMinutes by remember { mutableIntStateOf(5) }
+    var totalSeconds by remember { mutableLongStateOf(selectedMinutes * 60L) }
+    var remainingSeconds by remember { mutableLongStateOf(totalSeconds) }
     var isRunning by remember { mutableStateOf(false) }
+    // For accurate timing:
+    var endTime by remember { mutableLongStateOf(0L) }
 
     // --- Alarm State ---
     var alarmRingtone by remember { mutableStateOf<Ringtone?>(null) }
 
     // --- Video State ---
     var showVideo by remember { mutableStateOf(false) }
-    var videoView by remember { mutableStateOf<VideoView?>(null) }
+    var exoPlayer by remember { mutableStateOf<ExoPlayer?>(null) }
 
     // --- Animations ---
 
@@ -97,56 +111,69 @@ fun VisualTimerScreen(navController: NavController) {
     var showConfetti by remember { mutableStateOf(false) }
     val confettiParticles = remember { List(100) { ConfettiParticle() } }
 
-    // Function to setup and play video
-    fun setupVideo(videoView: VideoView) {
-        try {
-            val videoUri = Uri.parse("android.resource://${context.packageName}/${R.raw.rabbit_eating_carrot}")
-            videoView.setVideoURI(videoUri)
+    // Initialize ExoPlayer
+    DisposableEffect(context) {
+        val player = ExoPlayer.Builder(context).build()
+        exoPlayer = player
+        
+        // Prepare the media item (Rabbit eating carrot)
+        val videoUri = Uri.parse("android.resource://${context.packageName}/${R.raw.rabbit_eating_carrot}")
+        val mediaItem = MediaItem.fromUri(videoUri)
+        player.setMediaItem(mediaItem)
+        player.repeatMode = Player.REPEAT_MODE_ONE // Loop indefinitely
+        player.prepare()
 
-            videoView.setOnPreparedListener { mediaPlayer ->
-                mediaPlayer.isLooping = true // Loop the video
-                videoView.start()
-                Log.d("TimerVideo", "Video started playing in loop")
-            }
+        onDispose {
+            player.release()
+        }
+    }
 
-            videoView.setOnErrorListener { _, what, extra ->
-                Log.e("TimerVideo", "Video error: what=$what, extra=$extra")
-                false
-            }
-
-        } catch (e: Exception) {
-            Log.e("TimerVideo", "Error setting up video: ${e.message}", e)
+    // Function to play video
+    fun playVideo() {
+        exoPlayer?.let { player ->
+            player.seekTo(0)
+            player.play()
         }
     }
 
     // Function to stop video
     fun stopVideo() {
-        try {
-            videoView?.let { vv ->
-                if (vv.isPlaying) {
-                    vv.stopPlayback()
-                    Log.d("TimerVideo", "Video stopped")
+        exoPlayer?.let { player ->
+            player.pause()
+        }
+        showVideo = false
+    }
+
+    // --- Timer Logic (Accurate) ---
+    LaunchedEffect(isRunning) {
+        if (isRunning) {
+            // Calculate when the timer should end based on current remaining time
+            endTime = System.currentTimeMillis() + (remainingSeconds * 1000L)
+            
+            while (isRunning && remainingSeconds > 0) {
+                val now = System.currentTimeMillis()
+                val millisLeft = endTime - now
+                if (millisLeft <= 0) {
+                    remainingSeconds = 0
+                } else {
+                    // Round up to nearest second for display
+                    remainingSeconds = (millisLeft + 999) / 1000
                 }
+                delay(100) // Update frequently to catch end time accurately
             }
-            showVideo = false
-        } catch (e: Exception) {
-            Log.e("TimerVideo", "Error stopping video: ${e.message}", e)
         }
     }
 
-    // Timer Logic with Alarm and Video
-    LaunchedEffect(key1 = isRunning, key2 = remainingSeconds) {
-        if (isRunning && remainingSeconds > 0) {
-            delay(1000L)
-            remainingSeconds--
-        } else if (remainingSeconds == 0 && isRunning) {
+    // Effect to handle completion
+    LaunchedEffect(remainingSeconds, isRunning) {
+        if (remainingSeconds <= 0L && isRunning) {
             isRunning = false
             showConfetti = true
-            showVideo = true // Show video when timer finishes
-
-            // Play Alarm Sound for 3 seconds
+            showVideo = true
+            playVideo() // Start ExoPlayer
+            
+             // Play Alarm
             try {
-                // Get the default notification/alarm tone
                 val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
                     ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
                     ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
@@ -156,19 +183,11 @@ fun VisualTimerScreen(navController: NavController) {
 
                 if (ringtone != null) {
                     ringtone.play()
-                    Log.d("TimerAlarm", "Alarm started playing")
-
-                    // Stop the alarm after 3 seconds
                     delay(3000)
-                    if (ringtone.isPlaying) {
-                        ringtone.stop()
-                        Log.d("TimerAlarm", "Alarm stopped after 3 seconds")
-                    }
-                } else {
-                    Log.e("TimerAlarm", "Could not get ringtone")
+                    if (ringtone.isPlaying) ringtone.stop()
                 }
             } catch (e: Exception) {
-                Log.e("TimerAlarm", "Error playing alarm: ${e.message}", e)
+                Log.e("TimerAlarm", "Error: ${e.message}")
             }
         }
     }
@@ -307,28 +326,27 @@ fun VisualTimerScreen(navController: NavController) {
                         }
                     }
 
-                    // Video Player (overlaid in the center when timer finishes)
-                    if (showVideo) {
-                        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                            val boxSize = maxWidth
-                            val videoSize = (boxSize * 0.8f) // Make video slightly smaller than the circle
 
+                    // Video Player (overlaid in the center when timer finishes)
+                    if (showVideo && exoPlayer != null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .align(Alignment.Center)
+                                .clip(CircleShape)
+                                .background(Color.Black),
+                            contentAlignment = Alignment.Center
+                        ) {
                             AndroidView(
-                                factory = { context ->
-                                    VideoView(context).apply {
-                                        videoView = this
-                                        setupVideo(this)
+                                factory = { ctx ->
+                                    PlayerView(ctx).apply {
+                                        player = exoPlayer
+                                        useController = false
+                                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
                                     }
                                 },
                                 modifier = Modifier
-                                    .size(videoSize)
-                                    .align(Alignment.Center)
-                                    .clip(CircleShape), // Clip to circle shape
-                                update = { vv ->
-                                    if (showVideo && !vv.isPlaying) {
-                                        setupVideo(vv)
-                                    }
-                                }
+                                    .fillMaxSize()
                             )
                         }
                     }
@@ -393,7 +411,7 @@ fun VisualTimerScreen(navController: NavController) {
                     )
 
                     // Show "Great Job" only when finished
-                    if (remainingSeconds == 0 && totalSeconds > 0) {
+                    if (remainingSeconds == 0L && totalSeconds > 0L) {
                         Text(
                             text = "Great Job!",
                             fontSize = 32.sp,
@@ -404,7 +422,7 @@ fun VisualTimerScreen(navController: NavController) {
                 }
 
                 // 2. Controls Logic - Dynamic Switching
-                if (remainingSeconds == 0 && totalSeconds > 0) {
+                if (remainingSeconds == 0L && totalSeconds > 0L) {
                     // --- FINISHED STATE ---
                     Button(
                         onClick = {
@@ -443,7 +461,7 @@ fun VisualTimerScreen(navController: NavController) {
                                     onClick = {
                                         if (selectedMinutes > 1) {
                                             selectedMinutes--
-                                            totalSeconds = selectedMinutes * 60
+                                            totalSeconds = selectedMinutes * 60L
                                             remainingSeconds = totalSeconds
                                         }
                                     },
@@ -466,7 +484,7 @@ fun VisualTimerScreen(navController: NavController) {
                                     onClick = {
                                         if (selectedMinutes < 60) {
                                             selectedMinutes++
-                                            totalSeconds = selectedMinutes * 60
+                                            totalSeconds = selectedMinutes * 60L
                                             remainingSeconds = totalSeconds
                                         }
                                     },
@@ -488,7 +506,7 @@ fun VisualTimerScreen(navController: NavController) {
                                     Button(
                                         onClick = {
                                             selectedMinutes = minutes
-                                            totalSeconds = minutes * 60
+                                            totalSeconds = minutes * 60L
                                             remainingSeconds = totalSeconds
                                         },
                                         modifier = Modifier.size(48.dp),
@@ -571,66 +589,15 @@ fun VisualTimerScreen(navController: NavController) {
         }
 
         // Back Button
-        val screenWidth = configuration.screenWidthDp
-        val backButtonSize = mathMin(64f, screenWidth * 0.12f).dp
-
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .size(backButtonSize)
-                .shadow(4.dp, CircleShape)
-                .clip(CircleShape)
-                .background(
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            Color(0xFFFF9500),
-                            Color(0xFFFF2D55),
-                            Color(0xFF5856D6)
-                        )
-                    )
-                )
-                .clickable {
-                    stopAlarm() // Stop alarm when navigating back
-                    stopVideo() // Stop video when navigating back
-                    navController.popBackStack()
-                }
-                .align(Alignment.TopStart),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.White,
-                modifier = Modifier.size(mathMin(32f, screenWidth * 0.06f).dp)
-            )
-        }
+        LearningBackButton(
+            onClick = {
+                stopAlarm()
+                stopVideo()
+                navController.popBackStack()
+            },
+            modifier = Modifier.align(Alignment.TopStart)
+        )
     }
 }
 
-class ConfettiParticle {
-    var x by mutableFloatStateOf(0f)
-    var y by mutableFloatStateOf(0f)
-    var velocityY by mutableFloatStateOf(0f)
-    var velocityX by mutableFloatStateOf(0f)
-    var color by mutableStateOf(Color.Red)
-    var size by mutableFloatStateOf(0f)
 
-    init { reset() }
-
-    fun reset() {
-        x = Random.nextFloat() * 2000f
-        y = Random.nextFloat() * -500f
-        velocityY = Random.nextFloat() * 10f + 5f
-        velocityX = Random.nextFloat() * 4f - 2f
-        size = Random.nextFloat() * 15f + 10f
-
-        val colors = listOf(Color(0xFFE91E63), Color(0xFF9C27B0), Color(0xFF2196F3), Color(0xFF4CAF50), Color(0xFFFFEB3B), Color(0xFFFF9800))
-        color = colors[Random.nextInt(colors.size)]
-    }
-
-    fun update() {
-        y += velocityY
-        x += velocityX
-        velocityY += 0.5f
-    }
-}
