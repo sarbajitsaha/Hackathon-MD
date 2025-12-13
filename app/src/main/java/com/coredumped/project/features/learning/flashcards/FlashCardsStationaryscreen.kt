@@ -66,16 +66,16 @@ val stationaryBackgroundColors = listOf(
 data class StationaryFlashCardItem(
     val nameKey: String,
     @DrawableRes val imageResId: Int,
-    @RawRes val audioResId: Int // Resource ID from res/raw
+    val audioAssetPath: String // Path in assets/media
 )
 
 val stationaryFlashCards = listOf(
-    StationaryFlashCardItem("pencil", R.drawable.pencil, R.raw.pencil_en_us_1),
-    StationaryFlashCardItem("eraser", R.drawable.eraser, R.raw.eraser_en_us_1),
-    StationaryFlashCardItem("sharpener", R.drawable.sharpener, R.raw.sharpener_en_us_1),
-    StationaryFlashCardItem("notebook", R.drawable.notebook, R.raw.notebook_en_us_1),
-    StationaryFlashCardItem("scale", R.drawable.scale, R.raw.scale_en_us_1),
-    StationaryFlashCardItem("scissors", R.drawable.scissors, R.raw.scissors_en_us_1)
+    StationaryFlashCardItem("pencil", R.drawable.pencil, "pencil_en_us_1.mp3"),
+    StationaryFlashCardItem("eraser", R.drawable.eraser, "eraser_en_us_1.mp3"),
+    StationaryFlashCardItem("sharpener", R.drawable.sharpener, "sharpener_en_us_1.mp3"),
+    StationaryFlashCardItem("notebook", R.drawable.notebook, "notebook_en_us_1.mp3"),
+    StationaryFlashCardItem("scale", R.drawable.scale, "scale_en_us_1.mp3"),
+    StationaryFlashCardItem("scissors", R.drawable.scissors, "scissors_en_us_1.mp3")
 )
 
 @Composable
@@ -154,17 +154,17 @@ fun FlashCardsStationaryScreen(navController: NavController) {
     }
 
     // Function to prepare and play audio
-    fun playAudio(audioResId: Int) {
+    fun playAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) {
                 player.stop() // Stop current playback before starting new
             }
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -179,7 +179,7 @@ fun FlashCardsStationaryScreen(navController: NavController) {
                     // Only play if player is not already playing (e.g. from a natural end)
                     // and our loop intends to play it now.
                     if (exoPlayer?.isPlaying == false) {
-                        playAudio(currentCard.audioResId)
+                        playAudio(currentCard.audioAssetPath)
                     } else if (exoPlayer?.isPlaying == true) {
                         Log.d(MEDIA_PLAYER_TAG, "Audio already playing, loop will wait for next cycle or completion.")
                     }

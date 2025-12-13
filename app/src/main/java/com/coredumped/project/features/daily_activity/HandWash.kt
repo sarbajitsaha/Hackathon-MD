@@ -33,7 +33,7 @@ import com.coredumped.project.common.components.VideoPlayerComponent // ** UPDAT
 private const val TAG = "HandWashVideoScreen"
 
 // Resource ID for your specific video
-private val VIDEO_RESOURCE_ID = R.raw.hand_wash_video
+private const val VIDEO_ASSET_PATH = "hand_wash_video.mp4"
 
 
 @Composable
@@ -54,7 +54,7 @@ fun HandWashScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.Center),
-            videoResourceId = VIDEO_RESOURCE_ID,
+            videoAssetPath = VIDEO_ASSET_PATH,
             onPlayerReady = { player ->
                 if (!hasVideoStarted) {
                     Log.d(TAG, "HandWashScreen: ExoPlayer is ready. Starting playback.")

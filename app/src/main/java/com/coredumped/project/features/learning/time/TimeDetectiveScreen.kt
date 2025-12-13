@@ -210,7 +210,12 @@ fun TimeDetectiveScreen(navController: NavController) {
                                             verticalArrangement = Arrangement.Center
                                         ) {
                                             Image(
-                                                painter = painterResource(id = current.timeIconRes),
+                                                painter = painterResource(id = when (period) {
+                                                    TimePeriod.Morning -> R.drawable.morning
+                                                    TimePeriod.Afternoon -> R.drawable.afternoon
+                                                    TimePeriod.Evening -> R.drawable.evening
+                                                    TimePeriod.Night -> R.drawable.night
+                                                }),
                                                 contentDescription = period.name,
                                                 modifier = Modifier.size(40.dp) // Smaller icon for landscape grid
                                             )
@@ -335,7 +340,12 @@ fun TimeDetectiveScreen(navController: NavController) {
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Image(
-                                            painter = painterResource(id = current.timeIconRes),
+                                            painter = painterResource(id = when (period) {
+                                                TimePeriod.Morning -> R.drawable.morning
+                                                TimePeriod.Afternoon -> R.drawable.afternoon
+                                                TimePeriod.Evening -> R.drawable.evening
+                                                TimePeriod.Night -> R.drawable.night
+                                            }),
                                             contentDescription = period.name,
                                             modifier = Modifier.size(56.dp)
                                         )

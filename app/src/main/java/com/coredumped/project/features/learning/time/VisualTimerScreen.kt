@@ -117,7 +117,7 @@ fun VisualTimerScreen(navController: NavController) {
         exoPlayer = player
         
         // Prepare the media item (Rabbit eating carrot)
-        val videoUri = Uri.parse("android.resource://${context.packageName}/${R.raw.rabbit_eating_carrot}")
+        val videoUri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri("rabbit_eating_carrot.mp4")
         val mediaItem = MediaItem.fromUri(videoUri)
         player.setMediaItem(mediaItem)
         player.repeatMode = Player.REPEAT_MODE_ONE // Loop indefinitely

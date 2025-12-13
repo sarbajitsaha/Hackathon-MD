@@ -97,7 +97,7 @@ fun AppNavigation() {
     // This effect now ignores the "splash" screen
     LaunchedEffect(currentRoute) {
         if (currentRoute in screensWithMusic) {
-            BackgroundMusic.start(context, R.raw.background_music)
+            BackgroundMusic.start(context, "background_music.mp3")
             BackgroundMusic.resume()
         } else {
             BackgroundMusic.pause()
@@ -393,7 +393,7 @@ fun WelcomeScreen(navController: NavController, prefs: SharedPreferences) {
     DisposableEffect(Unit) {
         val welcomePlayer: MediaPlayer?
         if (!BackgroundMusic.isMuted(context)) {
-            welcomePlayer = MediaPlayer.create(context, R.raw.welcome)
+            welcomePlayer = com.coredumped.project.common.utils.AssetMediaHelper.createMediaPlayer(context, "welcome.mp3")
             welcomePlayer?.start()
         } else {
             welcomePlayer = null

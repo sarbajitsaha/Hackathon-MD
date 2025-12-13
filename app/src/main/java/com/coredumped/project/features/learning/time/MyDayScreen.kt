@@ -192,18 +192,17 @@ private fun MyDayCard(
                     // Activity Icon
                     Box(
                         modifier = Modifier
-                            .size(260.dp)
-                            .shadow(4.dp, RoundedCornerShape(4.dp))
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.White.copy(alpha = 0.5f))
-                            .padding(4.dp),
+                            .size(200.dp)
+                            .shadow(4.dp, RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
                             painter = painterResource(id = item.activityImageRes),
                             contentDescription = item.name,
-                            modifier = Modifier.fillMaxSize().padding(4.dp),
-                            contentScale = ContentScale.Fit
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                     }
 
@@ -259,14 +258,14 @@ private fun MyDayCard(
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TimePeriodChip(
                                 period = TimePeriod.Morning,
-                                icon = R.drawable.clock_icon,
+                                icon = R.drawable.morning,
                                 isSelected = selectedPeriod == TimePeriod.Morning,
                                 onClick = { onPeriodSelected(TimePeriod.Morning) },
                                 modifier = Modifier.weight(1f)
                             )
                             TimePeriodChip(
                                 period = TimePeriod.Afternoon,
-                                icon = R.drawable.clock_icon,
+                                icon = R.drawable.afternoon,
                                 isSelected = selectedPeriod == TimePeriod.Afternoon,
                                 onClick = { onPeriodSelected(TimePeriod.Afternoon) },
                                 modifier = Modifier.weight(1f)
@@ -275,14 +274,14 @@ private fun MyDayCard(
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             TimePeriodChip(
                                 period = TimePeriod.Evening,
-                                icon = R.drawable.clock_icon,
+                                icon = R.drawable.evening,
                                 isSelected = selectedPeriod == TimePeriod.Evening,
                                 onClick = { onPeriodSelected(TimePeriod.Evening) },
                                 modifier = Modifier.weight(1f)
                             )
                             TimePeriodChip(
                                 period = TimePeriod.Night,
-                                icon = R.drawable.clock_icon,
+                                icon = R.drawable.night,
                                 isSelected = selectedPeriod == TimePeriod.Night,
                                 onClick = { onPeriodSelected(TimePeriod.Night) },
                                 modifier = Modifier.weight(1f)
@@ -398,14 +397,14 @@ private fun MyDayCard(
                     ) {
                         TimePeriodChip(
                             period = TimePeriod.Morning,
-                            icon = R.drawable.clock_icon,
+                            icon = R.drawable.morning,
                             isSelected = selectedPeriod == TimePeriod.Morning,
                             onClick = { onPeriodSelected(TimePeriod.Morning) },
                             modifier = Modifier.weight(1f)
                         )
                         TimePeriodChip(
                             period = TimePeriod.Afternoon,
-                            icon = R.drawable.clock_icon,
+                            icon = R.drawable.afternoon,
                             isSelected = selectedPeriod == TimePeriod.Afternoon,
                             onClick = { onPeriodSelected(TimePeriod.Afternoon) },
                             modifier = Modifier.weight(1f)
@@ -417,14 +416,14 @@ private fun MyDayCard(
                     ) {
                         TimePeriodChip(
                             period = TimePeriod.Evening,
-                            icon = R.drawable.clock_icon,
+                            icon = R.drawable.evening,
                             isSelected = selectedPeriod == TimePeriod.Evening,
                             onClick = { onPeriodSelected(TimePeriod.Evening) },
                             modifier = Modifier.weight(1f)
                         )
                         TimePeriodChip(
                             period = TimePeriod.Night,
-                            icon = R.drawable.clock_icon,
+                            icon = R.drawable.night,
                             isSelected = selectedPeriod == TimePeriod.Night,
                             onClick = { onPeriodSelected(TimePeriod.Night) },
                             modifier = Modifier.weight(1f)

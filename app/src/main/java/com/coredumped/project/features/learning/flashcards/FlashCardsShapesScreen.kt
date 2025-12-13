@@ -64,15 +64,15 @@ val flashcardShapesBackgroundColors = listOf(
 data class ShapeFlashCardItem(
     val nameKey: String, // Key for string resource (e.g., "a")
     @DrawableRes val imageResId: Int,
-    @RawRes val audioResId: Int // Resource ID from res/raw
+    val audioAssetPath: String // Path in assets/media
 )
 
 // Sample data - update with your actual raw audio files
 val shapeFlashCards = listOf(
-    ShapeFlashCardItem("circle", R.drawable.circle, R.raw.circle), // e.g., res/raw/a.mp3
-    ShapeFlashCardItem("square", R.drawable.square, R.raw.square),
-    ShapeFlashCardItem("rectangle", R.drawable.rectangle, R.raw.rectangle),
-    ShapeFlashCardItem("triangle", R.drawable.triangle, R.raw.triangle)
+    ShapeFlashCardItem("circle", R.drawable.circle, "circle.wav"),
+    ShapeFlashCardItem("square", R.drawable.square, "square.wav"),
+    ShapeFlashCardItem("rectangle", R.drawable.rectangle, "rectangle.wav"),
+    ShapeFlashCardItem("triangle", R.drawable.triangle, "triangle.wav")
 )
 
 @Composable
@@ -152,17 +152,17 @@ fun FlashCardsShapesScreen(navController: NavController) {
     }
 
     // Function to prepare and play audio
-    fun playAudio(audioResId: Int) {
+    fun playAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) {
                 player.stop() // Stop current playback before starting new
             }
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -177,7 +177,7 @@ fun FlashCardsShapesScreen(navController: NavController) {
                     // Only play if player is not already playing (e.g. from a natural end)
                     // and our loop intends to play it now.
                     if (exoPlayer?.isPlaying == false) {
-                        playAudio(currentCard.audioResId)
+                        playAudio(currentCard.audioAssetPath)
                     } else if (exoPlayer?.isPlaying == true) {
                         Log.d(MEDIA_PLAYER_TAG, "Audio already playing, loop will wait for next cycle or completion.")
                     }

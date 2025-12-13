@@ -85,7 +85,7 @@ fun PopBubbleScreen(navController: NavController) {
     val minBubbleRadius = minDimension * 0.08f
     val maxBubbleRadius = minDimension * 0.12f
 
-    val popSound = remember { MediaPlayer.create(context, R.raw.bubble_pop) }
+    val popSound = remember { com.coredumped.project.common.utils.AssetMediaHelper.createMediaPlayer(context, "bubble_pop.mp3")!! }
     val bubbles = remember { mutableStateListOf<Bubble>() }
     val particles = remember { mutableStateListOf<BubbleParticle>() }
     val coroutineScope = rememberCoroutineScope()

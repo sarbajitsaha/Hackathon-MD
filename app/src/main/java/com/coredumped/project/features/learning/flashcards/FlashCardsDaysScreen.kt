@@ -78,19 +78,19 @@ val dayNameTextColors = listOf(
 
 data class DayFlashCardItem(
     val nameKey: String, // e.g., "sunday"
-    @RawRes val audioResId: Int
+    val audioAssetPath: String
     // No imageResId needed anymore
 )
 
 // Define the days of the week
 val daysFlashCards = listOf(
-    DayFlashCardItem("sunday", R.raw.sunday_en_us_1),
-    DayFlashCardItem("monday", R.raw.monday_en_us_1),
-    DayFlashCardItem("tuesday", R.raw.tuesday_en_in_1),
-    DayFlashCardItem("wednesday", R.raw.wednesday_en_in_1),
-    DayFlashCardItem("thursday", R.raw.thursday_en_in_1),
-    DayFlashCardItem("friday", R.raw.friday_en_in_1),
-    DayFlashCardItem("saturday", R.raw.saturday_en_in_1)
+    DayFlashCardItem("sunday", "sunday_en_us_1.mp3"),
+    DayFlashCardItem("monday", "monday_en_us_1.mp3"),
+    DayFlashCardItem("tuesday", "tuesday_en_in_1.mp3"),
+    DayFlashCardItem("wednesday", "wednesday_en_in_1.mp3"),
+    DayFlashCardItem("thursday", "thursday_en_in_1.mp3"),
+    DayFlashCardItem("friday", "friday_en_in_1.mp3"),
+    DayFlashCardItem("saturday", "saturday_en_in_1.mp3")
 )
 
 @Composable
@@ -149,15 +149,15 @@ fun FlashCardsDaysScreen(navController: NavController) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    fun playDayAudio(audioResId: Int) {
+    fun playDayAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) player.stop()
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_DAYS_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_DAYS_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -168,7 +168,7 @@ fun FlashCardsDaysScreen(navController: NavController) {
             audioLoopJob = launch {
                 while (true) {
                     if (exoPlayer?.isPlaying == false) {
-                        playDayAudio(currentCard.audioResId)
+                        playDayAudio(currentCard.audioAssetPath)
                     }
                     val currentAudioDuration = if (exoPlayer?.isPlaying == true) exoPlayer?.duration?.coerceAtLeast(0L) ?: 0L else 0L
                     delay(AUDIO_LOOP_DELAY_MS_DAYS + currentAudioDuration + 500L)

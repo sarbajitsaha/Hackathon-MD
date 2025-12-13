@@ -75,22 +75,22 @@ val numberNameTextColors = listOf(
 data class NumberFlashCardItem(
     val numberValue: Int, // The actual number, e.g., 1, 2, 3
     val displayText: String, // Text to display, e.g., "1", "2"
-    @RawRes val audioResId: Int,
+    val audioAssetPath: String,
     val stringResourceKey: String // e.g., "number_one" for R.string.flashcards_number_one
 )
 
 // Define the numbers (e.g., 1 to 10)
 val numbersFlashCards = listOf(
-    NumberFlashCardItem(1, "1", R.raw.one, "number_one"),
-    NumberFlashCardItem(2, "2", R.raw.two, "number_two"),
-    NumberFlashCardItem(3, "3", R.raw.three, "number_three"),
-    NumberFlashCardItem(4, "4", R.raw.four, "number_four"),
-    NumberFlashCardItem(5, "5", R.raw.five, "number_five"),
-    NumberFlashCardItem(6, "6", R.raw.six, "number_six"),
-    NumberFlashCardItem(7, "7", R.raw.seven, "number_seven"),
-    NumberFlashCardItem(8, "8", R.raw.eight, "number_eight"),
-    NumberFlashCardItem(9, "9", R.raw.nine, "number_nine"),
-    NumberFlashCardItem(10, "10", R.raw.ten, "number_ten")
+    NumberFlashCardItem(1, "1", "one.wav", "number_one"),
+    NumberFlashCardItem(2, "2", "two.wav", "number_two"),
+    NumberFlashCardItem(3, "3", "three.wav", "number_three"),
+    NumberFlashCardItem(4, "4", "four.wav", "number_four"),
+    NumberFlashCardItem(5, "5", "five.wav", "number_five"),
+    NumberFlashCardItem(6, "6", "six.wav", "number_six"),
+    NumberFlashCardItem(7, "7", "seven.wav", "number_seven"),
+    NumberFlashCardItem(8, "8", "eight.wav", "number_eight"),
+    NumberFlashCardItem(9, "9", "nine.wav", "number_nine"),
+    NumberFlashCardItem(10, "10", "ten.wav", "number_ten")
     // Add more numbers as needed, up to 20 or more.
     // Ensure you have corresponding audio and string resources.
 )
@@ -149,15 +149,15 @@ fun FlashCardsNumbersScreen(navController: NavController) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    fun playNumberAudio(audioResId: Int) {
+    fun playNumberAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) player.stop()
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_NUMBERS_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_NUMBERS_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -168,7 +168,7 @@ fun FlashCardsNumbersScreen(navController: NavController) {
             audioLoopJob = launch {
                 while (true) {
                     if (exoPlayer?.isPlaying == false) {
-                        playNumberAudio(currentCard.audioResId)
+                        playNumberAudio(currentCard.audioAssetPath)
                     }
                     val currentAudioDuration = if (exoPlayer?.isPlaying == true) exoPlayer?.duration?.coerceAtLeast(0L) ?: 0L else 0L
                     delay(AUDIO_LOOP_DELAY_MS_NUMBERS + currentAudioDuration + 500L)

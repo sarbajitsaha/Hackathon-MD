@@ -68,17 +68,17 @@ val animalBackgroundColors = listOf(
 data class AnimalFlashCardItem(
     val nameKey: String, // Key for string resource (e.g., "apple")
     @DrawableRes val imageResId: Int,
-    @RawRes val audioResId: Int // Resource ID from res/raw
+    val audioAssetPath: String // Path in assets/media
 )
 
 // TODO: Replace with your actual animal drawables
 val animalFlashCards = listOf(
-    AnimalFlashCardItem("lion", R.drawable.lion, R.raw.lion_en_us_1),
-    AnimalFlashCardItem("tiger", R.drawable.tiger, R.raw.tiger_en_us_1),
-    AnimalFlashCardItem("elephant", R.drawable.elephant, R.raw.elephant_en_us_1),
-    AnimalFlashCardItem("dog", R.drawable.dog, R.raw.dog_en_us_1),
-    AnimalFlashCardItem("cat", R.drawable.cat, R.raw.cat00001),
-    AnimalFlashCardItem("parrot", R.drawable.parrot, R.raw.parrot_en_us_2)
+    AnimalFlashCardItem("lion", R.drawable.lion, "lion_en_us_1.mp3"),
+    AnimalFlashCardItem("tiger", R.drawable.tiger, "tiger_en_us_1.mp3"),
+    AnimalFlashCardItem("elephant", R.drawable.elephant, "elephant_en_us_1.mp3"),
+    AnimalFlashCardItem("dog", R.drawable.dog, "dog_en_us_1.mp3"),
+    AnimalFlashCardItem("cat", R.drawable.cat, "cat00001.mp3"),
+    AnimalFlashCardItem("parrot", R.drawable.parrot, "parrot_en_us_2.mp3")
 )
 
 @Composable
@@ -156,17 +156,17 @@ fun FlashCardsAnimalsScreen(navController: NavController) {
     }
 
     // Function to prepare and play audio
-    fun playAudio(audioResId: Int) {
+    fun playAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) {
                 player.stop() // Stop current playback before starting new
             }
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -181,7 +181,7 @@ fun FlashCardsAnimalsScreen(navController: NavController) {
                     // Only play if player is not already playing (e.g. from a natural end)
                     // and our loop intends to play it now.
                     if (exoPlayer?.isPlaying == false) {
-                        playAudio(currentCard.audioResId)
+                        playAudio(currentCard.audioAssetPath)
                     } else if (exoPlayer?.isPlaying == true) {
                         Log.d(MEDIA_PLAYER_TAG, "Audio already playing, loop will wait for next cycle or completion.")
                     }

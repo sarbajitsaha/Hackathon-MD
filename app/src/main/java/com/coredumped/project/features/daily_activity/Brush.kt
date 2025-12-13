@@ -31,7 +31,7 @@ import com.coredumped.project.common.components.VideoPlayerComponent
 
 private const val TAG = "BrushVideoScreen"
 
-private val VIDEO_RESOURCE_ID = R.raw.brush_video
+private const val VIDEO_ASSET_PATH = "brush_video.mp4"
 
 
 @Composable
@@ -52,7 +52,7 @@ fun BrushScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.Center),
-            videoResourceId = VIDEO_RESOURCE_ID,
+            videoAssetPath = VIDEO_ASSET_PATH,
             onPlayerReady = { player ->
                 if (!hasVideoStarted) {
                     Log.d(TAG, "BrushScreen: ExoPlayer is ready. Starting playback.")

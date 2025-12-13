@@ -27,7 +27,7 @@ private const val TAG = "VideoPlayerComponent"
 @Composable
 fun VideoPlayerComponent(
     modifier: Modifier = Modifier,
-    videoResourceId: Int,
+    videoAssetPath: String,
     onPlayerReady: (ExoPlayer) -> Unit = {},
     onRelease: () -> Unit = {},
     autoPlay: Boolean = true
@@ -37,8 +37,8 @@ fun VideoPlayerComponent(
     // Remember the ExoPlayer instance to persist across recompositions
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
-            val uri = "android.resource://${context.packageName}/$videoResourceId"
-            Log.d(TAG, "Loading video from URI: $uri (resource ID: $videoResourceId)")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(videoAssetPath)
+            Log.d(TAG, "Loading video from URI: $uri (path: $videoAssetPath)")
             val mediaItem = MediaItem.fromUri(uri)
             setMediaItem(mediaItem)
             prepare()
@@ -65,7 +65,7 @@ fun VideoPlayerComponent(
     // Release resources when the composable leaves the composition
     DisposableEffect(Unit) {
         onDispose {
-            Log.d(TAG, "Releasing player for resource ID: $videoResourceId")
+            Log.d(TAG, "Releasing player for path: $videoAssetPath")
             exoPlayer.release()
             onRelease()
         }

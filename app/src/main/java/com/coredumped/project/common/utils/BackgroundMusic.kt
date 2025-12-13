@@ -54,10 +54,10 @@ object BackgroundMusic {
      * @param context The application context.
      * @param musicResId The raw resource ID of the music file.
      */
-    fun start(context: Context, @RawRes musicResId: Int) {
+    fun start(context: Context, musicAssetPath: String) {
         isMuted(context) // Load initial mute state
         if (player == null) {
-            player = MediaPlayer.create(context, musicResId).apply {
+            player = com.coredumped.project.common.utils.AssetMediaHelper.createMediaPlayer(context, musicAssetPath)?.apply {
                 isLooping = true
             }
             player?.setOnErrorListener { _, _, _ ->
@@ -70,6 +70,7 @@ object BackgroundMusic {
                 isPlayerInitialized = true
                 performFadeIn() // Start with a fade-in once prepared
             }
+            // If createMediaPlayer returned null, isPlayerInitialized remains false
         } else {
             // If already initialized but not playing, resume with a fade-in
             resume()

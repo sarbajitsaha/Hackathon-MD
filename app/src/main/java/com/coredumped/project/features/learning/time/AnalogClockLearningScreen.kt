@@ -220,7 +220,7 @@ fun AnalogClockLearningScreen(navController: NavController) {
                 player.stop()
             }
             // Using placeholder audio from raw resources
-            val uri = Uri.parse("android.resource://${context.packageName}/${R.raw.correct}")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri("correct.mp3")
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()

@@ -63,17 +63,17 @@ val flashcardFruitsBackgroundColors = listOf(
 data class FruitFlashCardItem(
     val nameKey: String, // Key for string resource (e.g., "apple")
     @DrawableRes val imageResId: Int,
-    @RawRes val audioResId: Int // Resource ID from res/raw
+    val audioAssetPath: String // Path in assets/media
 )
 
 // Sample data - update with your actual raw audio files
 val fruitFlashCards = listOf(
-    FruitFlashCardItem("apple", R.drawable.apple, R.raw.apple_en_us_2), // e.g., res/raw/apple_sound.mp3
-    FruitFlashCardItem("banana", R.drawable.banana, R.raw.banana_en_us_2),
-    FruitFlashCardItem("mango", R.drawable.mango, R.raw.mango_en_us_2),
-    FruitFlashCardItem("orange", R.drawable.orange, R.raw.orange_en_us_2),
-    FruitFlashCardItem("potato", R.drawable.potato, R.raw.potato_en_us_1),
-    FruitFlashCardItem("carrot", R.drawable.carrot, R.raw.carrot_en_us_2)
+    FruitFlashCardItem("apple", R.drawable.apple, "apple_en_us_2.mp3"),
+    FruitFlashCardItem("banana", R.drawable.banana, "banana_en_us_2.mp3"),
+    FruitFlashCardItem("mango", R.drawable.mango, "mango_en_us_2.mp3"),
+    FruitFlashCardItem("orange", R.drawable.orange, "orange_en_us_2.mp3"),
+    FruitFlashCardItem("potato", R.drawable.potato, "potato_en_us_1.mp3"),
+    FruitFlashCardItem("carrot", R.drawable.carrot, "carrot_en_us_2.mp3")
 )
 
 @Composable
@@ -152,17 +152,17 @@ fun FlashCardsFruitsScreen(navController: NavController) {
     }
 
     // Function to prepare and play audio
-    fun playAudio(audioResId: Int) {
+    fun playAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) {
                 player.stop() // Stop current playback before starting new
             }
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -177,7 +177,7 @@ fun FlashCardsFruitsScreen(navController: NavController) {
                     // Only play if player is not already playing (e.g. from a natural end)
                     // and our loop intends to play it now.
                     if (exoPlayer?.isPlaying == false) {
-                        playAudio(currentCard.audioResId)
+                        playAudio(currentCard.audioAssetPath)
                     } else if (exoPlayer?.isPlaying == true) {
                         Log.d(MEDIA_PLAYER_TAG, "Audio already playing, loop will wait for next cycle or completion.")
                     }

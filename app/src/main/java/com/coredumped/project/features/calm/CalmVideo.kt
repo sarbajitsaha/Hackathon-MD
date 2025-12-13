@@ -127,16 +127,21 @@ fun CalmVideoScreen(navController: NavController) {
 
         // Full-screen video player overlay
         if (currentVideo != null) {
-            val videoName = context.resources.getResourceEntryName(currentVideo!!.thumbnailResId)
-            val rawVideoId = context.resources.getIdentifier(videoName, "raw", context.packageName)
+            // Map thumbnail resource name to asset file name
+            val videoAssetPath = when (currentVideo!!.key) {
+                "video_ocean" -> "calm_waves.mp4"
+                "video_waterfall" -> "calm_waterfall.mp4"
+                "video_forest" -> "calm_forest.mp4"
+                else -> null
+            }
 
-            if (rawVideoId != 0) {
+            if (videoAssetPath != null) {
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black)) {
                     VideoPlayerComponent(
                         modifier = Modifier.fillMaxSize(),
-                        videoResourceId = rawVideoId,
+                        videoAssetPath = videoAssetPath,
                         autoPlay = true,
                         onPlayerReady = { player ->
                             player.playWhenReady = true // Ensure playback starts
@@ -168,7 +173,7 @@ fun CalmVideoScreen(navController: NavController) {
             } else {
                 // Handle error case where video file is not found
                 LaunchedEffect(currentVideo) {
-                    Log.e(TAG, "Raw video resource for '${videoName}' not found.")
+                    Log.e(TAG, "Video asset for '${currentVideo!!.key}' not found.")
                     currentVideo = null // Go back to the grid
                 }
             }

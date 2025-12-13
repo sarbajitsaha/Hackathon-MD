@@ -164,9 +164,9 @@ class Maths0Game {
 
 private object SoundPlayer0 {
     private var mediaPlayer: MediaPlayer? = null
-    fun playSound(context: Context, @RawRes soundResourceId: Int) {
+    fun playSound(context: Context, soundAssetPath: String) {
         mediaPlayer?.release()
-        mediaPlayer = MediaPlayer.create(context, soundResourceId)?.apply {
+        mediaPlayer = com.coredumped.project.common.utils.AssetMediaHelper.createMediaPlayer(context, soundAssetPath)?.apply {
             setOnCompletionListener { mp ->
                 mp.release()
                 mediaPlayer = null
@@ -226,7 +226,7 @@ fun Maths0Screen(navController: NavController) {
         isAnswerSubmitted = true
 
         // Ensure you have R.raw.correct_sound and R.raw.wrong_sound in your res/raw folder
-        val soundToPlay = if (isCorrect) R.raw.correct else R.raw.wrong
+        val soundToPlay = if (isCorrect) "correct.mp3" else "wrong.mp3"
         SoundPlayer0.playSound(context, soundToPlay)
 
         Log.d(TAG, "User option '$userOption' submitted. Correct: $isCorrect. Score: $score.")

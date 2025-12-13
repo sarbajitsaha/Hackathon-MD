@@ -67,17 +67,17 @@ val vehicleBackgroundColors = listOf(
 data class VehicleFlashCardItem(
     val nameKey: String,
     @DrawableRes val imageResId: Int,
-    @RawRes val audioResId: Int // Resource ID from res/raw
+    val audioAssetPath: String // Path in assets/media
 )
 
 // TODO: Replace with your actual vehicle drawables
 val vehicleFlashCards = listOf(
-    VehicleFlashCardItem("car", R.drawable.car, R.raw.car00001),
-    VehicleFlashCardItem("bus", R.drawable.bus, R.raw.bus_en_us_1),
-    VehicleFlashCardItem("bicycle", R.drawable.cycle, R.raw.cycle_en_us_1),
-    VehicleFlashCardItem("bike", R.drawable.bike, R.raw.bike_en_us_1),
-    VehicleFlashCardItem("train", R.drawable.train, R.raw.train_en_us_1),
-    VehicleFlashCardItem("auto", R.drawable.auto, R.raw.auto_en_us_2)
+    VehicleFlashCardItem("car", R.drawable.car, "car00001.mp3"),
+    VehicleFlashCardItem("bus", R.drawable.bus, "bus_en_us_1.mp3"),
+    VehicleFlashCardItem("bicycle", R.drawable.cycle, "cycle_en_us_1.mp3"),
+    VehicleFlashCardItem("bike", R.drawable.bike, "bike_en_us_1.mp3"),
+    VehicleFlashCardItem("train", R.drawable.train, "train_en_us_1.mp3"),
+    VehicleFlashCardItem("auto", R.drawable.auto, "auto_en_us_2.mp3")
 )
 
 @Composable
@@ -156,17 +156,17 @@ fun FlashCardsVehiclesScreen(navController: NavController) {
     }
 
     // Function to prepare and play audio
-    fun playAudio(audioResId: Int) {
+    fun playAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) {
                 player.stop() // Stop current playback before starting new
             }
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -181,7 +181,7 @@ fun FlashCardsVehiclesScreen(navController: NavController) {
                     // Only play if player is not already playing (e.g. from a natural end)
                     // and our loop intends to play it now.
                     if (exoPlayer?.isPlaying == false) {
-                        playAudio(currentCard.audioResId)
+                        playAudio(currentCard.audioAssetPath)
                     } else if (exoPlayer?.isPlaying == true) {
                         Log.d(MEDIA_PLAYER_TAG, "Audio already playing, loop will wait for next cycle or completion.")
                     }

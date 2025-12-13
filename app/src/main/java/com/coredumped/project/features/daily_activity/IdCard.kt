@@ -33,7 +33,7 @@ import com.coredumped.project.common.components.VideoPlayerComponent // ** UPDAT
 private const val TAG = "IdCardVideoScreen"
 
 // Resource ID for your specific video
-private val VIDEO_RESOURCE_ID = R.raw.idcard_video
+private const val VIDEO_ASSET_PATH = "idcard_video.mp4"
 
 
 @Composable
@@ -54,7 +54,7 @@ fun IdCardScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .align(Alignment.Center),
-            videoResourceId = VIDEO_RESOURCE_ID,
+            videoAssetPath = VIDEO_ASSET_PATH,
             onPlayerReady = { player ->
                 if (!hasVideoStarted) {
                     Log.d(TAG, "IdCardScreen: ExoPlayer is ready. Starting playback.")

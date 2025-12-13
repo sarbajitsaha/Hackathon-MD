@@ -64,37 +64,37 @@ val flashcardAlphabetsBackgroundColors = listOf(
 data class AlphabetFlashCardItem(
     val nameKey: String, // Key for string resource (e.g., "a")
     @DrawableRes val imageResId: Int,
-    @RawRes val audioResId: Int // Resource ID from res/raw
+    val audioAssetPath: String // Path in assets/media
 )
 
 // Sample data - update with your actual raw audio files
 val alphabetFlashCards = listOf(
-    AlphabetFlashCardItem("a", R.drawable.a, R.raw.a), // e.g., res/raw/a.mp3
-    AlphabetFlashCardItem("b", R.drawable.b, R.raw.b),
-    AlphabetFlashCardItem("c", R.drawable.c, R.raw.c),
-    AlphabetFlashCardItem("d", R.drawable.d, R.raw.d),
-    AlphabetFlashCardItem("e", R.drawable.e, R.raw.e),
-    AlphabetFlashCardItem("f", R.drawable.f, R.raw.f),
-    AlphabetFlashCardItem("g", R.drawable.g, R.raw.g),
-    AlphabetFlashCardItem("h", R.drawable.h, R.raw.h),
-    AlphabetFlashCardItem("i", R.drawable.i, R.raw.i),
-    AlphabetFlashCardItem("j", R.drawable.j, R.raw.j),
-    AlphabetFlashCardItem("k", R.drawable.k, R.raw.k),
-    AlphabetFlashCardItem("l", R.drawable.l, R.raw.l),
-    AlphabetFlashCardItem("m", R.drawable.m, R.raw.m),
-    AlphabetFlashCardItem("n", R.drawable.n, R.raw.n),
-    AlphabetFlashCardItem("o", R.drawable.o, R.raw.o),
-    AlphabetFlashCardItem("p", R.drawable.p, R.raw.p),
-    AlphabetFlashCardItem("q", R.drawable.q, R.raw.q),
-    AlphabetFlashCardItem("r", R.drawable.r, R.raw.r),
-    AlphabetFlashCardItem("s", R.drawable.s, R.raw.s),
-    AlphabetFlashCardItem("t", R.drawable.t, R.raw.t),
-    AlphabetFlashCardItem("u", R.drawable.u, R.raw.u),
-    AlphabetFlashCardItem("v", R.drawable.v, R.raw.v),
-    AlphabetFlashCardItem("w", R.drawable.w, R.raw.w),
-    AlphabetFlashCardItem("x", R.drawable.x, R.raw.x),
-    AlphabetFlashCardItem("y", R.drawable.y, R.raw.y),
-    AlphabetFlashCardItem("z", R.drawable.z, R.raw.z)
+    AlphabetFlashCardItem("a", R.drawable.a, "a.mp3"),
+    AlphabetFlashCardItem("b", R.drawable.b, "b.mp3"),
+    AlphabetFlashCardItem("c", R.drawable.c, "c.mp3"),
+    AlphabetFlashCardItem("d", R.drawable.d, "d.mp3"),
+    AlphabetFlashCardItem("e", R.drawable.e, "e.mp3"),
+    AlphabetFlashCardItem("f", R.drawable.f, "f.mp3"),
+    AlphabetFlashCardItem("g", R.drawable.g, "g.mp3"),
+    AlphabetFlashCardItem("h", R.drawable.h, "h.mp3"),
+    AlphabetFlashCardItem("i", R.drawable.i, "i.mp3"),
+    AlphabetFlashCardItem("j", R.drawable.j, "j.mp3"),
+    AlphabetFlashCardItem("k", R.drawable.k, "k.mp3"),
+    AlphabetFlashCardItem("l", R.drawable.l, "l.mp3"),
+    AlphabetFlashCardItem("m", R.drawable.m, "m.mp3"),
+    AlphabetFlashCardItem("n", R.drawable.n, "n.mp3"),
+    AlphabetFlashCardItem("o", R.drawable.o, "o.mp3"),
+    AlphabetFlashCardItem("p", R.drawable.p, "p.mp3"),
+    AlphabetFlashCardItem("q", R.drawable.q, "q.mp3"),
+    AlphabetFlashCardItem("r", R.drawable.r, "r.mp3"),
+    AlphabetFlashCardItem("s", R.drawable.s, "s.mp3"),
+    AlphabetFlashCardItem("t", R.drawable.t, "t.mp3"),
+    AlphabetFlashCardItem("u", R.drawable.u, "u.mp3"),
+    AlphabetFlashCardItem("v", R.drawable.v, "v.mp3"),
+    AlphabetFlashCardItem("w", R.drawable.w, "w.mp3"),
+    AlphabetFlashCardItem("x", R.drawable.x, "x.mp3"),
+    AlphabetFlashCardItem("y", R.drawable.y, "y.mp3"),
+    AlphabetFlashCardItem("z", R.drawable.z, "z.mp3")
 )
 
 @Composable
@@ -174,17 +174,17 @@ fun FlashCardsAlphabetsScreen(navController: NavController) {
     }
 
     // Function to prepare and play audio
-    fun playAudio(audioResId: Int) {
+    fun playAudio(audioAssetPath: String) {
         exoPlayer?.let { player ->
             if (player.isPlaying) {
                 player.stop() // Stop current playback before starting new
             }
-            val uri = Uri.parse("android.resource://${context.packageName}/$audioResId")
+            val uri = com.coredumped.project.common.utils.AssetMediaHelper.getAssetUri(audioAssetPath)
             val mediaItem = MediaItem.fromUri(uri)
             player.setMediaItem(mediaItem)
             player.prepare()
             player.play()
-            Log.d(MEDIA_PLAYER_TAG, "Playing audio: resId $audioResId")
+            Log.d(MEDIA_PLAYER_TAG, "Playing audio: path $audioAssetPath")
         }
     }
 
@@ -199,7 +199,7 @@ fun FlashCardsAlphabetsScreen(navController: NavController) {
                     // Only play if player is not already playing (e.g. from a natural end)
                     // and our loop intends to play it now.
                     if (exoPlayer?.isPlaying == false) {
-                        playAudio(currentCard.audioResId)
+                        playAudio(currentCard.audioAssetPath)
                     } else if (exoPlayer?.isPlaying == true) {
                         Log.d(MEDIA_PLAYER_TAG, "Audio already playing, loop will wait for next cycle or completion.")
                     }

@@ -153,11 +153,11 @@ private object SoundPlayer {
 
     private var mediaPlayer: MediaPlayer? = null
 
-    fun playSound(context: Context, @RawRes soundResourceId: Int) {
+    fun playSound(context: Context, soundAssetPath: String) {
         mediaPlayer?.release()
         mediaPlayer = null
 
-        mediaPlayer = MediaPlayer.create(context, soundResourceId)
+        mediaPlayer = com.coredumped.project.common.utils.AssetMediaHelper.createMediaPlayer(context, soundAssetPath)
         mediaPlayer?.setOnCompletionListener {
             it.release()
             mediaPlayer = null
@@ -331,7 +331,7 @@ fun Maths1Screen(navController: NavController) {
                         onClick = {
                             // Determine sound based on if the equation presented IS correct,
                             // not if the user's choice "Correct" is the right answer to the problem
-                            val soundToPlay = if (problem.isEquationCorrect) R.raw.correct else R.raw.wrong
+                            val soundToPlay = if (problem.isEquationCorrect) "correct.mp3" else "wrong.mp3"
                             handleSubmitResponse("Correct")
                             SoundPlayer.playSound(context, soundToPlay)
                         },
@@ -351,7 +351,7 @@ fun Maths1Screen(navController: NavController) {
                         onClick = {
                             // Determine sound based on if the equation presented IS INCORRECT,
                             // not if the user's choice "Incorrect" is the right answer to the problem
-                            val soundToPlay = if (!problem.isEquationCorrect) R.raw.correct else R.raw.wrong
+                            val soundToPlay = if (!problem.isEquationCorrect) "correct.mp3" else "wrong.mp3"
                             handleSubmitResponse("Incorrect")
                             SoundPlayer.playSound(context, soundToPlay)
                         },
