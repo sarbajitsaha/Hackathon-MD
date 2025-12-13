@@ -139,7 +139,7 @@ fun MyDayScreen(navController: NavController) {
                         },
                         onNext = {
                             index = (index + 1) % items.size
-                            selectedPeriod = items[(index + 1) % items.size].period
+                            selectedPeriod = items[index].period
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
